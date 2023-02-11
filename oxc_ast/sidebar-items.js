@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["SourceType",""]],"type":[["Atom",""],["Span",""]]};
+window.SIDEBAR_ITEMS = {"mod":[["ast",""],["ast_builder","AST builder for creating AST nodes"],["context","ECMAScript Grammar Contexts: [In] [Yield] [Await]"],["node",""],["source_type",""]],"struct":[["BigUint","A big unsigned integer type."]],"type":[["Atom",""]]};

@@ -364,18 +364,18 @@
 
         <span class="self">self</span>.result = <span class="kw">if </span>flags.contains(<span class="kw-2">&amp;</span>TestFlag::OnlyStrict) {
             <span class="comment">// always_strict = true;
-            </span><span class="self">self</span>.execute(<span class="kw-2">&amp;</span>source_type)
+            </span><span class="self">self</span>.execute(source_type)
         } <span class="kw">else if </span>flags.contains(<span class="kw-2">&amp;</span>TestFlag::Module) {
             source_type.set_module();
-            <span class="self">self</span>.execute(<span class="kw-2">&amp;</span>source_type)
+            <span class="self">self</span>.execute(source_type)
         } <span class="kw">else if </span>flags.contains(<span class="kw-2">&amp;</span>TestFlag::NoStrict) || flags.contains(<span class="kw-2">&amp;</span>TestFlag::Raw) {
-            <span class="self">self</span>.execute(<span class="kw-2">&amp;</span>source_type)
+            <span class="self">self</span>.execute(source_type)
         } <span class="kw">else </span>{
             <span class="comment">// always_strict = true;
-            </span><span class="kw">let </span>res = <span class="self">self</span>.execute(<span class="kw-2">&amp;</span>source_type);
+            </span><span class="kw">let </span>res = <span class="self">self</span>.execute(source_type);
             <span class="kw">if </span><span class="macro">matches!</span>(res, TestResult::Passed) {
                 <span class="comment">// always_strict = false;
-                </span><span class="self">self</span>.execute(<span class="kw-2">&amp;</span>source_type)
+                </span><span class="self">self</span>.execute(source_type)
             } <span class="kw">else </span>{
                 res
             }

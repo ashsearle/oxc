@@ -532,7 +532,7 @@
     </span><span class="kw">fn </span>run(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
 
     <span class="doccomment">/// Execute the parser once and get the test result
-    </span><span class="kw">fn </span>execute(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _source_type: <span class="kw-2">&amp;</span>SourceType) -&gt; TestResult {
+    </span><span class="kw">fn </span>execute(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _source_type: SourceType) -&gt; TestResult {
         <span class="self">self</span>.parser_return_to_test_result(<span class="prelude-val">Err</span>(String::new()))
     }
 

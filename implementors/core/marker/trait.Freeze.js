@@ -1,3 +1,4 @@
 (function() {var implementors = {
+"oxc_coverage":[["impl&lt;T&gt; Freeze for <a class=\"struct\" href=\"oxc_coverage/struct.Test262Suite.html\" title=\"struct oxc_coverage::Test262Suite\">Test262Suite</a>&lt;T&gt;",1,["oxc_coverage::test262::Test262Suite"]],["impl Freeze for <a class=\"struct\" href=\"oxc_coverage/struct.Test262Case.html\" title=\"struct oxc_coverage::Test262Case\">Test262Case</a>",1,["oxc_coverage::test262::Test262Case"]],["impl Freeze for <a class=\"struct\" href=\"oxc_coverage/struct.AppArgs.html\" title=\"struct oxc_coverage::AppArgs\">AppArgs</a>",1,["oxc_coverage::AppArgs"]]],
 "oxc_parser":[["impl Freeze for <a class=\"struct\" href=\"oxc_parser/struct.Parser.html\" title=\"struct oxc_parser::Parser\">Parser</a>",1,["oxc_parser::Parser"]]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

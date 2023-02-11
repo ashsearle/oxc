@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["oxc_parser"];
+window.ALL_CRATES = ["oxc_coverage","oxc_parser"];

@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"oxc_coverage":[["impl&lt;T:&nbsp;Case&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"oxc_coverage/struct.Test262Suite.html\" title=\"struct oxc_coverage::Test262Suite\">Test262Suite</a>&lt;T&gt;"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"oxc_coverage/struct.AppArgs.html\" title=\"struct oxc_coverage::AppArgs\">AppArgs</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

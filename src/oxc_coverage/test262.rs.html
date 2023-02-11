@@ -189,11 +189,13 @@
 <a href="#189" id="189">189</a>
 <a href="#190" id="190">190</a>
 <a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     io,
     path::{Path, PathBuf},
 };
 
+<span class="kw">use </span>oxc_ast::SourceType;
 <span class="kw">use </span>serde::Deserialize;
 
 <span class="kw">use </span><span class="kw">crate</span>::project_root;
@@ -357,23 +359,23 @@
     </span><span class="kw">fn </span>run(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span>flags = <span class="kw-2">&amp;</span><span class="self">self</span>.meta.flags;
 
-        <span class="comment">// let mut always_strict = false;
-        // let mut module = false;
+        <span class="kw">let </span><span class="kw-2">mut </span>source_type = SourceType::default();
+        source_type.set_script();
 
-        </span><span class="self">self</span>.result = <span class="kw">if </span>flags.contains(<span class="kw-2">&amp;</span>TestFlag::OnlyStrict) {
+        <span class="self">self</span>.result = <span class="kw">if </span>flags.contains(<span class="kw-2">&amp;</span>TestFlag::OnlyStrict) {
             <span class="comment">// always_strict = true;
-            </span><span class="self">self</span>.execute()
+            </span><span class="self">self</span>.execute(<span class="kw-2">&amp;</span>source_type)
         } <span class="kw">else if </span>flags.contains(<span class="kw-2">&amp;</span>TestFlag::Module) {
-            <span class="comment">// module = true;
-            </span><span class="self">self</span>.execute()
+            source_type.set_module();
+            <span class="self">self</span>.execute(<span class="kw-2">&amp;</span>source_type)
         } <span class="kw">else if </span>flags.contains(<span class="kw-2">&amp;</span>TestFlag::NoStrict) || flags.contains(<span class="kw-2">&amp;</span>TestFlag::Raw) {
-            <span class="self">self</span>.execute()
+            <span class="self">self</span>.execute(<span class="kw-2">&amp;</span>source_type)
         } <span class="kw">else </span>{
             <span class="comment">// always_strict = true;
-            </span><span class="kw">let </span>res = <span class="self">self</span>.execute();
+            </span><span class="kw">let </span>res = <span class="self">self</span>.execute(<span class="kw-2">&amp;</span>source_type);
             <span class="kw">if </span><span class="macro">matches!</span>(res, TestResult::Passed) {
                 <span class="comment">// always_strict = false;
-                </span><span class="self">self</span>.execute()
+                </span><span class="self">self</span>.execute(<span class="kw-2">&amp;</span>source_type)
             } <span class="kw">else </span>{
                 res
             }

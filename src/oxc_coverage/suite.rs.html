@@ -291,6 +291,7 @@
 <a href="#291" id="291">291</a>
 <a href="#292" id="292">292</a>
 <a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     fs::{<span class="self">self</span>, File},
     io::{stdout, Read, Write},
@@ -302,6 +303,7 @@
 <span class="kw">use </span>console::Style;
 <span class="kw">use </span>encoding_rs::UTF_16LE;
 <span class="kw">use </span>encoding_rs_io::DecodeReaderBytesBuilder;
+<span class="kw">use </span>oxc_ast::SourceType;
 <span class="kw">use </span>rayon::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>similar::{ChangeTag, TextDiff};
 <span class="kw">use </span>walkdir::WalkDir;
@@ -530,7 +532,7 @@
     </span><span class="kw">fn </span>run(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
 
     <span class="doccomment">/// Execute the parser once and get the test result
-    </span><span class="kw">fn </span>execute(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; TestResult {
+    </span><span class="kw">fn </span>execute(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _source_type: <span class="kw-2">&amp;</span>SourceType) -&gt; TestResult {
         <span class="self">self</span>.parser_return_to_test_result(<span class="prelude-val">Err</span>(String::new()))
     }
 

@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"oxc_diagnostics":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/error/trait.Error.html\" title=\"trait core::error::Error\">Error</a> for <a class=\"enum\" href=\"oxc_diagnostics/enum.Diagnostic.html\" title=\"enum oxc_diagnostics::Diagnostic\">Diagnostic</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

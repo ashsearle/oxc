@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["oxc_allocator","oxc_coverage","oxc_parser"];
+window.ALL_CRATES = ["oxc_allocator","oxc_ast","oxc_coverage","oxc_diagnostics","oxc_parser"];

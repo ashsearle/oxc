@@ -292,6 +292,29 @@
 <a href="#292" id="292">292</a>
 <a href="#293" id="293">293</a>
 <a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     fs::{<span class="self">self</span>, File},
     io::{stdout, Read, Write},
@@ -303,7 +326,9 @@
 <span class="kw">use </span>console::Style;
 <span class="kw">use </span>encoding_rs::UTF_16LE;
 <span class="kw">use </span>encoding_rs_io::DecodeReaderBytesBuilder;
+<span class="kw">use </span>oxc_allocator::Allocator;
 <span class="kw">use </span>oxc_ast::SourceType;
+<span class="kw">use </span>oxc_parser::Parser;
 <span class="kw">use </span>rayon::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>similar::{ChangeTag, TextDiff};
 <span class="kw">use </span>walkdir::WalkDir;
@@ -320,9 +345,11 @@
     CorrectError(String),
 }
 
-<span class="kw">pub struct </span>CoverageReport&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="attr">#[allow(unused)]
+</span><span class="kw">pub struct </span>CoverageReport&lt;<span class="lifetime">&#39;a</span>, T&gt; {
     failed_positives: Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt;,
     failed_negatives: Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt;,
+    parsed_positives: usize,
     passed_positives: usize,
     passed_negatives: usize,
     all_positives: usize,
@@ -411,6 +438,7 @@
             tests.iter().partition(|case| case.should_fail());
 
         <span class="kw">let </span>all_positives = positives.len();
+        <span class="kw">let </span>not_parsed_positives = positives.iter().filter(|case| !case.test_parsed()).count();
 
         <span class="kw">let </span><span class="kw-2">mut </span>failed_positives =
             positives.into_iter().filter(|case| !case.test_passed()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
@@ -418,6 +446,7 @@
         failed_positives.sort_by_key(|case| case.path().to_string_lossy().to_string());
 
         <span class="kw">let </span>passed_positives = all_positives - failed_positives.len();
+        <span class="kw">let </span>parsed_positives = all_positives - not_parsed_positives;
 
         <span class="kw">let </span>all_negatives = negatives.len();
         <span class="kw">let </span><span class="kw-2">mut </span>failed_negatives =
@@ -429,6 +458,7 @@
         CoverageReport {
             failed_positives,
             failed_negatives,
+            parsed_positives,
             passed_positives,
             passed_negatives,
             all_positives,
@@ -446,20 +476,30 @@
         writer: <span class="kw-2">&amp;mut </span>W,
     ) -&gt; std::io::Result&lt;()&gt; {
         <span class="kw">let </span>CoverageReport {
-            passed_positives, passed_negatives, all_positives, all_negatives, ..
+            parsed_positives,
+
+            <span class="comment">// passed_positives,
+            // passed_negatives,
+            </span>all_positives,
+            <span class="comment">// all_negatives,
+            </span>..
         } = report;
 
-        <span class="kw">let </span>positive_diff = (<span class="kw-2">*</span>passed_positives <span class="kw">as </span>f64 / <span class="kw-2">*</span>all_positives <span class="kw">as </span>f64) * <span class="number">100.0</span>;
-        <span class="kw">let </span>negative_diff = (<span class="kw-2">*</span>passed_negatives <span class="kw">as </span>f64 / <span class="kw-2">*</span>all_negatives <span class="kw">as </span>f64) * <span class="number">100.0</span>;
-        writer.write_all(<span class="macro">format!</span>(<span class="string">&quot;{name} Summary:\n&quot;</span>).as_bytes())<span class="question-mark">?</span>;
+        <span class="kw">let </span>parsed_diff = (<span class="kw-2">*</span>parsed_positives <span class="kw">as </span>f64 / <span class="kw-2">*</span>all_positives <span class="kw">as </span>f64) * <span class="number">100.0</span>;
+        <span class="comment">// let positive_diff = (*passed_positives as f64 / *all_positives as f64) * 100.0;
+        // let negative_diff = (*passed_negatives as f64 / *all_negatives as f64) * 100.0;
+        </span>writer.write_all(<span class="macro">format!</span>(<span class="string">&quot;{name} Summary:\n&quot;</span>).as_bytes())<span class="question-mark">?</span>;
         <span class="kw">let </span>msg =
-            <span class="macro">format!</span>(<span class="string">&quot;Positive Passed: {passed_positives}/{all_positives} ({positive_diff:.2}%)\n&quot;</span>);
+            <span class="macro">format!</span>(<span class="string">&quot;AST Parsed     : {parsed_positives}/{all_positives} ({parsed_diff:.2}%)\n&quot;</span>);
         writer.write_all(msg.as_bytes())<span class="question-mark">?</span>;
-        <span class="kw">let </span>msg =
-            <span class="macro">format!</span>(<span class="string">&quot;Negative Passed: {passed_negatives}/{all_negatives} ({negative_diff:.2}%)\n&quot;</span>);
-        writer.write_all(msg.as_bytes())<span class="question-mark">?</span>;
+        <span class="comment">// let msg =
+        // format!(&quot;Positive Passed: {passed_positives}/{all_positives} ({positive_diff:.2}%)\n&quot;);
+        // writer.write_all(msg.as_bytes())?;
+        // let msg =
+        // format!(&quot;Negative Passed: {passed_negatives}/{all_negatives} ({negative_diff:.2}%)\n&quot;);
+        // writer.write_all(msg.as_bytes())?;
 
-        <span class="kw">if </span>args.should_print_detail() {
+        </span><span class="kw">if </span>args.should_print_detail() {
             <span class="kw">for </span>case <span class="kw">in </span><span class="kw-2">&amp;</span>report.failed_negatives {
                 case.print(args, writer)<span class="question-mark">?</span>;
             }
@@ -532,8 +572,13 @@
     </span><span class="kw">fn </span>run(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
 
     <span class="doccomment">/// Execute the parser once and get the test result
-    </span><span class="kw">fn </span>execute(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _source_type: SourceType) -&gt; TestResult {
-        <span class="self">self</span>.parser_return_to_test_result(<span class="prelude-val">Err</span>(String::new()))
+    </span><span class="kw">fn </span>execute(<span class="kw-2">&amp;mut </span><span class="self">self</span>, source_type: SourceType) -&gt; TestResult {
+        <span class="kw">let </span>allocator = Allocator::default();
+        <span class="kw">let </span>source = <span class="self">self</span>.code();
+        <span class="kw">let </span>ret = Parser::new(<span class="kw-2">&amp;</span>allocator, source, source_type).parse();
+        <span class="kw">let </span>passed = ret.errors.is_empty() &amp;&amp; !ret.program.node.range().is_empty();
+        <span class="kw">let </span>result = <span class="kw">if </span>passed { <span class="prelude-val">Ok</span>(String::new()) } <span class="kw">else </span>{ <span class="prelude-val">Err</span>(String::new()) };
+        <span class="self">self</span>.parser_return_to_test_result(result)
     }
 
     <span class="kw">fn </span>parser_return_to_test_result(<span class="kw-2">&amp;</span><span class="self">self</span>, result: <span class="prelude-ty">Result</span>&lt;String, String&gt;) -&gt; TestResult {
@@ -550,6 +595,7 @@
     <span class="kw">fn </span>print&lt;W: Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, args: <span class="kw-2">&amp;</span>AppArgs, writer: <span class="kw-2">&amp;mut </span>W) -&gt; std::io::Result&lt;()&gt; {
         <span class="kw">match </span><span class="self">self</span>.test_result() {
             TestResult::ParseError(error) =&gt; {
+                writer.write_all(<span class="macro">format!</span>(<span class="string">&quot;Expect to Parse: {:?}\n&quot;</span>, <span class="self">self</span>.path()).as_bytes())<span class="question-mark">?</span>;
                 writer.write_all(error.as_bytes())<span class="question-mark">?</span>;
             }
             TestResult::Mismatch(ast_string, expected_ast_string) =&gt; {
@@ -558,10 +604,10 @@
                     <span class="macro">println!</span>(<span class="string">&quot;Mismatch: {:?}&quot;</span>, <span class="self">self</span>.path());
                 }
             }
-            TestResult::IncorrectlyPassed =&gt; {
-                writer.write_all(<span class="macro">format!</span>(<span class="string">&quot;Incorrect: {:?}\n&quot;</span>, <span class="self">self</span>.path()).as_bytes())<span class="question-mark">?</span>;
-            }
-            <span class="kw">_ </span>=&gt; {}
+            <span class="comment">// TestResult::IncorrectlyPassed =&gt; {
+            // writer.write_all(format!(&quot;Expect Syntax Error: {:?}\n&quot;, self.path()).as_bytes())?;
+            // }
+            </span><span class="kw">_ </span>=&gt; {}
         }
         <span class="prelude-val">Ok</span>(())
     }

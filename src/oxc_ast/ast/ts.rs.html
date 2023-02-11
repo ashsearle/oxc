@@ -869,21 +869,13 @@
 <a href="#869" id="869">869</a>
 <a href="#870" id="870">870</a>
 <a href="#871" id="871">871</a>
-<a href="#872" id="872">872</a>
-<a href="#873" id="873">873</a>
-<a href="#874" id="874">874</a>
-<a href="#875" id="875">875</a>
 </pre><pre class="rust"><code><span class="doccomment">//! [AST Spec](https://github.com/typescript-eslint/typescript-eslint/tree/main/packages/ast-spec)
 
 </span><span class="kw">use </span>oxc_allocator::{Box, Vec};
 <span class="kw">use </span>serde::Serialize;
 
-<span class="kw">use crate</span>::{
-    Atom, BigintLiteral, BindingIdentifier, BooleanLiteral, Expression, FormalParameters,
-    IdentifierName, JSDocNullableType, JSDocUnknownType, MethodDefinition, Node, NullLiteral,
-    NumberLiteral, PropertyDefinition, PropertyKey, RegExpLiteral, Statement, StringLiteral,
-    TemplateElement, TemplateLiteral, UnaryExpression,
-};
+<span class="attr">#[allow(clippy::wildcard_imports)]
+</span><span class="kw">use crate</span>::{ast::<span class="kw-2">*</span>, Atom, Node};
 
 <span class="attr">#[allow(clippy::trivially_copy_pass_by_ref)]
 #[must_use]

@@ -1427,7 +1427,7 @@
 <span class="kw">use </span>oxc_ast::{Atom, SourceType, Span};
 <span class="kw">use </span>oxc_diagnostics::{Diagnostic, Diagnostics};
 <span class="kw">use </span>string_builder::AutoCow;
-<span class="kw">use </span>token::{RegExp, Token, TokenValue};
+<span class="kw">pub use </span>token::{RegExp, Token, TokenValue};
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>LexerCheckpoint&lt;<span class="lifetime">&#39;a</span>&gt; {

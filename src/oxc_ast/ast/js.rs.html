@@ -1737,44 +1737,13 @@
 <a href="#1737" id="1737">1737</a>
 <a href="#1738" id="1738">1738</a>
 <a href="#1739" id="1739">1739</a>
-<a href="#1740" id="1740">1740</a>
-<a href="#1741" id="1741">1741</a>
-<a href="#1742" id="1742">1742</a>
-<a href="#1743" id="1743">1743</a>
-<a href="#1744" id="1744">1744</a>
-<a href="#1745" id="1745">1745</a>
-<a href="#1746" id="1746">1746</a>
-<a href="#1747" id="1747">1747</a>
-<a href="#1748" id="1748">1748</a>
-<a href="#1749" id="1749">1749</a>
-<a href="#1750" id="1750">1750</a>
-<a href="#1751" id="1751">1751</a>
-<a href="#1752" id="1752">1752</a>
-<a href="#1753" id="1753">1753</a>
-<a href="#1754" id="1754">1754</a>
-<a href="#1755" id="1755">1755</a>
-<a href="#1756" id="1756">1756</a>
-<a href="#1757" id="1757">1757</a>
-<a href="#1758" id="1758">1758</a>
-<a href="#1759" id="1759">1759</a>
-<a href="#1760" id="1760">1760</a>
-<a href="#1761" id="1761">1761</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::fmt::Display;
 
 <span class="kw">use </span>oxc_allocator::{Box, Vec};
 <span class="kw">use </span>serde::Serialize;
 
-<span class="kw">use super</span>::{
-    AssignmentOperator, BigintLiteral, BinaryOperator, BooleanLiteral, Decorator,
-    ImportOrExportKind, JSXElement, JSXFragment, LogicalOperator, NullLiteral, NumberLiteral,
-    RegExpLiteral, StringLiteral, TSAbstractMethodDefinition, TSAbstractPropertyDefinition,
-    TSAccessibility, TSAsExpression, TSClassImplements, TSEnumDeclaration, TSExportAssignment,
-    TSImportEqualsDeclaration, TSIndexSignature, TSInstantiationExpression, TSInterfaceDeclaration,
-    TSModuleDeclaration, TSNamespaceExportDeclaration, TSNonNullExpression, TSTypeAliasDeclaration,
-    TSTypeAnnotation, TSTypeAssertion, TSTypeParameterDeclaration, TSTypeParameterInstantiation,
-    UnaryOperator, UpdateOperator,
-};
-<span class="kw">use crate</span>::{Atom, Node, SourceType};
+<span class="attr">#[allow(clippy::wildcard_imports)]
+</span><span class="kw">use crate</span>::{ast::<span class="kw-2">*</span>, Atom, Node, SourceType};
 
 <span class="attr">#[derive(Debug, PartialEq, Hash)]
 </span><span class="kw">pub struct </span>Program&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -2673,8 +2642,7 @@
     </span><span class="kw">pub </span>kind: VariableDeclarationKind,
     <span class="kw">pub </span>id: BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>init: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;crate::is_false&quot;</span>)]
-    </span><span class="kw">pub </span>definite: bool,
+    <span class="kw">pub </span>definite: bool,
 }
 
 <span class="doccomment">/// Section 14.4 Empty Statement
@@ -2885,8 +2853,7 @@
     </span><span class="kw">pub </span>kind: BindingPatternKind&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>type_annotation: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;crate::is_false&quot;</span>)]
-    </span><span class="kw">pub </span>optional: bool,
+    <span class="kw">pub </span>optional: bool,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Hash)]
@@ -2966,8 +2933,7 @@
     <span class="kw">pub </span>params: FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>body: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, FunctionBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;crate::is_false&quot;</span>)]
-    </span><span class="kw">pub </span>declare: bool,
+    <span class="kw">pub </span>declare: bool,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
@@ -3023,8 +2989,7 @@
     </span><span class="kw">pub </span>pattern: BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>accessibility: <span class="prelude-ty">Option</span>&lt;TSAccessibility&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;crate::is_false&quot;</span>)]
-    </span><span class="kw">pub </span>readonly: bool,
+    <span class="kw">pub </span>readonly: bool,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>decorators: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
 }
@@ -3102,12 +3067,10 @@
     </span><span class="kw">pub </span>super_type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>implements: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Box&lt;<span class="lifetime">&#39;a</span>, TSClassImplements&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;crate::is_false&quot;</span>)]
-    </span><span class="kw">pub </span>r#abstract: bool,
+    <span class="kw">pub </span>r#abstract: bool,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>decorators: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;crate::is_false&quot;</span>)]
-    </span><span class="kw">pub </span>declare: bool,
+    <span class="kw">pub </span>declare: bool,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Class&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -3222,10 +3185,8 @@
     </span><span class="kw">pub </span>kind: MethodDefinitionKind,
     <span class="kw">pub </span>computed: bool,
     <span class="kw">pub </span>r#static: bool,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;crate::is_false&quot;</span>)]
-    </span><span class="kw">pub </span>r#override: bool,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;crate::is_false&quot;</span>)]
-    </span><span class="kw">pub </span>optional: bool,
+    <span class="kw">pub </span>r#override: bool,
+    <span class="kw">pub </span>optional: bool,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>accessibility: <span class="prelude-ty">Option</span>&lt;TSAccessibility&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
@@ -3242,16 +3203,11 @@
     <span class="kw">pub </span>value: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>computed: bool,
     <span class="kw">pub </span>r#static: bool,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;crate::is_false&quot;</span>)]
-    </span><span class="kw">pub </span>declare: bool,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;crate::is_false&quot;</span>)]
-    </span><span class="kw">pub </span>r#override: bool,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;crate::is_false&quot;</span>)]
-    </span><span class="kw">pub </span>optional: bool,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;crate::is_false&quot;</span>)]
-    </span><span class="kw">pub </span>definite: bool,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;crate::is_false&quot;</span>)]
-    </span><span class="kw">pub </span>readonly: bool,
+    <span class="kw">pub </span>declare: bool,
+    <span class="kw">pub </span>r#override: bool,
+    <span class="kw">pub </span>optional: bool,
+    <span class="kw">pub </span>definite: bool,
+    <span class="kw">pub </span>readonly: bool,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>type_annotation: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]

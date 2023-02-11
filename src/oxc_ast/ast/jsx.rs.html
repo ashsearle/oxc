@@ -246,12 +246,14 @@
 <a href="#246" id="246">246</a>
 <a href="#247" id="247">247</a>
 <a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
 </pre><pre class="rust"><code><span class="doccomment">//! [JSX](https://facebook.github.io/jsx)
 
 </span><span class="kw">use </span>oxc_allocator::{Box, Vec};
 <span class="kw">use </span>serde::Serialize;
 
-<span class="kw">use crate</span>::{Atom, Expression, Node, StringLiteral, TSTypeParameterInstantiation};
+<span class="attr">#[allow(clippy::wildcard_imports)]
+</span><span class="kw">use crate</span>::{ast::<span class="kw-2">*</span>, Atom, Node};
 
 <span class="comment">// 1.2 JSX Elements
 

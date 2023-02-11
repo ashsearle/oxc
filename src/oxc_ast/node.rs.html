@@ -372,6 +372,7 @@
 <a href="#372" id="372">372</a>
 <a href="#373" id="373">373</a>
 <a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     hash::{Hash, Hasher},
     ops::Range,
@@ -379,7 +380,8 @@
 
 <span class="kw">use </span>serde::Serialize;
 
-<span class="kw">use crate</span>::{context::Context, Argument, AssignmentTarget, AssignmentTargetPattern, BindingPattern, BindingPatternKind, ClassElement, Declaration, ExportDefaultDeclarationKind, Expression, ForStatementInit, ImportAttributeKey, JSXElementName, MemberExpression, ModuleExportName, ObjectPatternProperty, ObjectProperty, PropertyKey, PropertyValue, SimpleAssignmentTarget, Statement, TSModuleDeclarationName, TSSignature, TSType};
+<span class="attr">#[allow(clippy::wildcard_imports)]
+</span><span class="kw">use crate</span>::{ast::<span class="kw-2">*</span>, context::Context};
 
 <span class="kw">pub type </span>Span = Range&lt;usize&gt;;
 

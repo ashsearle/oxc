@@ -23,7 +23,7 @@
 
 </span><span class="kw">use </span>serde::Serialize;
 
-<span class="kw">use crate</span>::{Node, TSType};
+<span class="kw">use crate</span>::{ast::TSType, Node};
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]

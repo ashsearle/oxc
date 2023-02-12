@@ -64,9 +64,9 @@
             <span class="prelude-val">Ok</span>(response) =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>reader = response.into_reader();
 
-                std::fs::remove_file(<span class="kw-2">&amp;</span>file).unwrap();
+                <span class="kw">let </span>_drop = std::fs::remove_file(<span class="kw-2">&amp;</span>file);
                 <span class="kw">let </span><span class="kw-2">mut </span>writer = std::fs::File::create(<span class="kw-2">&amp;</span>file).map_err(err_to_string)<span class="question-mark">?</span>;
-                std::io::copy(<span class="kw-2">&amp;mut </span>reader, <span class="kw-2">&amp;mut </span>writer).unwrap();
+                <span class="kw">let </span>_drop = std::io::copy(<span class="kw-2">&amp;mut </span>reader, <span class="kw-2">&amp;mut </span>writer);
 
                 std::fs::read_to_string(<span class="kw-2">&amp;</span>file)
                     .map_err(err_to_string)

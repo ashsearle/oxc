@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["project_root","Panics"]],"struct":[["AppArgs",""],["Test262Case",""],["Test262Suite",""]],"trait":[["Suite","A Test Suite is responsible for reading code from a repository"]]};
+window.SIDEBAR_ITEMS = {"fn":[["project_root","Panics"]],"struct":[["AppArgs",""],["BabelCase",""],["BabelSuite",""],["Test262Case",""],["Test262Suite",""]],"trait":[["Suite","A Test Suite is responsible for reading code from a repository"]]};

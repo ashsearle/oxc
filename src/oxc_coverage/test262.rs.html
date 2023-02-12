@@ -190,6 +190,8 @@
 <a href="#190" id="190">190</a>
 <a href="#191" id="191">191</a>
 <a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     io,
     path::{Path, PathBuf},
@@ -200,6 +202,8 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::project_root;
 <span class="kw">use </span><span class="kw">crate</span>::suite::{Case, Suite, TestResult};
+
+<span class="kw">const </span>FIXTURES_PATH: <span class="kw-2">&amp;</span>str = <span class="string">&quot;tasks/coverage/test262/test&quot;</span>;
 
 <span class="attr">#[derive(Debug, Clone, Deserialize, Default)]
 </span><span class="kw">pub struct </span>MetaData {
@@ -270,7 +274,7 @@
 <span class="kw">impl</span>&lt;T: Case&gt; Test262Suite&lt;T&gt; {
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ test_root: project_root().join(<span class="string">&quot;tasks/coverage/test262/test/&quot;</span>), test_cases: <span class="macro">vec!</span>[] }
+        <span class="self">Self </span>{ test_root: project_root().join(FIXTURES_PATH), test_cases: <span class="macro">vec!</span>[] }
     }
 }
 

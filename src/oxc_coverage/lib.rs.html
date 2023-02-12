@@ -35,7 +35,10 @@
 <a href="#35" id="35">35</a>
 <a href="#36" id="36">36</a>
 <a href="#37" id="37">37</a>
-</pre><pre class="rust"><code><span class="kw">mod </span>suite;
+<a href="#38" id="38">38</a>
+<a href="#39" id="39">39</a>
+</pre><pre class="rust"><code><span class="kw">mod </span>babel;
+<span class="kw">mod </span>suite;
 <span class="kw">mod </span>test262;
 
 <span class="kw">use </span>std::{
@@ -43,6 +46,7 @@
     path::{Path, PathBuf},
 };
 
+<span class="kw">pub use </span><span class="kw">crate</span>::babel::{BabelCase, BabelSuite};
 <span class="kw">pub use </span><span class="kw">crate</span>::suite::Suite;
 <span class="kw">pub use </span><span class="kw">crate</span>::test262::{Test262Case, Test262Suite};
 

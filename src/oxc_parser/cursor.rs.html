@@ -497,18 +497,18 @@
     <span class="doccomment">/// Expect the next next token to be a `JsxChild`, i.e. `&lt;` or `{` or `JSXText`
     /// # Errors
     </span><span class="kw">pub fn </span>expect_jsx_child(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.lexer.context = LexerContext::JsxChild;
+        <span class="self">self</span>.lexer.set_context(LexerContext::JsxChild);
         <span class="self">self</span>.expect(kind)<span class="question-mark">?</span>;
-        <span class="self">self</span>.lexer.context = LexerContext::Regular;
+        <span class="self">self</span>.lexer.set_context(LexerContext::Regular);
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Expect the next next token to be a `JsxString` or any other token
     /// # Errors
     </span><span class="kw">pub fn </span>expect_jsx_attribute_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.lexer.context = LexerContext::JsxAttributeValue;
+        <span class="self">self</span>.lexer.set_context(LexerContext::JsxAttributeValue);
         <span class="self">self</span>.expect(kind)<span class="question-mark">?</span>;
-        <span class="self">self</span>.lexer.context = LexerContext::Regular;
+        <span class="self">self</span>.lexer.set_context(LexerContext::Regular);
         <span class="prelude-val">Ok</span>(())
     }
 

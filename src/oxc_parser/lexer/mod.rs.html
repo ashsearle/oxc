@@ -1402,6 +1402,10 @@
 <a href="#1402" id="1402">1402</a>
 <a href="#1403" id="1403">1403</a>
 <a href="#1404" id="1404">1404</a>
+<a href="#1405" id="1405">1405</a>
+<a href="#1406" id="1406">1406</a>
+<a href="#1407" id="1407">1407</a>
+<a href="#1408" id="1408">1408</a>
 </pre><pre class="rust"><code><span class="doccomment">//! An Ecma-262 Lexer / Tokenizer
 //! Prior Arts:
 //!     * [jsparagus](https://github.com/mozilla-spidermonkey/jsparagus/blob/master/crates/parser/src)
@@ -1432,9 +1436,9 @@
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>LexerCheckpoint&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Remaining chars to be tokenized
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) chars: Chars&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>chars: Chars&lt;<span class="lifetime">&#39;a</span>&gt;,
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) token: Token,
+    token: Token,
 
     errors_pos: usize,
 }
@@ -1449,19 +1453,19 @@
 }
 
 <span class="kw">pub struct </span>Lexer&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) allocator: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Allocator,
+    allocator: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Allocator,
 
     source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
 
     source_type: SourceType,
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) current: LexerCheckpoint&lt;<span class="lifetime">&#39;a</span>&gt;,
+    current: LexerCheckpoint&lt;<span class="lifetime">&#39;a</span>&gt;,
 
     errors: Diagnostics,
 
     lookahead: VecDeque&lt;LexerCheckpoint&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 
-    <span class="kw">pub </span>context: LexerContext,
+    context: LexerContext,
 }
 
 <span class="attr">#[allow(clippy::unused_self)]
@@ -1491,13 +1495,13 @@
         }
     }
 
-    <span class="attr">#[must_use]
+    <span class="doccomment">/// Remaining string from `Chars`
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>remaining(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
         <span class="self">self</span>.current.chars.as_str()
     }
 
     <span class="doccomment">/// Creates a checkpoint storing the current lexer state.
-    ///
     /// Use `rewind` to restore the lexer to the state stored in the checkpoint.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>checkpoint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LexerCheckpoint&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -1547,6 +1551,11 @@
         <span class="self">self</span>.current = checkpoint;
 
         <span class="kw-2">&amp;</span><span class="self">self</span>.lookahead[n - <span class="number">1</span>].token
+    }
+
+    <span class="doccomment">/// Set context
+    </span><span class="kw">pub fn </span>set_context(<span class="kw-2">&amp;mut </span><span class="self">self</span>, context: LexerContext) {
+        <span class="self">self</span>.context = context;
     }
 
     <span class="doccomment">/// Main entry point
@@ -1818,7 +1827,6 @@
                         <span class="self">self</span>.private_identifier(builder)
                     }
                 }
-                <span class="string">&#39;@&#39; </span>=&gt; Kind::At,
                 <span class="string">&#39;\\&#39; </span>=&gt; {
                     builder.force_allocation_without_current_ascii_char(<span class="self">self</span>);
                     <span class="self">self</span>.identifier_unicode_escape_sequence(<span class="kw-2">&amp;mut </span>builder, <span class="bool-val">true</span>);

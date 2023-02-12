@@ -576,7 +576,7 @@
         <span class="kw">let </span>allocator = Allocator::default();
         <span class="kw">let </span>source = <span class="self">self</span>.code();
         <span class="kw">let </span>ret = Parser::new(<span class="kw-2">&amp;</span>allocator, source, source_type).parse();
-        <span class="kw">let </span>passed = ret.errors.is_empty() &amp;&amp; !ret.program.node.range().is_empty();
+        <span class="kw">let </span>passed = ret.errors.is_empty();
         <span class="kw">let </span>result = <span class="kw">if </span>passed { <span class="prelude-val">Ok</span>(String::new()) } <span class="kw">else </span>{ <span class="prelude-val">Err</span>(String::new()) };
         <span class="self">self</span>.parser_return_to_test_result(result)
     }

@@ -300,7 +300,7 @@
     </span>}
 
     <span class="doccomment">/// Return error info at current token
-    /// Panics
+    /// # Panics
     ///   * The lexer did not push a diagnostic when `Kind::Undetermined` is returned
     </span><span class="kw">fn </span>unexpected&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
         <span class="comment">// The lexer should have reported a more meaningful diagnostic

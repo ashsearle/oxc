@@ -192,6 +192,15 @@
 <a href="#192" id="192">192</a>
 <a href="#193" id="193">193</a>
 <a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     io,
     path::{Path, PathBuf},
@@ -309,12 +318,21 @@
 }
 
 <span class="kw">impl </span>Test262Case {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub const fn </span>meta(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>MetaData {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.meta
+    }
+
     <span class="doccomment">/// # Errors
     /// # Panics
     </span><span class="kw">pub fn </span>read_metadata(code: <span class="kw-2">&amp;</span>str) -&gt; io::Result&lt;MetaData&gt; {
         <span class="kw">let </span>(start, end) = (code.find(<span class="string">&quot;/*---&quot;</span>).unwrap(), code.find(<span class="string">&quot;---*/&quot;</span>).unwrap());
         <span class="kw">let </span>yaml = <span class="kw-2">&amp;</span>code[start + <span class="number">5</span>..end].replace(<span class="string">&#39;\r&#39;</span>, <span class="string">&quot;\n&quot;</span>);
         serde_yaml::from_str(yaml).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))
+    }
+
+    <span class="kw">pub fn </span>set_result(<span class="kw-2">&amp;mut </span><span class="self">self</span>, result: TestResult) {
+        <span class="self">self</span>.result = result;
     }
 
     <span class="kw">fn </span>should_fail(meta: <span class="kw-2">&amp;</span>MetaData) -&gt; bool {

@@ -1430,6 +1430,20 @@
 <a href="#1430" id="1430">1430</a>
 <a href="#1431" id="1431">1431</a>
 <a href="#1432" id="1432">1432</a>
+<a href="#1433" id="1433">1433</a>
+<a href="#1434" id="1434">1434</a>
+<a href="#1435" id="1435">1435</a>
+<a href="#1436" id="1436">1436</a>
+<a href="#1437" id="1437">1437</a>
+<a href="#1438" id="1438">1438</a>
+<a href="#1439" id="1439">1439</a>
+<a href="#1440" id="1440">1440</a>
+<a href="#1441" id="1441">1441</a>
+<a href="#1442" id="1442">1442</a>
+<a href="#1443" id="1443">1443</a>
+<a href="#1444" id="1444">1444</a>
+<a href="#1445" id="1445">1445</a>
+<a href="#1446" id="1446">1446</a>
 </pre><pre class="rust"><code><span class="doccomment">//! An Ecma-262 Lexer / Tokenizer
 //! Prior Arts:
 //!     * [jsparagus](https://github.com/mozilla-spidermonkey/jsparagus/blob/master/crates/parser/src)
@@ -1455,7 +1469,7 @@
 <span class="kw">use </span>oxc_allocator::{Allocator, String};
 <span class="kw">use </span>oxc_ast::{Atom, SourceType, Span};
 <span class="kw">use </span>oxc_diagnostics::{Diagnostic, Diagnostics};
-<span class="kw">use </span>simd::SkipWhitespace;
+<span class="kw">use </span>simd::{SkipMultilineComment, SkipWhitespace};
 <span class="kw">use </span>string_builder::AutoCow;
 <span class="kw">pub use </span>token::{RegExp, Token, TokenValue};
 
@@ -1829,13 +1843,19 @@
                 kind
             }
             <span class="string">&#39;/&#39; </span>=&gt; {
-                <span class="kw">if </span><span class="self">self</span>.next_eq(<span class="string">&#39;/&#39;</span>) {
-                    <span class="self">self</span>.skip_single_line_comment()
-                } <span class="kw">else if </span><span class="self">self</span>.next_eq(<span class="string">&#39;*&#39;</span>) {
-                    <span class="self">self</span>.skip_multi_line_comment()
-                } <span class="kw">else </span>{
-                    <span class="comment">// regex is handled separately, see `next_regex`
-                    </span><span class="self">self</span>.read_slash()
+                <span class="kw">match </span><span class="self">self</span>.peek() {
+                    <span class="string">&#39;/&#39; </span>=&gt; {
+                        <span class="self">self</span>.current.chars.next();
+                        <span class="self">self</span>.skip_single_line_comment()
+                    }
+                    <span class="string">&#39;*&#39; </span>=&gt; {
+                        <span class="self">self</span>.current.chars.next();
+                        <span class="self">self</span>.skip_multi_line_comment()
+                    }
+                    <span class="kw">_ </span>=&gt; {
+                        <span class="comment">// regex is handled separately, see `next_regex`
+                        </span><span class="self">self</span>.read_slash()
+                    }
                 }
             }
             <span class="string">&#39;`&#39; </span>=&gt; <span class="self">self</span>.read_template_literal(Kind::TemplateHead, Kind::NoSubstitutionTemplate),
@@ -1922,16 +1942,24 @@
     <span class="doccomment">/// Section 12.4 Multi Line Comment
     </span><span class="attr">#[must_use]
     </span><span class="kw">fn </span>skip_multi_line_comment(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Kind {
-        <span class="kw">while let </span><span class="prelude-val">Some</span>(c) = <span class="self">self</span>.current.chars.next() {
-            <span class="kw">if </span>c == <span class="string">&#39;*&#39; </span>&amp;&amp; <span class="self">self</span>.next_eq(<span class="string">&#39;/&#39;</span>) {
-                <span class="kw">return </span>Kind::MultiLineComment;
-            }
-            <span class="kw">if </span>is_line_terminator(c) {
-                <span class="self">self</span>.current.token.is_on_new_line = <span class="bool-val">true</span>;
-            }
+        <span class="kw">let </span>remaining = <span class="self">self</span>.remaining().as_bytes();
+        <span class="kw">let </span>newline = <span class="self">self</span>.current.token.is_on_new_line;
+        <span class="kw">let </span>state = SkipMultilineComment::new(newline, remaining).simd(remaining);
+
+        <span class="comment">// SAFETY: offset is computed to the boundary
+        </span><span class="self">self</span>.current.chars =
+            <span class="kw">unsafe </span>{ std::str::from_utf8_unchecked(<span class="kw-2">&amp;</span>remaining[state.offset..]) }.chars();
+
+        <span class="kw">if </span>state.newline &amp;&amp; !newline {
+            <span class="self">self</span>.current.token.is_on_new_line = <span class="bool-val">true</span>;
         }
-        <span class="self">self</span>.error(Diagnostic::UnterminatedMultiLineComment(<span class="self">self</span>.unterminated_range()));
-        Kind::Eof
+
+        <span class="kw">if </span>!state.found {
+            <span class="self">self</span>.error(Diagnostic::UnterminatedMultiLineComment(<span class="self">self</span>.unterminated_range()));
+            <span class="kw">return </span>Kind::Eof;
+        }
+
+        Kind::MultiLineComment
     }
 
     <span class="doccomment">/// Section 12.6.1 Identifier Names

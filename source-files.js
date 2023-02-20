@@ -4,7 +4,7 @@ var sourcesIndex = JSON.parse('{\
 "oxc_benchmark":["",[],["lib.rs"]],\
 "oxc_coverage":["",[],["babel.rs","lib.rs","printer.rs","suite.rs","test262.rs","typescript.rs"]],\
 "oxc_diagnostics":["",[],["lib.rs"]],\
-"oxc_parser":["",[["js",[],["binding.rs","class.rs","declaration.rs","expression.rs","function.rs","grammar.rs","list.rs","mod.rs","module.rs","object.rs","operator.rs","statement.rs"]],["jsx",[],["mod.rs"]],["lexer",[],["constants.rs","kind.rs","mod.rs","number.rs","string_builder.rs","token.rs"]],["ts",[],["list.rs","mod.rs","statement.rs","types.rs"]]],["cursor.rs","lib.rs","list.rs","state.rs"]],\
+"oxc_parser":["",[["js",[],["binding.rs","class.rs","declaration.rs","expression.rs","function.rs","grammar.rs","list.rs","mod.rs","module.rs","object.rs","operator.rs","statement.rs"]],["jsx",[],["mod.rs"]],["lexer",[],["constants.rs","kind.rs","mod.rs","number.rs","simd.rs","string_builder.rs","token.rs"]],["ts",[],["list.rs","mod.rs","statement.rs","types.rs"]]],["cursor.rs","lib.rs","list.rs","state.rs"]],\
 "oxc_printer":["",[],["gen.rs","lib.rs"]]\
 }');
 createSourceSidebar();

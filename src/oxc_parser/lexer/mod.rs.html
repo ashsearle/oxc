@@ -1449,6 +1449,10 @@
 <a href="#1449" id="1449">1449</a>
 <a href="#1450" id="1450">1450</a>
 <a href="#1451" id="1451">1451</a>
+<a href="#1452" id="1452">1452</a>
+<a href="#1453" id="1453">1453</a>
+<a href="#1454" id="1454">1454</a>
+<a href="#1455" id="1455">1455</a>
 </pre><pre class="rust"><code><span class="doccomment">//! An Ecma-262 Lexer / Tokenizer
 //! Prior Arts:
 //!     * [jsparagus](https://github.com/mozilla-spidermonkey/jsparagus/blob/master/crates/parser/src)
@@ -1472,7 +1476,7 @@
 <span class="kw">pub use </span>kind::Kind;
 <span class="kw">use </span>number::{parse_big_int, parse_float, parse_int};
 <span class="kw">use </span>oxc_allocator::{Allocator, String};
-<span class="kw">use </span>oxc_ast::{Atom, Node, SourceType};
+<span class="kw">use </span>oxc_ast::{ast::RegExpFlags, Atom, Node, SourceType};
 <span class="kw">use </span>oxc_diagnostics::{Diagnostic, Diagnostics};
 <span class="kw">use </span>simd::{SkipMultilineComment, SkipWhitespace};
 <span class="kw">use </span>string_builder::AutoCow;
@@ -2461,35 +2465,39 @@
 
         pattern.push_str(<span class="kw-2">&amp;</span>start[..start.len() - <span class="self">self</span>.current.chars.as_str().len() - <span class="number">1</span>]);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>flags = String::new_in(<span class="self">self</span>.allocator);
-        <span class="kw">while let </span>c @ (<span class="string">&#39;$&#39; </span>| <span class="string">&#39;_&#39; </span>| <span class="string">&#39;a&#39;</span>..=<span class="string">&#39;z&#39; </span>| <span class="string">&#39;A&#39;</span>..=<span class="string">&#39;Z&#39; </span>| <span class="string">&#39;0&#39;</span>..=<span class="string">&#39;9&#39;</span>) = <span class="self">self</span>.peek() {
-            <span class="self">self</span>.current.chars.next();
-            flags.push(c);
-        }
+        <span class="kw">let </span><span class="kw-2">mut </span>flags = RegExpFlags::empty();
 
-        <span class="comment">// v flag from https://github.com/tc39/proposal-regexp-set-notation
-        </span><span class="kw">let </span>gimsuy_mask: u32 =
-            [<span class="string">&#39;g&#39;</span>, <span class="string">&#39;i&#39;</span>, <span class="string">&#39;m&#39;</span>, <span class="string">&#39;s&#39;</span>, <span class="string">&#39;u&#39;</span>, <span class="string">&#39;y&#39;</span>, <span class="string">&#39;d&#39;</span>, <span class="string">&#39;v&#39;</span>].iter().map(|x| <span class="number">1 </span>&lt;&lt; ((<span class="kw-2">*</span>x <span class="kw">as </span>u8) - <span class="string">b&#39;a&#39;</span>)).sum();
-        <span class="kw">let </span><span class="kw-2">mut </span>flag_text_set: u32 = <span class="number">0</span>;
-        <span class="kw">for </span>ch <span class="kw">in </span>flags.chars() {
-            <span class="kw">if </span>!ch.is_ascii_lowercase() {
+        <span class="kw">while let </span>ch @ (<span class="string">&#39;$&#39; </span>| <span class="string">&#39;_&#39; </span>| <span class="string">&#39;a&#39;</span>..=<span class="string">&#39;z&#39; </span>| <span class="string">&#39;A&#39;</span>..=<span class="string">&#39;Z&#39; </span>| <span class="string">&#39;0&#39;</span>..=<span class="string">&#39;9&#39;</span>) = <span class="self">self</span>.peek() {
+            <span class="self">self</span>.current.chars.next();
+            <span class="comment">// dbg!(ch);
+            </span><span class="kw">if </span>!ch.is_ascii_lowercase() {
                 <span class="self">self</span>.error(Diagnostic::RegExpFlag(ch, <span class="self">self</span>.current_offset()));
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let </span>ch_mask = <span class="number">1 </span>&lt;&lt; ((ch <span class="kw">as </span>u8) - <span class="string">b&#39;a&#39;</span>);
-            <span class="kw">if </span>ch_mask &amp; gimsuy_mask == <span class="number">0 </span>{
-                <span class="self">self</span>.error(Diagnostic::RegExpFlag(ch, <span class="self">self</span>.current_offset()));
-            }
-            <span class="kw">if </span>flag_text_set &amp; ch_mask != <span class="number">0 </span>{
+            <span class="kw">let </span>flag = <span class="kw">match </span>ch {
+                <span class="string">&#39;g&#39; </span>=&gt; RegExpFlags::G,
+                <span class="string">&#39;i&#39; </span>=&gt; RegExpFlags::I,
+                <span class="string">&#39;m&#39; </span>=&gt; RegExpFlags::M,
+                <span class="string">&#39;s&#39; </span>=&gt; RegExpFlags::S,
+                <span class="string">&#39;u&#39; </span>=&gt; RegExpFlags::U,
+                <span class="string">&#39;y&#39; </span>=&gt; RegExpFlags::Y,
+                <span class="string">&#39;d&#39; </span>=&gt; RegExpFlags::D,
+                <span class="string">&#39;v&#39; </span>=&gt; RegExpFlags::V,
+                <span class="kw">_ </span>=&gt; {
+                    <span class="self">self</span>.error(Diagnostic::RegExpFlag(ch, <span class="self">self</span>.current_offset()));
+                    <span class="kw">continue</span>;
+                }
+            };
+            <span class="kw">if </span>flags.contains(flag) {
                 <span class="self">self</span>.error(Diagnostic::RegExpFlagTwice(ch, <span class="self">self</span>.current_offset()));
+                <span class="kw">continue</span>;
             }
-            flag_text_set |= ch_mask;
+            flags |= flag;
         }
 
-        <span class="self">self</span>.current.token.value = TokenValue::RegExp(RegExp {
-            pattern: Atom::from(pattern.as_str()),
-            flags: Atom::from(flags.as_str()),
-        });
+        <span class="self">self</span>.current.token.value =
+            TokenValue::RegExp(RegExp { pattern: Atom::from(pattern.as_str()), flags });
+
         Kind::RegExp
     }
 

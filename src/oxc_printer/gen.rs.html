@@ -2486,7 +2486,7 @@
         p.print(<span class="string">b&#39;/&#39;</span>);
         p.print_str(<span class="self">self</span>.regex.pattern.as_bytes());
         p.print(<span class="string">b&#39;/&#39;</span>);
-        p.print_str(<span class="self">self</span>.regex.flags.as_bytes());
+        p.print_str(<span class="self">self</span>.regex.flags.to_string().as_bytes());
     }
 }
 

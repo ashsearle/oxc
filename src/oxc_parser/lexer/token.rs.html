@@ -86,10 +86,17 @@
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
 <a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Token
 
 </span><span class="kw">use </span>num_bigint::BigUint;
-<span class="kw">use </span>oxc_ast::{Atom, Node};
+<span class="kw">use </span>oxc_ast::{ast::RegExpFlags, Atom, Node};
 
 <span class="kw">use </span><span class="kw">super</span>::kind::Kind;
 
@@ -113,6 +120,13 @@
     <span class="kw">pub </span>value: TokenValue,
 }
 
+<span class="attr">#[cfg(all(target_arch = <span class="string">&quot;x86_64&quot;</span>, target_pointer_width = <span class="string">&quot;64&quot;</span>))]
+#[test]
+</span><span class="kw">fn </span>no_bloat_token() {
+    <span class="kw">use </span>std::mem::size_of;
+    <span class="macro">assert_eq!</span>(size_of::&lt;Token&gt;(), <span class="number">56</span>);
+}
+
 <span class="kw">impl </span>Token {
     <span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>node(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Node {
@@ -132,7 +146,7 @@
 <span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>RegExp {
     <span class="kw">pub </span>pattern: Atom,
-    <span class="kw">pub </span>flags: Atom,
+    <span class="kw">pub </span>flags: RegExpFlags,
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>TokenValue {

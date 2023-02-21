@@ -514,7 +514,7 @@
 <span class="kw">use </span>oxc_ast::{
     ast::<span class="kw-2">*</span>,
     context::{Context, StatementContext},
-    Node,
+    Span,
 };
 <span class="kw">use </span>oxc_diagnostics::Result;
 
@@ -536,24 +536,24 @@
     </span><span class="kw">pub fn </span>parse_ts_enum_declaration(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         declare: bool,
-        node: Node,
+        span: Span,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Declaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span>r#const = <span class="self">self</span>.eat(Kind::Const);
         <span class="self">self</span>.expect(Kind::Enum)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>id = <span class="self">self</span>.parse_binding_identifier()<span class="question-mark">?</span>;
         <span class="kw">let </span>members = TSEnumMemberList::parse(<span class="self">self</span>)<span class="question-mark">?</span>.members;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_enum_declaration(node, id, members, declare, r#const))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_enum_declaration(span, id, members, declare, r#const))
     }
 
     <span class="kw">pub fn </span>parse_ts_enum_member(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSEnumMember&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>id = <span class="self">self</span>.parse_ts_enum_member_name()<span class="question-mark">?</span>;
 
         <span class="kw">let </span>initializer =
             <span class="kw">if </span><span class="self">self</span>.eat(Kind::Eq) { <span class="prelude-val">Some</span>(<span class="self">self</span>.parse_assignment_expression_base()<span class="question-mark">?</span>) } <span class="kw">else </span>{ <span class="prelude-val">None </span>};
 
-        <span class="prelude-val">Ok</span>(TSEnumMember { node: <span class="self">self</span>.end_node(node), id, initializer })
+        <span class="prelude-val">Ok</span>(TSEnumMember { span: <span class="self">self</span>.end_span(span), id, initializer })
     }
 
     <span class="kw">fn </span>parse_ts_enum_member_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSEnumMemberName&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -573,10 +573,10 @@
 
     </span><span class="kw">pub fn </span>parse_ts_type_annotation(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.at(Kind::Colon) {
-            <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+            <span class="kw">let </span>span = <span class="self">self</span>.start_span();
             <span class="self">self</span>.bump_any(); <span class="comment">// bump &#39;:&#39;
             </span><span class="kw">let </span>type_annotation = <span class="self">self</span>.parse_ts_type()<span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_type_annotation(<span class="self">self</span>.end_node(node), type_annotation)))
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_type_annotation(<span class="self">self</span>.end_span(span), type_annotation)))
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
         }
@@ -591,12 +591,12 @@
             <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="prelude-val">None</span>, <span class="bool-val">false</span>));
         }
 
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump(Kind::Bang);
 
         <span class="kw">if </span><span class="self">self</span>.eat(Kind::Colon) {
             <span class="kw">let </span>type_annotation = <span class="self">self</span>.parse_ts_type()<span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>((<span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_type_annotation(<span class="self">self</span>.end_node(node), type_annotation)), <span class="bool-val">true</span>))
+            <span class="prelude-val">Ok</span>((<span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_type_annotation(<span class="self">self</span>.end_span(span), type_annotation)), <span class="bool-val">true</span>))
         } <span class="kw">else </span>{
             <span class="self">self</span>.unexpected()
         }
@@ -605,7 +605,7 @@
     <span class="kw">pub fn </span>parse_ts_type_alias_declaration(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         declare: bool,
-        node: Node,
+        span: Span,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Declaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.expect(Kind::Type)<span class="question-mark">?</span>;
 
@@ -616,7 +616,7 @@
         <span class="kw">let </span>annotation = <span class="self">self</span>.parse_ts_type()<span class="question-mark">?</span>;
 
         <span class="self">self</span>.asi()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_alias_declaration(node, id, annotation, params, declare))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_alias_declaration(span, id, annotation, params, declare))
     }
 
     <span class="doccomment">/** ---------------------  Interface  ------------------------ */
@@ -624,7 +624,7 @@
     </span><span class="kw">pub fn </span>parse_ts_interface_declaration(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         declare: bool,
-        node: Node,
+        span: Span,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Declaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.expect(Kind::Interface)<span class="question-mark">?</span>; <span class="comment">// bump interface
         </span><span class="kw">let </span>id = <span class="self">self</span>.parse_binding_identifier()<span class="question-mark">?</span>;
@@ -633,7 +633,7 @@
         <span class="kw">let </span>body = <span class="self">self</span>.parse_ts_interface_body()<span class="question-mark">?</span>;
         <span class="kw">let </span>extends = extends.map(|e| <span class="self">self</span>.ast.ts_interface_heritages(e));
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_interface_declaration(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             id,
             body,
             type_parameters,
@@ -643,10 +643,10 @@
     }
 
     <span class="kw">fn </span>parse_ts_interface_body(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSInterfaceBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span><span class="kw-2">mut </span>body_list = TSInterfaceOrObjectBodyList::new(<span class="self">self</span>);
         body_list.parse(<span class="self">self</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_interface_body(<span class="self">self</span>.end_node(node), body_list.body))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_interface_body(<span class="self">self</span>.end_span(span), body_list.body))
     }
 
     <span class="kw">pub fn </span>is_at_interface_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
@@ -731,7 +731,7 @@
     <span class="doccomment">/** ----------------------- Namespace &amp; Module ----------------------- */
 
     </span><span class="kw">fn </span>parse_ts_module_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSModuleBlock&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
 
         <span class="kw">let </span><span class="kw-2">mut </span>statements = <span class="self">self</span>.ast.new_vec();
 
@@ -744,7 +744,7 @@
             }
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_module_block(<span class="self">self</span>.end_node(node), statements))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_module_block(<span class="self">self</span>.end_span(span), statements))
     }
 
     <span class="kw">fn </span>parse_ts_module_item(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -763,7 +763,7 @@
 
     <span class="kw">pub fn </span>parse_ts_namespace_or_module_declaration_body(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         declare: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSModuleDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
         <span class="kw">let </span>id = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
@@ -772,8 +772,8 @@
         }<span class="question-mark">?</span>;
 
         <span class="kw">let </span>body = <span class="kw">if </span><span class="self">self</span>.eat(Kind::Dot) {
-            <span class="kw">let </span>node = <span class="self">self</span>.start_node();
-            <span class="kw">let </span>decl = <span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(node, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
+            <span class="kw">let </span>span = <span class="self">self</span>.start_span();
+            <span class="kw">let </span>decl = <span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(span, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
             TSModuleDeclarationBody::TSModuleDeclaration(decl)
         } <span class="kw">else </span>{
             <span class="kw">let </span>block = <span class="self">self</span>.parse_ts_module_block()<span class="question-mark">?</span>;
@@ -781,21 +781,21 @@
             TSModuleDeclarationBody::TSModuleBlock(block)
         };
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_module_declaration(<span class="self">self</span>.end_node(node), id, body, declare))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_module_declaration(<span class="self">self</span>.end_span(span), id, body, declare))
     }
 
     <span class="kw">pub fn </span>parse_ts_namespace_or_module_declaration(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         declare: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSModuleDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.expect(Kind::Namespace).or_else(|<span class="kw">_</span>| <span class="self">self</span>.expect(Kind::Module))<span class="question-mark">?</span>;
-        <span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(node, declare)
+        <span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(span, declare)
     }
 
     <span class="kw">pub fn </span>parse_ts_global_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSModuleDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
-        <span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(node, <span class="bool-val">false</span>)
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
+        <span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(span, <span class="bool-val">false</span>)
     }
 
     <span class="kw">pub fn </span>parse_ts_namespace_or_module_statement(
@@ -880,7 +880,7 @@
             <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_ambient(<span class="bool-val">true</span>);
         }
 
-        <span class="kw">let </span>start_node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>start_span = <span class="self">self</span>.start_span();
 
         <span class="kw">let </span>result = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             Kind::Namespace | Kind::Module =&gt; <span class="self">self
@@ -890,25 +890,25 @@
                 <span class="kw">let </span>decl = <span class="kw">if </span><span class="self">self</span>.peek_at(Kind::LCurly) {
                     <span class="comment">// valid syntax for
                     // declare global { }
-                    </span><span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(start_node, declare)
+                    </span><span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(start_span, declare)
                 } <span class="kw">else </span>{
                     <span class="self">self</span>.parse_ts_global_declaration()
                 }<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(Declaration::TSModuleDeclaration(decl))
             }
-            Kind::Type =&gt; <span class="self">self</span>.parse_ts_type_alias_declaration(declare, start_node),
+            Kind::Type =&gt; <span class="self">self</span>.parse_ts_type_alias_declaration(declare, start_span),
             Kind::Const | Kind::Enum <span class="kw">if </span><span class="self">self</span>.is_at_enum_declaration() =&gt; {
-                <span class="self">self</span>.parse_ts_enum_declaration(declare, start_node)
+                <span class="self">self</span>.parse_ts_enum_declaration(declare, start_span)
             }
             Kind::Interface <span class="kw">if </span><span class="self">self</span>.is_at_interface_declaration() =&gt; {
-                <span class="self">self</span>.parse_ts_interface_declaration(declare, start_node)
+                <span class="self">self</span>.parse_ts_interface_declaration(declare, start_span)
             }
             Kind::Class | Kind::Abstract =&gt; {
                 <span class="self">self</span>.parse_class_declaration(declare).map(Declaration::ClassDeclaration)
             }
             Kind::Import =&gt; {
                 <span class="self">self</span>.bump_any();
-                <span class="self">self</span>.parse_ts_import_equals_declaration(start_node, <span class="bool-val">true</span>)
+                <span class="self">self</span>.parse_ts_import_equals_declaration(start_span, <span class="bool-val">true</span>)
             }
             kind <span class="kw">if </span>kind.is_variable_declaration() =&gt; <span class="self">self
                 </span>.parse_variable_declaration(VariableDeclarationContext::new(
@@ -931,28 +931,28 @@
     }
 
     <span class="kw">pub fn </span>parse_ts_declare_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, Function&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>r#async = <span class="self">self</span>.eat(Kind::Async);
         <span class="self">self</span>.expect(Kind::Function)<span class="question-mark">?</span>;
         <span class="kw">let </span>func_kind = FunctionKind::TSDeclaration;
         <span class="kw">let </span>id = <span class="self">self</span>.parse_function_id(func_kind, r#async, <span class="bool-val">false</span>);
-        <span class="self">self</span>.parse_function(node, id, r#async, <span class="bool-val">false</span>, func_kind)
+        <span class="self">self</span>.parse_function(span, id, r#async, <span class="bool-val">false</span>, func_kind)
     }
 
     <span class="kw">pub fn </span>parse_ts_type_assertion(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.re_lex_ts_l_angle();
         <span class="self">self</span>.expect(Kind::LAngle)<span class="question-mark">?</span>;
         <span class="kw">let </span>type_annotation = <span class="self">self</span>.parse_ts_type()<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(Kind::RAngle)<span class="question-mark">?</span>;
-        <span class="kw">let </span>lhs_node = <span class="self">self</span>.start_node();
-        <span class="kw">let </span>expression = <span class="self">self</span>.parse_unary_expression_base(lhs_node)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_assertion(<span class="self">self</span>.end_node(node), type_annotation, expression))
+        <span class="kw">let </span>lhs_span = <span class="self">self</span>.start_span();
+        <span class="kw">let </span>expression = <span class="self">self</span>.parse_unary_expression_base(lhs_span)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_assertion(<span class="self">self</span>.end_span(span), type_annotation, expression))
     }
 
     <span class="kw">pub fn </span>parse_ts_import_equals_declaration(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         is_export: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Declaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span>import_kind = <span class="kw">if </span>!<span class="self">self</span>.peek_at(Kind::Eq) &amp;&amp; <span class="self">self</span>.eat(Kind::Type) {
@@ -965,13 +965,13 @@
 
         <span class="self">self</span>.expect(Kind::Eq)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>reference_node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>reference_span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>module_reference = <span class="kw">if </span><span class="self">self</span>.eat(Kind::Require) {
             <span class="self">self</span>.expect(Kind::LParen)<span class="question-mark">?</span>;
             <span class="kw">let </span>expression = <span class="self">self</span>.parse_literal_string()<span class="question-mark">?</span>;
             <span class="self">self</span>.expect(Kind::RParen)<span class="question-mark">?</span>;
             TSModuleReference::ExternalModuleReference(TSExternalModuleReference {
-                node: <span class="self">self</span>.end_node(reference_node),
+                span: <span class="self">self</span>.end_span(reference_span),
                 expression,
             })
         } <span class="kw">else </span>{
@@ -981,7 +981,7 @@
         <span class="self">self</span>.asi()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_import_equals_declaration(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             id,
             module_reference,
             is_export,
@@ -1017,9 +1017,9 @@
 
     <span class="kw">fn </span>parse_decorator(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.bump_any(); <span class="comment">// bump @
-        </span><span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        </span><span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>expr = <span class="self">self</span>.with_context(Context::Decorator, <span class="self">Self</span>::parse_lhs_expression)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.decorator(<span class="self">self</span>.end_node(node), expr))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.decorator(<span class="self">self</span>.end_span(span), expr))
     }
 }
 </code></pre></div>

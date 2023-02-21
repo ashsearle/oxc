@@ -1624,17 +1624,17 @@
 </span><span class="kw">use crate</span>::{ast::<span class="kw-2">*</span>, ast_kind::AstKind};
 
 <span class="kw">pub trait </span>Visit&lt;<span class="lifetime">&#39;a</span>&gt;: Sized {
-    <span class="kw">fn </span>enter_node(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;) {}
-    <span class="kw">fn </span>leave_node(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;) {}
+    <span class="kw">fn </span>enter_span(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;) {}
+    <span class="kw">fn </span>leave_span(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;) {}
 
     <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::Program(program);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>directive <span class="kw">in </span><span class="kw-2">&amp;</span>program.directives {
             <span class="self">self</span>.visit_directive(directive);
         }
         <span class="self">self</span>.visit_statements(<span class="kw-2">&amp;</span>program.body);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="comment">/* ----------  Statement ---------- */
@@ -1677,59 +1677,59 @@
 
     <span class="kw">fn </span>visit_block_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BlockStatement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::BlockStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_statements(<span class="kw-2">&amp;</span>stmt.body);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_break_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BreakStatement) {
         <span class="kw">let </span>kind = AstKind::BreakStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(break_target) = <span class="kw-2">&amp;</span>stmt.label {
             <span class="self">self</span>.visit_label_identifier(break_target);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_continue_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ContinueStatement) {
         <span class="kw">let </span>kind = AstKind::ContinueStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(continue_target) = <span class="kw-2">&amp;</span>stmt.label {
             <span class="self">self</span>.visit_label_identifier(continue_target);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_debugger_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DebuggerStatement) {
         <span class="kw">let </span>kind = AstKind::DebuggerStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_do_while_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DoWhileStatement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::DoWhileStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_statement(<span class="kw-2">&amp;</span>stmt.body);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>stmt.test);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_empty_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>EmptyStatement) {
         <span class="kw">let </span>kind = AstKind::EmptyStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ExpressionStatement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ExpressionStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>stmt.expression);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_for_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ForStatement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ForStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(init) = <span class="kw-2">&amp;</span>stmt.init {
             <span class="self">self</span>.visit_for_statement_init(init);
         }
@@ -1740,37 +1740,37 @@
             <span class="self">self</span>.visit_expression(update);
         }
         <span class="self">self</span>.visit_statement(<span class="kw-2">&amp;</span>stmt.body);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_for_statement_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, init: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ForStatementInit&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ForStatementInit(init);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">match </span>init {
             ForStatementInit::VariableDeclaration(decl) =&gt; {
                 <span class="self">self</span>.visit_variable_declaration(decl);
             }
             ForStatementInit::Expression(expr) =&gt; <span class="self">self</span>.visit_expression(expr),
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_for_in_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ForInStatement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ForInStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_for_statement_left(<span class="kw-2">&amp;</span>stmt.left);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>stmt.right);
         <span class="self">self</span>.visit_statement(<span class="kw-2">&amp;</span>stmt.body);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_for_of_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ForOfStatement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ForOfStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_for_statement_left(<span class="kw-2">&amp;</span>stmt.left);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>stmt.right);
         <span class="self">self</span>.visit_statement(<span class="kw-2">&amp;</span>stmt.body);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_for_statement_left(<span class="kw-2">&amp;mut </span><span class="self">self</span>, left: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ForStatementLeft&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -1784,62 +1784,62 @@
 
     <span class="kw">fn </span>visit_if_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IfStatement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::IfStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>stmt.test);
         <span class="self">self</span>.visit_statement(<span class="kw-2">&amp;</span>stmt.consequent);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(alternate) = <span class="kw-2">&amp;</span>stmt.alternate {
             <span class="self">self</span>.visit_statement(alternate);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_labeled_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LabeledStatement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::LabeledStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_label_identifier(<span class="kw-2">&amp;</span>stmt.label);
         <span class="self">self</span>.visit_statement(<span class="kw-2">&amp;</span>stmt.body);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_return_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ReturnStatement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ReturnStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(arg) = <span class="kw-2">&amp;</span>stmt.argument {
             <span class="self">self</span>.visit_expression(arg);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_switch_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SwitchStatement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::SwitchStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>stmt.discriminant);
         <span class="kw">for </span>case <span class="kw">in </span><span class="kw-2">&amp;</span>stmt.cases {
             <span class="self">self</span>.visit_switch_case(case);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_switch_case(<span class="kw-2">&amp;mut </span><span class="self">self</span>, case: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SwitchCase&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::SwitchCase(case);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(expr) = <span class="kw-2">&amp;</span>case.test {
             <span class="self">self</span>.visit_expression(expr);
         }
         <span class="self">self</span>.visit_statements(<span class="kw-2">&amp;</span>case.consequent);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_throw_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ThrowStatement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ThrowStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>stmt.argument);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_try_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TryStatement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TryStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_block_statement(<span class="kw-2">&amp;</span>stmt.block);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(handler) = <span class="kw-2">&amp;</span>stmt.handler {
             <span class="self">self</span>.visit_catch_clause(handler);
@@ -1847,75 +1847,75 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(finalizer) = <span class="kw-2">&amp;</span>stmt.finalizer {
             <span class="self">self</span>.visit_finally_clause(finalizer);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_catch_clause(<span class="kw-2">&amp;mut </span><span class="self">self</span>, clause: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CatchClause&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::CatchClause(clause);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(param) = <span class="kw-2">&amp;</span>clause.param {
             <span class="self">self</span>.visit_pattern(param);
         }
         <span class="self">self</span>.visit_statements(<span class="kw-2">&amp;</span>clause.body.body);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_finally_clause(<span class="kw-2">&amp;mut </span><span class="self">self</span>, clause: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BlockStatement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::FinallyClause(clause);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_block_statement(clause);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_while_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>WhileStatement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::WhileStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>stmt.test);
         <span class="self">self</span>.visit_statement(<span class="kw-2">&amp;</span>stmt.body);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_with_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>WithStatement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::WithStatement(stmt);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>stmt.object);
         <span class="self">self</span>.visit_statement(<span class="kw-2">&amp;</span>stmt.body);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_directive(<span class="kw-2">&amp;mut </span><span class="self">self</span>, directive: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Directive&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::Directive(directive);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_string_literal(<span class="kw-2">&amp;</span>directive.expression);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="comment">/* ----------  Declaration ---------- */
 
     </span><span class="kw">fn </span>visit_variable_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, decl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>VariableDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::VariableDeclaration(decl);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>declarator <span class="kw">in </span><span class="kw-2">&amp;</span>decl.declarations {
             <span class="self">self</span>.visit_variable_declarator(declarator);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_variable_declarator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, declarator: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>VariableDeclarator&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::VariableDeclarator(declarator);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_pattern(<span class="kw-2">&amp;</span>declarator.id);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(init) = <span class="kw-2">&amp;</span>declarator.init {
             <span class="self">self</span>.visit_expression(init);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="comment">/* ----------  Function ---------- */
 
     </span><span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, func: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Function&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::Function(func);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(ident) = <span class="kw-2">&amp;</span>func.id {
             <span class="self">self</span>.visit_binding_identifier(ident);
         }
@@ -1929,52 +1929,52 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(annotation) = <span class="kw-2">&amp;</span>func.return_type {
             <span class="self">self</span>.visit_ts_type_annotation(annotation);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_function_body(<span class="kw-2">&amp;mut </span><span class="self">self</span>, body: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FunctionBody&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::FunctionBody(body);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>directive <span class="kw">in </span><span class="kw-2">&amp;</span>body.directives {
             <span class="self">self</span>.visit_directive(directive);
         }
         <span class="self">self</span>.visit_statements(<span class="kw-2">&amp;</span>body.statements);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_formal_parameters(<span class="kw-2">&amp;mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::FormalParameters(params);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>param <span class="kw">in </span><span class="kw-2">&amp;</span>params.items {
             <span class="self">self</span>.visit_formal_parameter(param);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_formal_parameter(<span class="kw-2">&amp;mut </span><span class="self">self</span>, param: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FormalParameter&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::FormalParameter(param);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(decorators) = <span class="kw-2">&amp;</span>param.decorators {
             <span class="kw">for </span>decorator <span class="kw">in </span>decorators {
                 <span class="self">self</span>.visit_decorator(decorator);
             }
         }
         <span class="self">self</span>.visit_pattern(<span class="kw-2">&amp;</span>param.pattern);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="comment">/* ----------  Class ---------- */
 
     </span><span class="kw">fn </span>visit_decorator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, decorator: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Decorator&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::Decorator(decorator);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>decorator.expression);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_class(<span class="kw-2">&amp;mut </span><span class="self">self</span>, class: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Class&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::Class(class);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(decorators) = <span class="kw-2">&amp;</span>class.decorators {
             <span class="kw">for </span>decorator <span class="kw">in </span>decorators {
                 <span class="self">self</span>.visit_decorator(decorator);
@@ -1994,14 +1994,14 @@
             <span class="self">self</span>.visit_ts_type_parameter_instantiation(super_parameters);
         }
         <span class="self">self</span>.visit_class_body(<span class="kw-2">&amp;</span>class.body);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_class_heritage(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Expression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ClassHeritage(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(expr);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_class_body(<span class="kw-2">&amp;mut </span><span class="self">self</span>, body: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClassBody&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -2028,14 +2028,14 @@
 
     <span class="kw">fn </span>visit_static_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StaticBlock&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::StaticBlock(block);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_statements(<span class="kw-2">&amp;</span>block.body);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_method_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, def: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>MethodDefinition&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::MethodDefinition(def);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(decorators) = <span class="kw-2">&amp;</span>def.decorators {
             <span class="kw">for </span>decorator <span class="kw">in </span>decorators {
                 <span class="self">self</span>.visit_decorator(decorator);
@@ -2043,12 +2043,12 @@
         }
         <span class="self">self</span>.visit_property_key(<span class="kw-2">&amp;</span>def.key);
         <span class="self">self</span>.visit_function(<span class="kw-2">&amp;</span>def.value);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_property_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, def: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>PropertyDefinition&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::PropertyDefinition(def);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(decorators) = <span class="kw-2">&amp;</span>def.decorators {
             <span class="kw">for </span>decorator <span class="kw">in </span>decorators {
                 <span class="self">self</span>.visit_decorator(decorator);
@@ -2061,7 +2061,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(annotation) = <span class="kw-2">&amp;</span>def.type_annotation {
             <span class="self">self</span>.visit_ts_type_annotation(annotation);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="comment">/* ----------  Expression ---------- */
@@ -2125,73 +2125,73 @@
 
     <span class="kw">fn </span>visit_meta_property(<span class="kw-2">&amp;mut </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>MetaProperty) {
         <span class="kw">let </span>kind = AstKind::MetaProperty(meta);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_array_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ArrayExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ArrayExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>elem <span class="kw">in </span>expr.elements.iter().flatten() {
             <span class="self">self</span>.visit_argument(elem);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_argument(<span class="kw-2">&amp;mut </span><span class="self">self</span>, arg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Argument&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::Argument(arg);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">match </span>arg {
             Argument::SpreadElement(spread) =&gt; <span class="self">self</span>.visit_spread_element(spread),
             Argument::Expression(expr) =&gt; <span class="self">self</span>.visit_expression(expr),
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_spread_element(<span class="kw-2">&amp;mut </span><span class="self">self</span>, elem: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SpreadElement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::SpreadElement(elem);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>elem.argument);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_assignment_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssignmentExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::AssignmentExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_assignment_target(<span class="kw-2">&amp;</span>expr.left);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.right);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_arrow_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ArrowExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ArrowExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_formal_parameters(<span class="kw-2">&amp;</span>expr.params);
         <span class="self">self</span>.visit_function_body(<span class="kw-2">&amp;</span>expr.body);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(parameters) = <span class="kw-2">&amp;</span>expr.type_parameters {
             <span class="self">self</span>.visit_ts_type_parameter_declaration(parameters);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_await_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AwaitExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::AwaitExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.argument);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_binary_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BinaryExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::BinaryExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.left);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.right);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_call_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::CallExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>arg <span class="kw">in </span><span class="kw-2">&amp;</span>expr.arguments {
             <span class="self">self</span>.visit_argument(arg);
         }
@@ -2199,7 +2199,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(parameters) = <span class="kw-2">&amp;</span>expr.type_parameters {
             <span class="self">self</span>.visit_ts_type_parameter_instantiation(parameters);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_chain_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ChainExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -2215,11 +2215,11 @@
 
     <span class="kw">fn </span>visit_conditional_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConditionalExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ConditionalExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.test);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.consequent);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.alternate);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_import_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ImportExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -2231,15 +2231,15 @@
 
     <span class="kw">fn </span>visit_logical_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LogicalExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::LogicalExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.left);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.right);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_member_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>MemberExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::MemberExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">match </span>expr {
             MemberExpression::ComputedMemberExpression(expr) =&gt; {
                 <span class="self">self</span>.visit_computed_member_expression(expr);
@@ -2251,7 +2251,7 @@
                 <span class="self">self</span>.visit_private_field_expression(expr);
             }
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_computed_member_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ComputedMemberExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -2271,7 +2271,7 @@
 
     <span class="kw">fn </span>visit_new_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NewExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::NewExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.callee);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(parameters) = <span class="kw-2">&amp;</span>expr.type_parameters {
             <span class="self">self</span>.visit_ts_type_parameter_instantiation(parameters);
@@ -2279,16 +2279,16 @@
         <span class="kw">for </span>arg <span class="kw">in </span><span class="kw-2">&amp;</span>expr.arguments {
             <span class="self">self</span>.visit_argument(arg);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_object_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ObjectExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ObjectExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>prop <span class="kw">in </span><span class="kw-2">&amp;</span>expr.properties {
             <span class="self">self</span>.visit_object_property(prop);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>enter_object_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ObjectExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {}
@@ -2302,38 +2302,38 @@
 
     <span class="kw">fn </span>visit_property(<span class="kw-2">&amp;mut </span><span class="self">self</span>, prop: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Property&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::Property(prop);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_property_key(<span class="kw-2">&amp;</span>prop.key);
         <span class="self">self</span>.visit_property_value(<span class="kw-2">&amp;</span>prop.value);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_property_key(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>PropertyKey&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::PropertyKey(key);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">match </span>key {
             PropertyKey::Identifier(ident) =&gt; <span class="self">self</span>.visit_identifier_name(ident),
             PropertyKey::PrivateIdentifier(ident) =&gt; <span class="self">self</span>.visit_private_identifier(ident),
             PropertyKey::Expression(expr) =&gt; <span class="self">self</span>.visit_expression(expr),
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_property_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>PropertyValue&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::PropertyValue(value);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">match </span>value {
             PropertyValue::Pattern(pat) =&gt; <span class="self">self</span>.visit_pattern(pat),
             PropertyValue::Expression(expr) =&gt; <span class="self">self</span>.visit_expression(expr),
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_parenthesized_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ParenthesizedExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ParenthesizedExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.expression);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_private_in_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>PrivateInExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -2343,59 +2343,59 @@
 
     <span class="kw">fn </span>visit_sequence_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SequenceExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::SequenceExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>expr <span class="kw">in </span><span class="kw-2">&amp;</span>expr.expressions {
             <span class="self">self</span>.visit_expression(expr);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_tagged_template_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TaggedTemplateExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TaggedTemplateExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.tag);
         <span class="self">self</span>.visit_template_literal(<span class="kw-2">&amp;</span>expr.quasi);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_this_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ThisExpression) {
         <span class="kw">let </span>kind = AstKind::ThisExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_unary_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>UnaryExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::UnaryExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.argument);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_update_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>UpdateExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::UpdateExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_simple_assignment_target(<span class="kw-2">&amp;</span>expr.argument);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_yield_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>YieldExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::YieldExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(argument) = <span class="kw-2">&amp;</span>expr.argument {
             <span class="self">self</span>.visit_expression(argument);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_super(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Super) {
         <span class="kw">let </span>kind = AstKind::Super(expr);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_assignment_target(<span class="kw-2">&amp;mut </span><span class="self">self</span>, target: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssignmentTarget&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::AssignmentTarget(target);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">match </span>target {
             AssignmentTarget::SimpleAssignmentTarget(target) =&gt; {
                 <span class="self">self</span>.visit_simple_assignment_target(target);
@@ -2404,12 +2404,12 @@
                 <span class="self">self</span>.visit_assignment_target_pattern(pat);
             }
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_simple_assignment_target(<span class="kw-2">&amp;mut </span><span class="self">self</span>, target: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SimpleAssignmentTarget&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::SimpleAssignmentTarget(target);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">match </span>target {
             SimpleAssignmentTarget::AssignmentTargetIdentifier(ident) =&gt; {
                 <span class="self">self</span>.visit_identifier_reference(ident);
@@ -2427,7 +2427,7 @@
                 <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.expression);
             }
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_assignment_target_pattern(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pat: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssignmentTargetPattern&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -2469,10 +2469,10 @@
         target: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssignmentTargetWithDefault&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) {
         <span class="kw">let </span>kind = AstKind::AssignmentTargetWithDefault(target);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_assignment_target(<span class="kw-2">&amp;</span>target.binding);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>target.init);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_object_assignment_target(<span class="kw-2">&amp;mut </span><span class="self">self</span>, target: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ObjectAssignmentTarget&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -2524,18 +2524,18 @@
 
     <span class="kw">fn </span>visit_jsx_opening_element(<span class="kw-2">&amp;mut </span><span class="self">self</span>, elem: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>JSXOpeningElement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::JSXOpeningElement(elem);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_jsx_element_name(<span class="kw-2">&amp;</span>elem.name);
         <span class="kw">for </span>attribute <span class="kw">in </span><span class="kw-2">&amp;</span>elem.attributes {
             <span class="self">self</span>.visit_jsx_attribute_item(attribute);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_jsx_element_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>JSXElementName&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::JSXElementName(name);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_jsx_attribute_item(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>JSXAttributeItem&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -2618,17 +2618,17 @@
 
     <span class="kw">fn </span>visit_binding_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ident: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BindingIdentifier) {
         <span class="kw">let </span>kind = AstKind::BindingIdentifier(ident);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_object_pattern(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pat: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ObjectPattern&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ObjectPattern(pat);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>prop <span class="kw">in </span><span class="kw-2">&amp;</span>pat.properties {
             <span class="self">self</span>.visit_object_pattern_property(prop);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_object_pattern_property(<span class="kw-2">&amp;mut </span><span class="self">self</span>, prop: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ObjectPatternProperty&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -2640,102 +2640,102 @@
 
     <span class="kw">fn </span>visit_array_pattern(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pat: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ArrayPattern&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ArrayPattern(pat);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>pat <span class="kw">in </span>pat.elements.iter().flatten() {
             <span class="self">self</span>.visit_pattern(pat);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_rest_element(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pat: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>RestElement&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::RestElement(pat);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_pattern(<span class="kw-2">&amp;</span>pat.argument);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_assignment_pattern(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pat: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssignmentPattern&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::AssignmentPattern(pat);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_pattern(<span class="kw-2">&amp;</span>pat.left);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>pat.right);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="comment">/* ----------  Identifier ---------- */
 
     </span><span class="kw">fn </span>visit_identifier_reference(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ident: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IdentifierReference) {
         <span class="kw">let </span>kind = AstKind::IdentifierReference(ident);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_private_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ident: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>PrivateIdentifier) {
         <span class="kw">let </span>kind = AstKind::PrivateIdentifier(ident);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_label_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ident: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LabelIdentifier) {
         <span class="kw">let </span>kind = AstKind::LabelIdentifier(ident);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_identifier_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ident: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IdentifierName) {
         <span class="kw">let </span>kind = AstKind::IdentifierName(ident);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="comment">/* ----------  Literal ---------- */
 
     </span><span class="kw">fn </span>visit_number_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NumberLiteral&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::NumberLiteral(lit);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_boolean_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BooleanLiteral) {
         <span class="kw">let </span>kind = AstKind::BooleanLiteral(lit);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_null_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NullLiteral) {
         <span class="kw">let </span>kind = AstKind::NullLiteral(lit);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_bigint_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigintLiteral) {
         <span class="kw">let </span>kind = AstKind::BigintLiteral(lit);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_string_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StringLiteral) {
         <span class="kw">let </span>kind = AstKind::StringLiteral(lit);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_template_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TemplateLiteral&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TemplateLiteral(lit);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>elem <span class="kw">in </span><span class="kw-2">&amp;</span>lit.quasis {
             <span class="self">self</span>.visit_template_element(elem);
         }
         <span class="kw">for </span>expr <span class="kw">in </span><span class="kw-2">&amp;</span>lit.expressions {
             <span class="self">self</span>.visit_expression(expr);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_reg_expr_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>RegExpLiteral) {
         <span class="kw">let </span>kind = AstKind::RegExpLiteral(lit);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_template_element(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _elem: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TemplateElement) {}
@@ -2744,7 +2744,7 @@
 
     </span><span class="kw">fn </span>visit_module_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, decl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ModuleDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::ModuleDeclaration(decl);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">match </span><span class="kw-2">&amp;</span>decl.kind {
             ModuleDeclarationKind::ImportDeclaration(decl) =&gt; {
                 <span class="self">self</span>.visit_import_declaration(decl);
@@ -2763,7 +2763,7 @@
             }
             ModuleDeclarationKind::TSNamespaceExportDeclaration(<span class="kw">_</span>) =&gt; {}
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_import_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, decl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ImportDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -2822,23 +2822,23 @@
 
     <span class="kw">fn </span>visit_enum_member(<span class="kw-2">&amp;mut </span><span class="self">self</span>, member: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSEnumMember&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSEnumMember(member);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(initializer) = <span class="kw-2">&amp;</span>member.initializer {
             <span class="self">self</span>.visit_expression(initializer);
         }
 
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_enum(<span class="kw-2">&amp;mut </span><span class="self">self</span>, decl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSEnumDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSEnumDeclaration(decl);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_binding_identifier(<span class="kw-2">&amp;</span>decl.id);
         <span class="kw">for </span>member <span class="kw">in </span><span class="kw-2">&amp;</span>decl.members {
             <span class="self">self</span>.visit_enum_member(member);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, decl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Declaration&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -2864,14 +2864,14 @@
 
     <span class="kw">fn </span>visit_ts_import_equals_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, decl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSImportEqualsDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSImportEqualsDeclaration(decl);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_binding_identifier(<span class="kw-2">&amp;</span>decl.id);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_module_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, decl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSModuleDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSModuleDeclaration(decl);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">match </span><span class="kw-2">&amp;</span>decl.id {
             TSModuleDeclarationName::Identifier(ident) =&gt; <span class="self">self</span>.visit_identifier_name(ident),
             TSModuleDeclarationName::StringLiteral(lit) =&gt; <span class="self">self</span>.visit_string_literal(lit),
@@ -2882,30 +2882,30 @@
             }
             TSModuleDeclarationBody::TSModuleBlock(block) =&gt; <span class="self">self</span>.visit_ts_module_block(block),
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_module_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSModuleBlock&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSModuleBlock(block);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_statements(<span class="kw-2">&amp;</span>block.body);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_type_alias_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, decl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSTypeAliasDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSTypeAliasDeclaration(decl);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_binding_identifier(<span class="kw-2">&amp;</span>decl.id);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(parameters) = <span class="kw-2">&amp;</span>decl.type_parameters {
             <span class="self">self</span>.visit_ts_type_parameter_declaration(parameters);
         }
         <span class="self">self</span>.visit_ts_type(<span class="kw-2">&amp;</span>decl.type_annotation);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_interface_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, decl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSInterfaceDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSInterfaceDeclaration(decl);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_binding_identifier(<span class="kw-2">&amp;</span>decl.id);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(parameters) = <span class="kw-2">&amp;</span>decl.type_parameters {
             <span class="self">self</span>.visit_ts_type_parameter_declaration(parameters);
@@ -2913,30 +2913,30 @@
         <span class="kw">for </span>signature <span class="kw">in </span><span class="kw-2">&amp;</span>decl.body.body {
             <span class="self">self</span>.visit_ts_signature(signature);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_as_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSAsExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSAsExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.expression);
         <span class="self">self</span>.visit_ts_type(<span class="kw-2">&amp;</span>expr.type_annotation);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_non_null_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSNonNullExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSNonNullExpression(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.expression);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_type_assertion(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSTypeAssertion&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSTypeAssertion(expr);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>expr.expression);
         <span class="self">self</span>.visit_ts_type(<span class="kw-2">&amp;</span>expr.type_annotation);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_instantiation_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSInstantiationExpression&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -2946,9 +2946,9 @@
 
     <span class="kw">fn </span>visit_ts_type_annotation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, annotation: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSTypeAnnotation(annotation);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_ts_type(<span class="kw-2">&amp;</span>annotation.type_annotation);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSType&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -2976,19 +2976,19 @@
 
     <span class="kw">fn </span>visit_ts_type_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSTypeLiteral&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSTypeLiteral(ty);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>signature <span class="kw">in </span><span class="kw-2">&amp;</span>ty.members {
             <span class="self">self</span>.visit_ts_signature(signature);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_indexed_access_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSIndexedAccessType&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSIndexedAccessType(ty);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_ts_type(<span class="kw-2">&amp;</span>ty.object_type);
         <span class="self">self</span>.visit_ts_type(<span class="kw-2">&amp;</span>ty.index_type);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_type_predicate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSTypePredicate&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -3034,7 +3034,7 @@
 
     <span class="kw">fn </span>visit_ts_type_parameter(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSTypeParameter&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSTypeParameter(ty);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(constraint) = <span class="kw-2">&amp;</span>ty.constraint {
             <span class="self">self</span>.visit_ts_type(constraint);
         }
@@ -3042,25 +3042,25 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(default) = <span class="kw-2">&amp;</span>ty.default {
             <span class="self">self</span>.visit_ts_type(default);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_type_parameter_instantiation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSTypeParameterInstantiation(ty);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>ts_parameter <span class="kw">in </span><span class="kw-2">&amp;</span>ty.params {
             <span class="self">self</span>.visit_ts_type(ts_parameter);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_type_parameter_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSTypeParameterDeclaration(ty);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>ts_parameter <span class="kw">in </span><span class="kw-2">&amp;</span>ty.params {
             <span class="self">self</span>.visit_ts_type_parameter(ts_parameter);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_constructor_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSConstructorType&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -3091,53 +3091,53 @@
 
     <span class="kw">fn </span>visit_ts_null_keyword(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSNullKeyword) {
         <span class="kw">let </span>kind = AstKind::TSNullKeyword(ty);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_any_keyword(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSAnyKeyword) {
         <span class="kw">let </span>kind = AstKind::TSAnyKeyword(ty);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_void_keyword(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSVoidKeyword) {
         <span class="kw">let </span>kind = AstKind::TSVoidKeyword(ty);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.enter_span(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_intersection_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSIntersectionType&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSIntersectionType(ty);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>ty <span class="kw">in </span><span class="kw-2">&amp;</span>ty.types {
             <span class="self">self</span>.visit_ts_type(ty);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_type_reference(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSTypeReference&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSTypeReference(ty);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_ts_type_name(<span class="kw-2">&amp;</span>ty.type_name);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(parameters) = <span class="kw-2">&amp;</span>ty.type_parameters {
             <span class="self">self</span>.visit_ts_type_parameter_instantiation(parameters);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_union_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSUnionType&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSUnionType(ty);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">for </span>ty <span class="kw">in </span><span class="kw-2">&amp;</span>ty.types {
             <span class="self">self</span>.visit_ts_type(ty);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_literal_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSLiteralType&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSLiteralType(ty);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="kw">match </span><span class="kw-2">&amp;</span>ty.literal {
             TSLiteral::BigintLiteral(lit) =&gt; <span class="self">self</span>.visit_bigint_literal(lit),
             TSLiteral::BooleanLiteral(lit) =&gt; <span class="self">self</span>.visit_boolean_literal(lit),
@@ -3148,7 +3148,7 @@
             TSLiteral::TemplateLiteral(lit) =&gt; <span class="self">self</span>.visit_template_literal(lit),
             TSLiteral::UnaryExpression(expr) =&gt; <span class="self">self</span>.visit_unary_expression(expr),
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="attr">#[allow(clippy::single_match)]
@@ -3181,7 +3181,7 @@
 
     <span class="kw">fn </span>visit_ts_method_signature(<span class="kw-2">&amp;mut </span><span class="self">self</span>, signature: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSMethodSignature&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSMethodSignature(signature);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_formal_parameters(<span class="kw-2">&amp;</span>signature.params);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(parameters) = <span class="kw-2">&amp;</span>signature.type_parameters {
             <span class="self">self</span>.visit_ts_type_parameter_declaration(parameters);
@@ -3189,7 +3189,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(annotation) = <span class="kw-2">&amp;</span>signature.return_type {
             <span class="self">self</span>.visit_ts_type_annotation(annotation);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_index_signature_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSIndexSignatureName&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -3206,12 +3206,12 @@
 
     <span class="kw">fn </span>visit_ts_property_signature(<span class="kw-2">&amp;mut </span><span class="self">self</span>, signature: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TSPropertySignature&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::TSPropertySignature(signature);
-        <span class="self">self</span>.enter_node(kind);
+        <span class="self">self</span>.enter_span(kind);
         <span class="self">self</span>.visit_property_key(<span class="kw-2">&amp;</span>signature.key);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(annotation) = <span class="kw-2">&amp;</span>signature.type_annotation {
             <span class="self">self</span>.visit_ts_type_annotation(annotation);
         }
-        <span class="self">self</span>.leave_node(kind);
+        <span class="self">self</span>.leave_span(kind);
     }
 
     <span class="kw">fn </span>visit_ts_call_signature_declaration(

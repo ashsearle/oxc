@@ -1156,9 +1156,9 @@
         <span class="kw">if </span>!<span class="self">self</span>.at(Kind::LAngle) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>params = TSTypeParameterList::parse(<span class="self">self</span>)<span class="question-mark">?</span>.params;
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_type_parameters(<span class="self">self</span>.end_node(node), params)))
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_type_parameters(<span class="self">self</span>.end_span(span), params)))
     }
 
     <span class="kw">pub fn </span>parse_ts_implements_clause(
@@ -1177,7 +1177,7 @@
     }
 
     <span class="kw">pub fn </span>parse_ts_type_parameter(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameter&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
 
         <span class="kw">let </span>r#in = <span class="kw">if </span><span class="self">self</span>.at(Kind::In) &amp;&amp; <span class="self">self</span>.peek_kind().is_identifier_name() {
             <span class="self">self</span>.bump_any();
@@ -1200,7 +1200,7 @@
         <span class="kw">let </span>constraint = <span class="self">self</span>.parse_ts_type_constraint()<span class="question-mark">?</span>;
         <span class="kw">let </span>default = <span class="self">self</span>.parse_ts_default_type()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_parameter(<span class="self">self</span>.end_node(node), name, constraint, default, r#in, out))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_parameter(<span class="self">self</span>.end_span(span), name, constraint, default, r#in, out))
     }
 
     <span class="kw">fn </span>parse_ts_type_constraint(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
@@ -1220,7 +1220,7 @@
     }
 
     <span class="kw">fn </span>parse_ts_conditional_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, left: TSType&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">if </span>!<span class="self">self</span>.ctx.has_disallow_conditional_types()
             &amp;&amp; !<span class="self">self</span>.cur_token().is_on_new_line
             &amp;&amp; <span class="self">self</span>.eat(Kind::Extends)
@@ -1239,7 +1239,7 @@
                 <span class="self">self</span>.without_context(Context::DisallowConditionalTypes, <span class="self">Self</span>::parse_ts_type)<span class="question-mark">?</span>;
 
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_conditional_type(
-                <span class="self">self</span>.end_node(node),
+                <span class="self">self</span>.end_span(span),
                 left,
                 extends_type,
                 true_type,
@@ -1259,13 +1259,13 @@
     // type B = | A | void | null;
     // type C = A &amp; C | C;
     </span><span class="kw">fn </span>parse_ts_union_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">if </span><span class="self">self</span>.at(Kind::Pipe) {
             <span class="kw">let </span><span class="kw-2">mut </span>types = <span class="self">self</span>.ast.new_vec();
             <span class="kw">while </span><span class="self">self</span>.eat(Kind::Pipe) {
                 types.push(<span class="self">self</span>.parse_ts_intersection_type()<span class="question-mark">?</span>);
             }
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_union_type(<span class="self">self</span>.end_node(node), types))
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_union_type(<span class="self">self</span>.end_span(span), types))
         } <span class="kw">else </span>{
             <span class="kw">let </span>first = <span class="self">self</span>.parse_ts_intersection_type()<span class="question-mark">?</span>;
             <span class="kw">if </span><span class="self">self</span>.at(Kind::Pipe) {
@@ -1274,7 +1274,7 @@
                 <span class="kw">while </span><span class="self">self</span>.eat(Kind::Pipe) {
                     types.push(<span class="self">self</span>.parse_ts_intersection_type()<span class="question-mark">?</span>);
                 }
-                <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_union_type(<span class="self">self</span>.end_node(node), types))
+                <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_union_type(<span class="self">self</span>.end_span(span), types))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(first)
             }
@@ -1285,13 +1285,13 @@
     // type A = string &amp; number;
     // type B = &amp; A &amp; void &amp; null;
     </span><span class="kw">fn </span>parse_ts_intersection_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">if </span><span class="self">self</span>.at(Kind::Amp) {
             <span class="kw">let </span><span class="kw-2">mut </span>types = <span class="self">self</span>.ast.new_vec();
             <span class="kw">while </span><span class="self">self</span>.eat(Kind::Amp) {
                 types.push(<span class="self">self</span>.parse_ts_primary_type()<span class="question-mark">?</span>);
             }
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_intersection_type(<span class="self">self</span>.end_node(node), types))
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_intersection_type(<span class="self">self</span>.end_span(span), types))
         } <span class="kw">else </span>{
             <span class="kw">let </span>first = <span class="self">self</span>.parse_ts_primary_type()<span class="question-mark">?</span>;
             <span class="kw">if </span><span class="self">self</span>.at(Kind::Amp) {
@@ -1300,7 +1300,7 @@
                 <span class="kw">while </span><span class="self">self</span>.eat(Kind::Amp) {
                     types.push(<span class="self">self</span>.parse_ts_primary_type()<span class="question-mark">?</span>);
                 }
-                <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_intersection_type(<span class="self">self</span>.end_node(node), types))
+                <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_intersection_type(<span class="self">self</span>.end_span(span), types))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(first)
             }
@@ -1308,7 +1308,7 @@
     }
 
     <span class="kw">fn </span>parse_ts_primary_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">if </span><span class="self">self</span>.at(Kind::Infer) {
             <span class="kw">return </span><span class="self">self</span>.parse_ts_infer_type();
         }
@@ -1329,7 +1329,7 @@
             <span class="self">self</span>.bump_any(); <span class="comment">// bump operator
             </span><span class="kw">let </span>type_annotation = <span class="self">self</span>.parse_ts_primary_type()<span class="question-mark">?</span>;
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_operator_type(
-                <span class="self">self</span>.end_node(node),
+                <span class="self">self</span>.end_span(span),
                 operator,
                 type_annotation,
             ));
@@ -1343,14 +1343,14 @@
                 <span class="comment">// test ts ts_array_type
                 // type A = string[];
                 // type B = { a: number } [];
-                </span>left = <span class="self">self</span>.ast.ts_array_type(<span class="self">self</span>.end_node(node), left);
+                </span>left = <span class="self">self</span>.ast.ts_array_type(<span class="self">self</span>.end_span(span), left);
             } <span class="kw">else </span>{
                 <span class="comment">// test ts ts_indexed_access_type
                 // type A = string[number];
                 // type B = string[number][number][number][];
                 </span><span class="kw">let </span>index_type = <span class="self">self</span>.parse_ts_type()<span class="question-mark">?</span>;
                 <span class="self">self</span>.expect(Kind::RBrack)<span class="question-mark">?</span>;
-                left = <span class="self">self</span>.ast.ts_indexed_access_type(<span class="self">self</span>.end_node(node), left, index_type);
+                left = <span class="self">self</span>.ast.ts_indexed_access_type(<span class="self">self</span>.end_span(span), left, index_type);
             }
         }
 
@@ -1386,14 +1386,14 @@
                 }
             }
             Kind::Void =&gt; {
-                <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+                <span class="kw">let </span>span = <span class="self">self</span>.start_span();
                 <span class="self">self</span>.bump_any();
-                <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_void_keyword(<span class="self">self</span>.end_node(node)))
+                <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_void_keyword(<span class="self">self</span>.end_span(span)))
             }
             Kind::This =&gt; {
-                <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+                <span class="kw">let </span>span = <span class="self">self</span>.start_span();
                 <span class="self">self</span>.bump_any();
-                <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_this_keyword(<span class="self">self</span>.end_node(node)))
+                <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_this_keyword(<span class="self">self</span>.end_span(span)))
             }
             Kind::NoSubstitutionTemplate | Kind::TemplateHead =&gt; {
                 <span class="self">self</span>.parse_ts_template_literal_type(<span class="bool-val">false</span>)
@@ -1422,51 +1422,51 @@
     }
 
     <span class="kw">fn </span>parse_ts_keyword_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             Kind::Any =&gt; {
                 <span class="self">self</span>.bump_any();
-                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_any_keyword(<span class="self">self</span>.end_node(node)))
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_any_keyword(<span class="self">self</span>.end_span(span)))
             }
             Kind::Unknown =&gt; {
                 <span class="self">self</span>.bump_any();
-                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_unknown_keyword(<span class="self">self</span>.end_node(node)))
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_unknown_keyword(<span class="self">self</span>.end_span(span)))
             }
             Kind::Number =&gt; {
                 <span class="self">self</span>.bump_any();
-                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_number_keyword(<span class="self">self</span>.end_node(node)))
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_number_keyword(<span class="self">self</span>.end_span(span)))
             }
             Kind::Boolean =&gt; {
                 <span class="self">self</span>.bump_any();
-                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_boolean_keyword(<span class="self">self</span>.end_node(node)))
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_boolean_keyword(<span class="self">self</span>.end_span(span)))
             }
             Kind::Object =&gt; {
                 <span class="self">self</span>.bump_any();
-                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_object_keyword(<span class="self">self</span>.end_node(node)))
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_object_keyword(<span class="self">self</span>.end_span(span)))
             }
             Kind::String =&gt; {
                 <span class="self">self</span>.bump_any();
-                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_string_keyword(<span class="self">self</span>.end_node(node)))
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_string_keyword(<span class="self">self</span>.end_span(span)))
             }
             Kind::BigInt =&gt; {
                 <span class="self">self</span>.bump_any();
-                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_bigint_keyword(<span class="self">self</span>.end_node(node)))
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_bigint_keyword(<span class="self">self</span>.end_span(span)))
             }
             Kind::Symbol =&gt; {
                 <span class="self">self</span>.bump_any();
-                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_symbol_keyword(<span class="self">self</span>.end_node(node)))
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_symbol_keyword(<span class="self">self</span>.end_span(span)))
             }
             Kind::Null =&gt; {
                 <span class="self">self</span>.bump_any();
-                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_null_keyword(<span class="self">self</span>.end_node(node)))
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_null_keyword(<span class="self">self</span>.end_span(span)))
             }
             Kind::Undefined =&gt; {
                 <span class="self">self</span>.bump_any();
-                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_undefined_keyword(<span class="self">self</span>.end_node(node)))
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_undefined_keyword(<span class="self">self</span>.end_span(span)))
             }
             Kind::Never =&gt; {
                 <span class="self">self</span>.bump_any();
-                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_never_keyword(<span class="self">self</span>.end_node(node)))
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_never_keyword(<span class="self">self</span>.end_span(span)))
             }
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
@@ -1477,32 +1477,32 @@
     // type D = B.a;
     // type E = D.c.b.a;
     </span><span class="kw">fn </span>parse_ts_reference_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>type_name = <span class="self">self</span>.parse_ts_qualified_name()<span class="question-mark">?</span>;
         <span class="kw">let </span>type_parameters =
             <span class="kw">if </span><span class="self">self</span>.cur_token().is_on_new_line { <span class="prelude-val">None </span>} <span class="kw">else </span>{ <span class="self">self</span>.parse_ts_type_arguments()<span class="question-mark">? </span>};
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_reference(<span class="self">self</span>.end_node(node), type_name, type_parameters))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_reference(<span class="self">self</span>.end_span(span), type_name, type_parameters))
     }
 
     <span class="kw">fn </span>parse_ts_implement_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSClassImplements&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>expression = <span class="self">self</span>.parse_ts_qualified_name()<span class="question-mark">?</span>;
         <span class="kw">let </span>type_parameters =
             <span class="kw">if </span><span class="self">self</span>.cur_token().is_on_new_line { <span class="prelude-val">None </span>} <span class="kw">else </span>{ <span class="self">self</span>.parse_ts_type_arguments()<span class="question-mark">? </span>};
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_implement(<span class="self">self</span>.end_node(node), expression, type_parameters))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_implement(<span class="self">self</span>.end_span(span), expression, type_parameters))
     }
 
     <span class="kw">pub fn </span>parse_ts_qualified_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSTypeName&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>identifier_name = <span class="self">self</span>.parse_identifier_name()<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>left = TSTypeName::IdentifierName(<span class="self">self</span>.ast.alloc(identifier_name));
 
         <span class="kw">while </span><span class="self">self</span>.eat(Kind::Dot) {
             <span class="kw">let </span>right = <span class="self">self</span>.parse_identifier_name()<span class="question-mark">?</span>;
             left = TSTypeName::QualifiedName(<span class="self">self</span>.ast.alloc(TSQualifiedName {
-                node: <span class="self">self</span>.end_node(node),
+                span: <span class="self">self</span>.end_span(span),
                 left,
                 right,
             }));
@@ -1518,9 +1518,9 @@
         <span class="kw">if </span>!<span class="self">self</span>.at(Kind::LAngle) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>params = TSTypeArgumentList::parse(<span class="self">self</span>)<span class="question-mark">?</span>.params;
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_type_arguments(<span class="self">self</span>.end_node(node), params)))
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_type_arguments(<span class="self">self</span>.end_span(span), params)))
     }
 
     <span class="kw">pub fn </span>parse_ts_type_arguments_in_expression(
@@ -1529,7 +1529,7 @@
         <span class="kw">if </span>!<span class="macro">matches!</span>(<span class="self">self</span>.cur_kind(), Kind::LAngle | Kind::ShiftLeft) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
 
         <span class="prelude-val">Ok</span>(<span class="self">self
             </span>.try_parse(|p| {
@@ -1543,13 +1543,13 @@
                 }
             })
             .ok()
-            .map(|types| <span class="self">self</span>.ast.ts_type_arguments(<span class="self">self</span>.end_node(node), types)))
+            .map(|types| <span class="self">self</span>.ast.ts_type_arguments(<span class="self">self</span>.end_span(span), types)))
     }
 
     <span class="kw">fn </span>parse_ts_tuple_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>elements = TSTupleElementList::parse(<span class="self">self</span>)<span class="question-mark">?</span>.elements;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_tuple_type(<span class="self">self</span>.end_node(node), elements))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_tuple_type(<span class="self">self</span>.end_span(span), elements))
     }
 
     <span class="kw">fn </span>is_at_function_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
@@ -1618,7 +1618,7 @@
     }
 
     <span class="kw">fn </span>parse_ts_mapped_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.expect(Kind::LCurly)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>readonly = TSMappedTypeModifierOperator::None;
         <span class="kw">if </span><span class="self">self</span>.eat(Kind::Readonly) {
@@ -1630,7 +1630,7 @@
         }
 
         <span class="self">self</span>.expect(Kind::LBrack)<span class="question-mark">?</span>;
-        <span class="kw">let </span>type_parameter_node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>type_parameter_span = <span class="self">self</span>.start_span();
         <span class="kw">if </span>!<span class="self">self</span>.cur_kind().is_identifier_name() {
             <span class="kw">return </span><span class="self">self</span>.unexpected();
         }
@@ -1638,7 +1638,7 @@
         <span class="self">self</span>.expect(Kind::In)<span class="question-mark">?</span>;
         <span class="kw">let </span>constraint = <span class="self">self</span>.parse_ts_type()<span class="question-mark">?</span>;
         <span class="kw">let </span>type_parameter = <span class="self">self</span>.ast.ts_type_parameter(
-            <span class="self">self</span>.end_node(type_parameter_node),
+            <span class="self">self</span>.end_span(type_parameter_span),
             name,
             <span class="prelude-val">Some</span>(constraint),
             <span class="prelude-val">None</span>,
@@ -1674,7 +1674,7 @@
         <span class="self">self</span>.expect(Kind::RCurly)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_mapped_type(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             type_parameter,
             name_type,
             type_annotation,
@@ -1693,22 +1693,22 @@
     }
 
     <span class="kw">fn </span>parse_ts_object_ype(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span><span class="kw-2">mut </span>member_list = TSInterfaceOrObjectBodyList::new(<span class="self">self</span>);
         member_list.parse(<span class="self">self</span>)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_literal(<span class="self">self</span>.end_node(node), member_list.body))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_literal(<span class="self">self</span>.end_span(span), member_list.body))
     }
 
     <span class="kw">fn </span>parse_ts_literal_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>negative = <span class="self">self</span>.eat(Kind::Minus);
 
         <span class="kw">let </span>expression = <span class="self">self</span>.parse_literal_expression()<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>node = <span class="self">self</span>.end_node(node);
+        <span class="kw">let </span>span = <span class="self">self</span>.end_span(span);
         <span class="kw">let </span>literal = <span class="kw">if </span>negative {
-            <span class="kw">match </span><span class="self">self</span>.ast.unary_expression(node, UnaryOperator::UnaryNegation, <span class="bool-val">true</span>, expression) {
+            <span class="kw">match </span><span class="self">self</span>.ast.unary_expression(span, UnaryOperator::UnaryNegation, <span class="bool-val">true</span>, expression) {
                 Expression::UnaryExpression(unary_expr) =&gt; TSLiteral::UnaryExpression(unary_expr),
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
@@ -1725,11 +1725,11 @@
             }
         };
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_literal_type(node, literal))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_literal_type(span, literal))
     }
 
     <span class="kw">fn </span>parse_ts_template_literal_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tagged: bool) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span><span class="kw-2">mut </span>types = <span class="self">self</span>.ast.new_vec();
         <span class="kw">let </span><span class="kw-2">mut </span>quasis = <span class="self">self</span>.ast.new_vec();
         <span class="kw">match </span><span class="self">self</span>.cur_kind() {
@@ -1760,19 +1760,19 @@
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;parse_template_literal&quot;</span>),
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_template_literal_type(<span class="self">self</span>.end_node(node), quasis, types))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_template_literal_type(<span class="self">self</span>.end_span(span), quasis, types))
     }
 
     <span class="kw">fn </span>parse_ts_typeof_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.expect(Kind::Typeof)<span class="question-mark">?</span>;
         <span class="kw">let </span>expr_name = <span class="self">self</span>.parse_ts_qualified_name()<span class="question-mark">?</span>;
         <span class="kw">let </span>type_parameters = <span class="self">self</span>.parse_ts_type_arguments()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_query_type(<span class="self">self</span>.end_node(node), expr_name, type_parameters))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_query_type(<span class="self">self</span>.end_span(span), expr_name, type_parameters))
     }
 
     <span class="kw">fn </span>parse_ts_import_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>is_type_of = <span class="self">self</span>.eat(Kind::Typeof);
         <span class="self">self</span>.expect(Kind::Import)<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(Kind::LParen)<span class="question-mark">?</span>;
@@ -1785,7 +1785,7 @@
         <span class="kw">let </span>type_parameters = <span class="self">self</span>.parse_ts_type_arguments()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_import_type(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             is_type_of,
             parameter,
             qualifier,
@@ -1794,18 +1794,18 @@
     }
 
     <span class="kw">fn </span>parse_ts_constructor_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>r#abstract = <span class="self">self</span>.eat(Kind::Abstract);
         <span class="self">self</span>.expect(Kind::New)<span class="question-mark">?</span>;
         <span class="kw">let </span>type_parameters = <span class="self">self</span>.parse_ts_type_parameters()<span class="question-mark">?</span>;
         <span class="kw">let </span>params = <span class="self">self</span>.parse_formal_parameters(FormalParameterKind::Signature)<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(Kind::Arrow)<span class="question-mark">?</span>;
-        <span class="kw">let </span>return_type_node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>return_type_span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>return_type = <span class="self">self</span>.parse_ts_return_type()<span class="question-mark">?</span>;
-        <span class="kw">let </span>return_type = <span class="self">self</span>.ast.ts_type_annotation(<span class="self">self</span>.end_node(return_type_node), return_type);
+        <span class="kw">let </span>return_type = <span class="self">self</span>.ast.ts_type_annotation(<span class="self">self</span>.end_span(return_type_span), return_type);
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_constructor_type(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             r#abstract,
             params,
             return_type,
@@ -1814,27 +1814,27 @@
     }
 
     <span class="kw">fn </span>parse_ts_function_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>type_parameters = <span class="self">self</span>.parse_ts_type_parameters()<span class="question-mark">?</span>;
         <span class="kw">let </span>params = <span class="self">self</span>.parse_formal_parameters(FormalParameterKind::Signature)<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(Kind::Arrow)<span class="question-mark">?</span>;
-        <span class="kw">let </span>return_type_node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>return_type_span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>return_type = <span class="self">self</span>.parse_ts_return_type()<span class="question-mark">?</span>;
-        <span class="kw">let </span>return_type = <span class="self">self</span>.ast.ts_type_annotation(<span class="self">self</span>.end_node(return_type_node), return_type);
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_function_type(<span class="self">self</span>.end_node(node), params, return_type, type_parameters))
+        <span class="kw">let </span>return_type = <span class="self">self</span>.ast.ts_type_annotation(<span class="self">self</span>.end_span(return_type_span), return_type);
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_function_type(<span class="self">self</span>.end_span(span), params, return_type, type_parameters))
     }
 
     <span class="kw">fn </span>parse_ts_infer_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.expect(Kind::Infer)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>parameter_node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>parameter_span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>name = <span class="self">self</span>.parse_binding_identifier()<span class="question-mark">?</span>;
 
         <span class="kw">let </span>constraint = <span class="self">self</span>.try_parse(Parser::parse_constraint_of_infer_type).unwrap_or(<span class="prelude-val">None</span>);
 
         <span class="kw">let </span>type_parameter = <span class="self">self</span>.ast.ts_type_parameter(
-            <span class="self">self</span>.end_node(parameter_node),
+            <span class="self">self</span>.end_span(parameter_span),
             name,
             constraint,
             <span class="prelude-val">None</span>,
@@ -1842,7 +1842,7 @@
             <span class="bool-val">false</span>,
         );
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_infer_type(<span class="self">self</span>.end_node(node), type_parameter))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_infer_type(<span class="self">self</span>.end_span(span), type_parameter))
     }
 
     <span class="kw">fn </span>parse_constraint_of_infer_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
@@ -1863,20 +1863,20 @@
         <span class="kw">if </span>!<span class="self">self</span>.at(Kind::Colon) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// bump colon
         </span><span class="kw">let </span>return_type = <span class="self">self</span>.parse_ts_return_type()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_type_annotation(<span class="self">self</span>.end_node(node), return_type)))
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_type_annotation(<span class="self">self</span>.end_span(span), return_type)))
     }
 
     <span class="kw">fn </span>parse_ts_type_predicate(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>asserts = <span class="self">self</span>.eat(Kind::Asserts);
 
         <span class="kw">let </span>parameter_name = <span class="kw">if </span><span class="self">self</span>.at(Kind::This) {
-            <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+            <span class="kw">let </span>span = <span class="self">self</span>.start_span();
             <span class="self">self</span>.bump_any();
-            TSTypePredicateName::This(TSThisKeyword { node: <span class="self">self</span>.end_node(node) })
+            TSTypePredicateName::This(TSThisKeyword { span: <span class="self">self</span>.end_span(span) })
         } <span class="kw">else </span>{
             TSTypePredicateName::Identifier(<span class="self">self</span>.parse_identifier_name()<span class="question-mark">?</span>)
         };
@@ -1885,20 +1885,20 @@
             <span class="self">self</span>.expect(Kind::Is)<span class="question-mark">?</span>;
         } <span class="kw">else if </span>!<span class="self">self</span>.eat(Kind::Is) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_predicate(
-                <span class="self">self</span>.end_node(node),
+                <span class="self">self</span>.end_span(span),
                 parameter_name,
                 asserts,
                 <span class="prelude-val">None</span>,
             ));
         }
 
-        <span class="kw">let </span>type_node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>type_span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>type_annotation = <span class="self">self</span>.parse_ts_type()<span class="question-mark">?</span>;
         <span class="kw">let </span>type_annotation =
-            <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_type_annotation(<span class="self">self</span>.end_node(type_node), type_annotation));
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.ast.ts_type_annotation(<span class="self">self</span>.end_span(type_span), type_annotation));
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_predicate(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             parameter_name,
             asserts,
             type_annotation,
@@ -1922,14 +1922,14 @@
     }
 
     <span class="kw">pub fn </span>parse_ts_call_signature_member(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSSignature&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>type_parameters = <span class="self">self</span>.parse_ts_type_parameters()<span class="question-mark">?</span>;
         <span class="kw">let </span>params = <span class="self">self</span>.parse_formal_parameters(FormalParameterKind::Signature)<span class="question-mark">?</span>;
         <span class="kw">let </span>return_type = <span class="self">self</span>.parse_ts_return_type_annotation()<span class="question-mark">?</span>;
         <span class="self">self</span>.bump(Kind::Comma);
         <span class="self">self</span>.bump(Kind::Semicolon);
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_call_signature_declaration(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             params,
             return_type,
             type_parameters,
@@ -1937,7 +1937,7 @@
     }
 
     <span class="kw">pub fn </span>parse_ts_getter_signature_member(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSSignature&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.expect(Kind::Get)<span class="question-mark">?</span>;
         <span class="kw">let </span>(key, computed) = <span class="self">self</span>.parse_property_name()<span class="question-mark">?</span>;
         <span class="kw">let </span>params = <span class="self">self</span>.parse_formal_parameters(FormalParameterKind::Signature)<span class="question-mark">?</span>;
@@ -1945,10 +1945,10 @@
         <span class="self">self</span>.bump(Kind::Comma);
         <span class="self">self</span>.bump(Kind::Semicolon);
         <span class="kw">if </span>!params.is_empty() {
-            <span class="self">self</span>.error(Diagnostic::GetterParameters(params.node));
+            <span class="self">self</span>.error(Diagnostic::GetterParameters(params.span));
         }
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_method_signature(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             key,
             computed,
             <span class="comment">/* optional */ </span><span class="bool-val">false</span>,
@@ -1960,7 +1960,7 @@
     }
 
     <span class="kw">pub fn </span>parse_ts_setter_signature_member(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSSignature&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.expect(Kind::Set)<span class="question-mark">?</span>;
         <span class="kw">let </span>(key, computed) = <span class="self">self</span>.parse_property_name()<span class="question-mark">?</span>;
         <span class="kw">let </span>params = <span class="self">self</span>.parse_formal_parameters(FormalParameterKind::Signature)<span class="question-mark">?</span>;
@@ -1968,13 +1968,13 @@
         <span class="self">self</span>.bump(Kind::Comma);
         <span class="self">self</span>.bump(Kind::Semicolon);
         <span class="kw">if </span>params.items.len() != <span class="number">1 </span>{
-            <span class="self">self</span>.error(Diagnostic::SetterParameters(params.node));
+            <span class="self">self</span>.error(Diagnostic::SetterParameters(params.span));
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(return_type) = return_type.as_ref() {
-            <span class="self">self</span>.error(Diagnostic::ASetAccessorCannotHaveAReturnTypeAnnotation(return_type.node));
+            <span class="self">self</span>.error(Diagnostic::ASetAccessorCannotHaveAReturnTypeAnnotation(return_type.span));
         }
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_method_signature(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             key,
             computed,
             <span class="comment">/* optional */ </span><span class="bool-val">false</span>,
@@ -1986,7 +1986,7 @@
     }
 
     <span class="kw">pub fn </span>parse_ts_property_or_method_signature_member(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSSignature&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>readonly = <span class="self">self</span>.at(Kind::Readonly) &amp;&amp; <span class="self">self</span>.is_next_at_type_member_name();
 
         <span class="kw">if </span>readonly {
@@ -2002,7 +2002,7 @@
             <span class="self">self</span>.bump(Kind::Semicolon);
             <span class="kw">let </span>call_signature = call_signature.unbox();
             <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_method_signature(
-                <span class="self">self</span>.end_node(node),
+                <span class="self">self</span>.end_span(span),
                 key,
                 computed,
                 optional,
@@ -2016,7 +2016,7 @@
             <span class="self">self</span>.bump(Kind::Comma);
             <span class="self">self</span>.bump(Kind::Semicolon);
             <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_property_signature(
-                <span class="self">self</span>.end_node(node),
+                <span class="self">self</span>.end_span(span),
                 computed,
                 optional,
                 readonly,
@@ -2027,7 +2027,7 @@
     }
 
     <span class="kw">pub fn </span>parse_ts_constructor_signature_member(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSSignature&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.expect(Kind::New)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>type_parameters = <span class="self">self</span>.parse_ts_type_parameters()<span class="question-mark">?</span>;
@@ -2037,7 +2037,7 @@
         <span class="self">self</span>.bump(Kind::Semicolon);
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_construct_signature_declaration(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             params,
             return_type,
             type_parameters,
@@ -2045,7 +2045,7 @@
     }
 
     <span class="kw">pub fn </span>parse_ts_index_signature_member(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSSignature&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">while </span><span class="self">self</span>.is_nth_at_modifier(<span class="number">0</span>, <span class="bool-val">false</span>) {
             <span class="kw">if </span>!<span class="self">self</span>.eat(Kind::Readonly) {
                 <span class="self">self</span>.unexpected()<span class="question-mark">?</span>;
@@ -2062,14 +2062,14 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(type_annotation) = type_annotation {
             <span class="self">self</span>.bump(Kind::Comma);
             <span class="self">self</span>.bump(Kind::Semicolon);
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_index_signature(<span class="self">self</span>.end_node(node), parameters, type_annotation))
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_index_signature(<span class="self">self</span>.end_span(span), parameters, type_annotation))
         } <span class="kw">else </span>{
             <span class="self">self</span>.unexpected()
         }
     }
 
     <span class="kw">fn </span>parse_ts_index_signature_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSIndexSignatureName&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>name = <span class="self">self</span>.parse_identifier_name()<span class="question-mark">?</span>.name;
         <span class="kw">let </span>type_annotation = <span class="self">self</span>.parse_ts_type_annotation()<span class="question-mark">?</span>;
 
@@ -2078,7 +2078,7 @@
         }
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.alloc(TSIndexSignatureName {
-            node: <span class="self">self</span>.end_node(node),
+            span: <span class="self">self</span>.end_span(span),
             name,
             type_annotation: type_annotation.unwrap(),
         }))
@@ -2120,17 +2120,17 @@
     }
 
     <span class="kw">fn </span>parse_js_doc_unknown_or_nullable_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// bump `?`
         </span><span class="kw">let </span>type_annotation = <span class="self">self</span>.parse_ts_type()<span class="question-mark">?</span>;
-        <span class="kw">let </span>node = <span class="self">self</span>.end_node(node);
+        <span class="kw">let </span>span = <span class="self">self</span>.end_span(span);
         <span class="kw">if </span><span class="macro">matches!</span>(
             <span class="self">self</span>.cur_kind(),
             Kind::Comma | Kind::RCurly | Kind::RParen | Kind::RAngle | Kind::Eq | Kind::Pipe
         ) {
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.js_doc_unknown_type(node))
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.js_doc_unknown_type(span))
         } <span class="kw">else </span>{
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.js_doc_nullable_type(node, type_annotation, <span class="comment">/* postfix */ </span><span class="bool-val">false</span>))
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.js_doc_nullable_type(span, type_annotation, <span class="comment">/* postfix */ </span><span class="bool-val">false</span>))
         }
     }
 }

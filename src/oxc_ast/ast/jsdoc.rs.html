@@ -23,13 +23,13 @@
 
 </span><span class="kw">use </span>serde::Serialize;
 
-<span class="kw">use crate</span>::{ast::TSType, Node};
+<span class="kw">use crate</span>::{ast::TSType, Span};
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>JSDocNullableType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>postfix: bool,
 }
@@ -38,7 +38,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>JSDocUnknownType {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="oxc_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (c18a5e8a5 2023-01-25)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-a43118d2dfb2799d.js" data-settings-css="settings-7c23ac01f615ce90.css" ></div></body></html>

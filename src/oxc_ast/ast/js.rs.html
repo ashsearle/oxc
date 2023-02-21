@@ -1743,11 +1743,11 @@
 <span class="kw">use </span>serde::Serialize;
 
 <span class="attr">#[allow(clippy::wildcard_imports)]
-</span><span class="kw">use crate</span>::{ast::<span class="kw-2">*</span>, Atom, Node, SourceType};
+</span><span class="kw">use crate</span>::{ast::<span class="kw-2">*</span>, Atom, SourceType, Span};
 
 <span class="attr">#[derive(Debug, PartialEq, Hash)]
 </span><span class="kw">pub struct </span>Program&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>node: Node,
+    <span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>directives: Vec&lt;<span class="lifetime">&#39;a</span>, Directive&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>body: Vec&lt;<span class="lifetime">&#39;a</span>, Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>source_type: SourceType,
@@ -1910,7 +1910,7 @@
 #[cfg_attr(feature = <span class="string">&quot;acorn&quot;</span>, serde(rename = <span class="string">&quot;Identifier&quot;</span>))]
 </span><span class="kw">pub struct </span>IdentifierName {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>name: Atom,
 }
 
@@ -1920,7 +1920,7 @@
 #[cfg_attr(feature = <span class="string">&quot;acorn&quot;</span>, serde(rename = <span class="string">&quot;Identifier&quot;</span>))]
 </span><span class="kw">pub struct </span>IdentifierReference {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>name: Atom,
 }
 
@@ -1930,7 +1930,7 @@
 #[cfg_attr(feature = <span class="string">&quot;acorn&quot;</span>, serde(rename = <span class="string">&quot;Identifier&quot;</span>))]
 </span><span class="kw">pub struct </span>BindingIdentifier {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>name: Atom,
 }
 
@@ -1940,7 +1940,7 @@
 #[cfg_attr(feature = <span class="string">&quot;acorn&quot;</span>, serde(rename = <span class="string">&quot;Identifier&quot;</span>))]
 </span><span class="kw">pub struct </span>LabelIdentifier {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>name: Atom,
 }
 
@@ -1949,7 +1949,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ThisExpression {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="doccomment">/// Section 13.2.5 Array Expression
@@ -1957,10 +1957,10 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ArrayExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>elements: Vec&lt;<span class="lifetime">&#39;a</span>, <span class="prelude-ty">Option</span>&lt;Argument&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     <span class="attr">#[cfg_attr(feature = <span class="string">&quot;acorn&quot;</span>, serde(skip))]
-    </span><span class="kw">pub </span>trailing_comma: <span class="prelude-ty">Option</span>&lt;Node&gt;,
+    </span><span class="kw">pub </span>trailing_comma: <span class="prelude-ty">Option</span>&lt;Span&gt;,
 }
 
 <span class="doccomment">/// Section 13.2.6 Object Expression
@@ -1968,10 +1968,10 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ObjectExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>properties: Vec&lt;<span class="lifetime">&#39;a</span>, ObjectProperty&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[cfg_attr(feature = <span class="string">&quot;acorn&quot;</span>, serde(skip))]
-    </span><span class="kw">pub </span>trailing_comma: <span class="prelude-ty">Option</span>&lt;Node&gt;,
+    </span><span class="kw">pub </span>trailing_comma: <span class="prelude-ty">Option</span>&lt;Span&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Hash)]
@@ -1985,7 +1985,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>Property&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>kind: PropertyKind,
     <span class="kw">pub </span>key: PropertyKey&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>value: PropertyValue&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -2049,7 +2049,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TemplateLiteral&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>quasis: Vec&lt;<span class="lifetime">&#39;a</span>, TemplateElement&gt;,
     <span class="kw">pub </span>expressions: Vec&lt;<span class="lifetime">&#39;a</span>, Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
@@ -2071,7 +2071,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TaggedTemplateExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>tag: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>quasi: TemplateLiteral&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
@@ -2082,7 +2082,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TemplateElement {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>tail: bool,
     <span class="kw">pub </span>value: TemplateElementValue,
 }
@@ -2142,7 +2142,7 @@
 
 <span class="attr">#[derive(Debug, PartialEq, Hash)]
 </span><span class="kw">pub struct </span>ComputedMemberExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>node: Node,
+    <span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>object: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>optional: bool, <span class="comment">// for optional chaining
@@ -2150,7 +2150,7 @@
 
 <span class="attr">#[derive(Debug, PartialEq, Hash)]
 </span><span class="kw">pub struct </span>StaticMemberExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>node: Node,
+    <span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>object: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>property: IdentifierName,
     <span class="kw">pub </span>optional: bool, <span class="comment">// for optional chaining
@@ -2158,7 +2158,7 @@
 
 <span class="attr">#[derive(Debug, PartialEq, Hash)]
 </span><span class="kw">pub struct </span>PrivateFieldExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>node: Node,
+    <span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>object: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>field: PrivateIdentifier,
     <span class="kw">pub </span>optional: bool, <span class="comment">// for optional chaining
@@ -2169,7 +2169,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>CallExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>callee: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>arguments: Vec&lt;<span class="lifetime">&#39;a</span>, Argument&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>optional: bool, <span class="comment">// for optional chaining
@@ -2227,7 +2227,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>NewExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>callee: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>arguments: Vec&lt;<span class="lifetime">&#39;a</span>, Argument&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
@@ -2240,7 +2240,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>MetaProperty {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>meta: IdentifierName,
     <span class="kw">pub </span>property: IdentifierName,
 }
@@ -2250,7 +2250,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>SpreadElement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>argument: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
@@ -2267,7 +2267,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>UpdateExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>operator: UpdateOperator,
     <span class="kw">pub </span>prefix: bool,
     <span class="kw">pub </span>argument: SimpleAssignmentTarget&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -2278,7 +2278,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>UnaryExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>operator: UnaryOperator,
     <span class="kw">pub </span>prefix: bool,
     <span class="kw">pub </span>argument: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -2289,7 +2289,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>BinaryExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>operator: BinaryOperator,
     <span class="kw">pub </span>right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -2302,7 +2302,7 @@
 #[cfg_attr(feature = <span class="string">&quot;acorn&quot;</span>, serde(rename = <span class="string">&quot;BinaryExpression&quot;</span>))]
 </span><span class="kw">pub struct </span>PrivateInExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>left: PrivateIdentifier,
     <span class="kw">pub </span>operator: BinaryOperator, <span class="comment">// BinaryOperator::In
     </span><span class="kw">pub </span>right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -2313,7 +2313,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>LogicalExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>operator: LogicalOperator,
     <span class="kw">pub </span>right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -2324,7 +2324,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ConditionalExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>test: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>consequent: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>alternate: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -2335,7 +2335,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>AssignmentExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>operator: AssignmentOperator,
     <span class="kw">pub </span>left: AssignmentTarget&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -2389,17 +2389,17 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ArrayAssignmentTarget&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>elements: Vec&lt;<span class="lifetime">&#39;a</span>, <span class="prelude-ty">Option</span>&lt;AssignmentTargetMaybeDefault&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     <span class="kw">pub </span>rest: <span class="prelude-ty">Option</span>&lt;AssignmentTarget&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-    <span class="kw">pub </span>trailing_comma: <span class="prelude-ty">Option</span>&lt;Node&gt;,
+    <span class="kw">pub </span>trailing_comma: <span class="prelude-ty">Option</span>&lt;Span&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ObjectAssignmentTarget&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>properties: Vec&lt;<span class="lifetime">&#39;a</span>, AssignmentTargetProperty&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>rest: <span class="prelude-ty">Option</span>&lt;AssignmentTarget&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
@@ -2434,7 +2434,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>AssignmentTargetWithDefault&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>binding: AssignmentTarget&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>init: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
@@ -2452,7 +2452,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>AssignmentTargetPropertyIdentifier&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>binding: IdentifierReference,
     <span class="kw">pub </span>init: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
@@ -2463,7 +2463,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>AssignmentTargetPropertyProperty&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>name: PropertyKey&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>binding: AssignmentTargetMaybeDefault&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
@@ -2473,7 +2473,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>SequenceExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>expressions: Vec&lt;<span class="lifetime">&#39;a</span>, Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
@@ -2481,7 +2481,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>Super {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="doccomment">/// Section 15.8 Await Expression
@@ -2489,7 +2489,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>AwaitExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>argument: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
@@ -2497,7 +2497,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ChainExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>expression: ChainElement&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
@@ -2513,7 +2513,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ParenthesizedExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
@@ -2550,7 +2550,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename = <span class="string">&quot;ExpressionStatement&quot;</span>)]
 </span><span class="kw">pub struct </span>Directive&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>expression: StringLiteral,
     <span class="comment">// directives should always use the unescaped raw string
     </span><span class="kw">pub </span>directive: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
@@ -2561,7 +2561,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>BlockStatement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>body: Vec&lt;<span class="lifetime">&#39;a</span>, Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
@@ -2597,7 +2597,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>VariableDeclaration&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>kind: VariableDeclarationKind,
     <span class="kw">pub </span>declarations: Vec&lt;<span class="lifetime">&#39;a</span>, VariableDeclarator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
@@ -2637,7 +2637,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>VariableDeclarator&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="attr">#[serde(skip)]
     </span><span class="kw">pub </span>kind: VariableDeclarationKind,
     <span class="kw">pub </span>id: BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -2650,7 +2650,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>EmptyStatement {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="doccomment">/// Section 14.5 Expression Statement
@@ -2658,7 +2658,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ExpressionStatement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
@@ -2667,7 +2667,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>IfStatement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>test: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>consequent: Statement&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>alternate: <span class="prelude-ty">Option</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
@@ -2678,7 +2678,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>DoWhileStatement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>body: Statement&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>test: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
@@ -2688,7 +2688,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>WhileStatement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>test: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>body: Statement&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
@@ -2698,7 +2698,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ForStatement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>init: <span class="prelude-ty">Option</span>&lt;ForStatementInit&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>test: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>update: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
@@ -2717,7 +2717,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ForInStatement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>left: ForStatementLeft&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>body: Statement&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -2728,7 +2728,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ForOfStatement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>r#await: bool,
     <span class="kw">pub </span>left: ForStatementLeft&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -2747,7 +2747,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ContinueStatement {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>label: <span class="prelude-ty">Option</span>&lt;LabelIdentifier&gt;,
 }
 
@@ -2756,7 +2756,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>BreakStatement {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>label: <span class="prelude-ty">Option</span>&lt;LabelIdentifier&gt;,
 }
 
@@ -2765,7 +2765,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ReturnStatement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>argument: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
@@ -2774,7 +2774,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>WithStatement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>object: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>body: Statement&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
@@ -2784,7 +2784,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>SwitchStatement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>discriminant: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>cases: Vec&lt;<span class="lifetime">&#39;a</span>, SwitchCase&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
@@ -2793,7 +2793,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>SwitchCase&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>test: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>consequent: Vec&lt;<span class="lifetime">&#39;a</span>, Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
@@ -2803,7 +2803,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>LabeledStatement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>label: LabelIdentifier,
     <span class="kw">pub </span>body: Statement&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
@@ -2813,7 +2813,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ThrowStatement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>argument: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
@@ -2822,7 +2822,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TryStatement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>block: Box&lt;<span class="lifetime">&#39;a</span>, BlockStatement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>handler: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, CatchClause&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     <span class="kw">pub </span>finalizer: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, BlockStatement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
@@ -2832,7 +2832,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>CatchClause&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>param: <span class="prelude-ty">Option</span>&lt;BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>body: Box&lt;<span class="lifetime">&#39;a</span>, BlockStatement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
@@ -2842,7 +2842,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>DebuggerStatement {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="doccomment">/// Section 14.3.3 Destructuring Binding Patterns
@@ -2882,7 +2882,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>AssignmentPattern&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>left: BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
@@ -2891,7 +2891,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ObjectPattern&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>properties: Vec&lt;<span class="lifetime">&#39;a</span>, ObjectPatternProperty&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
@@ -2906,7 +2906,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ArrayPattern&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>elements: Vec&lt;<span class="lifetime">&#39;a</span>, <span class="prelude-ty">Option</span>&lt;BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
 }
 
@@ -2914,7 +2914,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>RestElement&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>argument: BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
@@ -2925,7 +2925,7 @@
 </span><span class="kw">pub struct </span>Function&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub </span>r#type: FunctionType,
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>id: <span class="prelude-ty">Option</span>&lt;BindingIdentifier&gt;,
     <span class="kw">pub </span>expression: bool,
     <span class="kw">pub </span>generator: bool,
@@ -2976,7 +2976,7 @@
 
 <span class="attr">#[derive(Debug, PartialEq, Hash)]
 </span><span class="kw">pub struct </span>FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>node: Node,
+    <span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>kind: FormalParameterKind,
     <span class="kw">pub </span>items: Vec&lt;<span class="lifetime">&#39;a</span>, FormalParameter&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
@@ -2984,7 +2984,7 @@
 <span class="attr">#[derive(Debug, PartialEq, Hash, Serialize)]
 </span><span class="kw">pub struct </span>FormalParameter&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="attr">#[serde(flatten)]
     </span><span class="kw">pub </span>pattern: BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
@@ -3015,7 +3015,7 @@
 
 <span class="attr">#[derive(Debug, PartialEq, Hash)]
 </span><span class="kw">pub struct </span>FunctionBody&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>node: Node,
+    <span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>directives: Vec&lt;<span class="lifetime">&#39;a</span>, Directive&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>statements: Vec&lt;<span class="lifetime">&#39;a</span>, Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
@@ -3030,7 +3030,7 @@
 <span class="doccomment">/// Section 15.3 Arrow Function Definitions
 </span><span class="attr">#[derive(Debug, PartialEq, Hash)]
 </span><span class="kw">pub struct </span>ArrowExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>node: Node,
+    <span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>expression: bool,
     <span class="kw">pub </span>generator: bool,
     <span class="kw">pub </span>r#async: bool,
@@ -3046,7 +3046,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>YieldExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>delegate: bool,
     <span class="kw">pub </span>argument: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
@@ -3057,7 +3057,7 @@
 </span><span class="kw">pub struct </span>Class&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub </span>r#type: ClassType,
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>id: <span class="prelude-ty">Option</span>&lt;BindingIdentifier&gt;,
     <span class="kw">pub </span>super_class: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>body: ClassBody&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -3095,7 +3095,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ClassBody&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>body: Vec&lt;<span class="lifetime">&#39;a</span>, ClassElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
@@ -3179,7 +3179,7 @@
 #[allow(clippy::struct_excessive_bools)]
 </span><span class="kw">pub struct </span>MethodDefinition&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>key: PropertyKey&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>value: Box&lt;<span class="lifetime">&#39;a</span>, Function&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, <span class="comment">// FunctionExpression
     </span><span class="kw">pub </span>kind: MethodDefinitionKind,
@@ -3198,7 +3198,7 @@
 #[allow(clippy::struct_excessive_bools)]
 </span><span class="kw">pub struct </span>PropertyDefinition&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>key: PropertyKey&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>value: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>computed: bool,
@@ -3229,7 +3229,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>PrivateIdentifier {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>name: Atom,
 }
 
@@ -3237,7 +3237,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>StaticBlock&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>body: Vec&lt;<span class="lifetime">&#39;a</span>, Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
@@ -3245,7 +3245,7 @@
 </span><span class="attr">#[derive(Debug, Serialize, PartialEq, Hash)]
 </span><span class="kw">pub struct </span>ModuleDeclaration&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="attr">#[serde(flatten)]
     </span><span class="kw">pub </span>kind: ModuleDeclarationKind&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
@@ -3280,7 +3280,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>AccessorProperty&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>key: PropertyKey&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>value: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>computed: bool,
@@ -3291,7 +3291,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ImportExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>source: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[cfg_attr(feature = <span class="string">&quot;acorn&quot;</span>, serde(skip_serializing_if = <span class="string">&quot;Vec::is_empty&quot;</span>))]
     </span><span class="kw">pub </span>arguments: Vec&lt;<span class="lifetime">&#39;a</span>, Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
@@ -3322,7 +3322,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ImportSpecifier {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>imported: ModuleExportName,
     <span class="kw">pub </span>local: BindingIdentifier,
 }
@@ -3332,7 +3332,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ImportDefaultSpecifier {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>local: BindingIdentifier,
 }
 
@@ -3341,7 +3341,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ImportNamespaceSpecifier {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>local: BindingIdentifier,
 }
 
@@ -3349,7 +3349,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ImportAttribute {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>key: ImportAttributeKey,
     <span class="kw">pub </span>value: StringLiteral,
 }
@@ -3412,7 +3412,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>ExportSpecifier {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>local: ModuleExportName,
     <span class="kw">pub </span>exported: ModuleExportName,
 }

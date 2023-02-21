@@ -209,7 +209,7 @@
     }
 
     <span class="kw">fn </span>parse_element(<span class="kw-2">&amp;mut </span><span class="self">self</span>, p: <span class="kw-2">&amp;mut </span>Parser&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>node = p.start_node();
+        <span class="kw">let </span>span = p.start_span();
         <span class="kw">if </span>p.is_at_named_tuple_element() {
             <span class="kw">let </span>_is_rest = p.eat(Kind::Dot3);
             <span class="kw">let </span>label = p.parse_identifier_name()<span class="question-mark">?</span>;
@@ -218,7 +218,7 @@
 
             <span class="kw">let </span>element_type = p.parse_ts_type()<span class="question-mark">?</span>;
             <span class="self">self</span>.elements.push(TSTupleElement::TSNamedTupleMember(p.ast.alloc(
-                TSNamedTupleMember { node: p.end_node(node), element_type, label, optional },
+                TSNamedTupleMember { span: p.end_span(span), element_type, label, optional },
             )));
 
             <span class="kw">return </span><span class="prelude-val">Ok</span>(());
@@ -227,7 +227,7 @@
         <span class="kw">if </span>p.eat(Kind::Dot3) {
             <span class="kw">let </span>type_annotation = p.parse_ts_type()<span class="question-mark">?</span>;
             <span class="self">self</span>.elements.push(TSTupleElement::TSRestType(
-                p.ast.alloc(TSRestType { node: p.end_node(node), type_annotation }),
+                p.ast.alloc(TSRestType { span: p.end_span(span), type_annotation }),
             ));
             <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
@@ -235,7 +235,7 @@
         <span class="kw">let </span>type_annotation = p.parse_ts_type()<span class="question-mark">?</span>;
         <span class="kw">if </span>p.eat(Kind::Question) {
             <span class="self">self</span>.elements.push(TSTupleElement::TSOptionalType(
-                p.ast.alloc(TSOptionalType { node: p.end_node(node), type_annotation }),
+                p.ast.alloc(TSOptionalType { span: p.end_span(span), type_annotation }),
             ));
         } <span class="kw">else </span>{
             <span class="self">self</span>.elements.push(TSTupleElement::TSType(type_annotation));

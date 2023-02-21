@@ -1476,7 +1476,7 @@
 <span class="kw">pub use </span>kind::Kind;
 <span class="kw">use </span>number::{parse_big_int, parse_float, parse_int};
 <span class="kw">use </span>oxc_allocator::{Allocator, String};
-<span class="kw">use </span>oxc_ast::{ast::RegExpFlags, Atom, Node, SourceType};
+<span class="kw">use </span>oxc_ast::{ast::RegExpFlags, Atom, SourceType, Span};
 <span class="kw">use </span>oxc_diagnostics::{Diagnostic, Diagnostics};
 <span class="kw">use </span>simd::{SkipMultilineComment, SkipWhitespace};
 <span class="kw">use </span>string_builder::AutoCow;
@@ -1708,8 +1708,8 @@
     }
 
     <span class="doccomment">/// Get the current unterminated token range
-    </span><span class="kw">fn </span>unterminated_range(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Node {
-        Node::new(<span class="self">self</span>.current.token.start, <span class="self">self</span>.offset())
+    </span><span class="kw">fn </span>unterminated_range(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
+        Span::new(<span class="self">self</span>.current.token.start, <span class="self">self</span>.offset())
     }
 
     <span class="doccomment">/// Peek the next char without advancing the position
@@ -1735,9 +1735,9 @@
         matched
     }
 
-    <span class="kw">fn </span>current_offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Node {
+    <span class="kw">fn </span>current_offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
         <span class="kw">let </span>offset = <span class="self">self</span>.offset();
-        Node::new(offset, offset)
+        Span::new(offset, offset)
     }
 
     <span class="doccomment">/// Return `IllegalCharacter` Error or `UnexpectedEnd` if EOF
@@ -1774,7 +1774,7 @@
             <span class="prelude-val">Err</span>(err) =&gt; {
                 <span class="self">self</span>.error(Diagnostic::InvalidNumber(
                     err,
-                    Node::new(<span class="self">self</span>.current.token.start, <span class="self">self</span>.offset()),
+                    Span::new(<span class="self">self</span>.current.token.start, <span class="self">self</span>.offset()),
                 ));
                 <span class="self">self</span>.current.token.value = TokenValue::Number(std::f64::NAN);
             }
@@ -2169,11 +2169,11 @@
                 <span class="self">self</span>.identifier_unicode_escape_sequence(<span class="kw-2">&amp;mut </span>builder, <span class="bool-val">true</span>);
             }
             <span class="prelude-val">Some</span>(c) =&gt; {
-                <span class="self">self</span>.error(Diagnostic::InvalidCharacter(c, Node::new(start, <span class="self">self</span>.offset() - <span class="number">1</span>)));
+                <span class="self">self</span>.error(Diagnostic::InvalidCharacter(c, Span::new(start, <span class="self">self</span>.offset() - <span class="number">1</span>)));
                 <span class="kw">return </span>Kind::Undetermined;
             }
             <span class="prelude-val">None </span>=&gt; {
-                <span class="self">self</span>.error(Diagnostic::UnexpectedEnd(Node::new(start, <span class="self">self</span>.offset() - <span class="number">1</span>)));
+                <span class="self">self</span>.error(Diagnostic::UnexpectedEnd(Span::new(start, <span class="self">self</span>.offset() - <span class="number">1</span>)));
                 <span class="kw">return </span>Kind::Undetermined;
             }
         }
@@ -2390,7 +2390,7 @@
                 <span class="kw">break</span>;
             }
         }
-        <span class="self">self</span>.error(Diagnostic::InvalidNumberEnd(Node::new(offset, <span class="self">self</span>.offset())));
+        <span class="self">self</span>.error(Diagnostic::InvalidNumberEnd(Span::new(offset, <span class="self">self</span>.offset())));
         Kind::Undetermined
     }
 
@@ -2417,7 +2417,7 @@
                     <span class="kw">let </span><span class="kw-2">mut </span>is_valid_escape_sequence = <span class="bool-val">true</span>;
                     <span class="self">self</span>.read_string_escape_sequence(text, <span class="bool-val">false</span>, <span class="kw-2">&amp;mut </span>is_valid_escape_sequence);
                     <span class="kw">if </span>!is_valid_escape_sequence {
-                        <span class="kw">let </span>range = Node::new(start, <span class="self">self</span>.offset());
+                        <span class="kw">let </span>range = Span::new(start, <span class="self">self</span>.offset());
                         <span class="self">self</span>.error(Diagnostic::InvalidEscapeSequence(range));
                     }
                 }
@@ -2648,7 +2648,7 @@
     ) {
         <span class="kw">let </span>start = <span class="self">self</span>.offset();
         <span class="kw">if </span><span class="self">self</span>.current.chars.next() != <span class="prelude-val">Some</span>(<span class="string">&#39;u&#39;</span>) {
-            <span class="kw">let </span>range = Node::new(start, <span class="self">self</span>.offset());
+            <span class="kw">let </span>range = Span::new(start, <span class="self">self</span>.offset());
             <span class="self">self</span>.error(Diagnostic::UnicodeEscapeSequence(range));
             <span class="kw">return</span>;
         }
@@ -2659,7 +2659,7 @@
         };
 
         <span class="kw">let </span><span class="prelude-val">Some</span>(value) = value <span class="kw">else </span>{
-            <span class="kw">let </span>range = Node::new(start,<span class="self">self</span>.offset());
+            <span class="kw">let </span>range = Span::new(start,<span class="self">self</span>.offset());
             <span class="self">self</span>.error(Diagnostic::UnicodeEscapeSequence(range));
             <span class="kw">return</span>;
         };
@@ -2667,7 +2667,7 @@
         <span class="comment">// For Identifiers, surrogate pair is an invalid grammar, e.g. `var \uD800\uDEA7`.
         </span><span class="kw">let </span>ch = <span class="kw">match </span>value {
             SurrogatePair::Astral(..) | SurrogatePair::HighLow(..) =&gt; {
-                <span class="kw">let </span>range = Node::new(start, <span class="self">self</span>.offset());
+                <span class="kw">let </span>range = Span::new(start, <span class="self">self</span>.offset());
                 <span class="self">self</span>.error(Diagnostic::UnicodeEscapeSequence(range));
                 <span class="kw">return</span>;
             }
@@ -2675,7 +2675,7 @@
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(ch) = char::try_from(code_point) {
                     ch
                 } <span class="kw">else </span>{
-                    <span class="kw">let </span>range = Node::new(start, <span class="self">self</span>.offset());
+                    <span class="kw">let </span>range = Span::new(start, <span class="self">self</span>.offset());
                     <span class="self">self</span>.error(Diagnostic::UnicodeEscapeSequence(range));
                     <span class="kw">return</span>;
                 }

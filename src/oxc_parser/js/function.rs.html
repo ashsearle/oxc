@@ -495,7 +495,7 @@
 <span class="kw">use </span>oxc_ast::{
     ast::<span class="kw-2">*</span>,
     context::{Context, StatementContext},
-    GetNode, Node,
+    GetSpan, Span,
 };
 <span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
 
@@ -509,7 +509,7 @@
     Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     bool,
-    Node,
+    Span,
 );
 
 <span class="attr">#[derive(Debug, Copy, Clone)]
@@ -550,7 +550,7 @@
     }
 
     <span class="kw">pub fn </span>parse_function_body(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, FunctionBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.expect(Kind::LCurly)<span class="question-mark">?</span>;
 
         <span class="comment">// We may be in a [Decorator] context when parsing a function expression or
@@ -569,21 +569,21 @@
         }
 
         <span class="self">self</span>.expect(Kind::RCurly)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.function_body(<span class="self">self</span>.end_node(node), directives, statements))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.function_body(<span class="self">self</span>.end_span(span), directives, statements))
     }
 
     <span class="kw">pub fn </span>parse_formal_parameters(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         params_kind: FormalParameterKind,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>elements = FormalParameterList::parse(<span class="self">self</span>)<span class="question-mark">?</span>.elements;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.formal_parameters(<span class="self">self</span>.end_node(node), params_kind, elements))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.formal_parameters(<span class="self">self</span>.end_span(span), params_kind, elements))
     }
 
     <span class="kw">pub fn </span>parse_function(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         id: <span class="prelude-ty">Option</span>&lt;BindingIdentifier&gt;,
         r#async: bool,
         generator: bool,
@@ -625,7 +625,7 @@
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.function(
             function_type,
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             id,
             <span class="bool-val">false</span>, <span class="comment">// expression
             </span>generator,
@@ -648,14 +648,14 @@
         <span class="kw">let </span>decl = <span class="self">self</span>.parse_function_impl(func_kind)<span class="question-mark">?</span>;
         <span class="kw">if </span>stmt_ctx.is_single_statement() {
             <span class="kw">if </span>decl.r#async {
-                <span class="self">self</span>.error(Diagnostic::AsyncFunctionDeclaration(Node::new(
-                    decl.node.start,
-                    decl.params.node.end,
+                <span class="self">self</span>.error(Diagnostic::AsyncFunctionDeclaration(Span::new(
+                    decl.span.start,
+                    decl.params.span.end,
                 )));
             } <span class="kw">else if </span>decl.generator {
-                <span class="self">self</span>.error(Diagnostic::GeneratorFunctionDeclaration(Node::new(
-                    decl.node.start,
-                    decl.params.node.end,
+                <span class="self">self</span>.error(Diagnostic::GeneratorFunctionDeclaration(Span::new(
+                    decl.span.start,
+                    decl.params.span.end,
                 )));
             }
         }
@@ -667,18 +667,18 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         func_kind: FunctionKind,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, Function&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>r#async = <span class="self">self</span>.eat(Kind::Async);
         <span class="self">self</span>.expect(Kind::Function)<span class="question-mark">?</span>;
         <span class="kw">let </span>generator = <span class="self">self</span>.eat(Kind::Star);
         <span class="kw">let </span>id = <span class="self">self</span>.parse_function_id(func_kind, r#async, generator);
-        <span class="self">self</span>.parse_function(node, id, r#async, generator, func_kind)
+        <span class="self">self</span>.parse_function(span, id, r#async, generator, func_kind)
     }
 
     <span class="doccomment">/// [Function Expression](https://tc39.es/ecma262/#prod-FunctionExpression)
     </span><span class="kw">pub fn </span>parse_function_expression(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         r#async: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span>func_kind = FunctionKind::Expression;
@@ -689,7 +689,7 @@
 
         <span class="kw">let </span>generator = <span class="self">self</span>.eat(Kind::Star);
         <span class="kw">let </span>id = <span class="self">self</span>.parse_function_id(func_kind, r#async, generator);
-        <span class="kw">let </span>function = <span class="self">self</span>.parse_function(node, id, r#async, generator, func_kind)<span class="question-mark">?</span>;
+        <span class="kw">let </span>function = <span class="self">self</span>.parse_function(span, id, r#async, generator, func_kind)<span class="question-mark">?</span>;
 
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_decorator(save_decorator_context);
 
@@ -698,7 +698,7 @@
 
     <span class="kw">pub fn </span>parse_single_param_function_expression(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         r#async: bool,
         generator: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -706,14 +706,14 @@
         <span class="kw">let </span>has_yield = <span class="self">self</span>.ctx.has_yield();
 
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.union_await_if(r#async).union_yield_if(generator);
-        <span class="kw">let </span>params_node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>params_span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>param = <span class="self">self</span>.parse_binding_identifier()<span class="question-mark">?</span>;
         <span class="kw">let </span>ident = <span class="self">self</span>.ast.binding_identifier(param);
         <span class="kw">let </span>pattern = <span class="self">self</span>.ast.binding_pattern(ident, <span class="prelude-val">None</span>, <span class="bool-val">false</span>);
-        <span class="kw">let </span>params_node = <span class="self">self</span>.end_node(params_node);
-        <span class="kw">let </span>formal_parameter = <span class="self">self</span>.ast.formal_parameter(params_node, pattern, <span class="prelude-val">None</span>, <span class="bool-val">false</span>, <span class="prelude-val">None</span>);
+        <span class="kw">let </span>params_span = <span class="self">self</span>.end_span(params_span);
+        <span class="kw">let </span>formal_parameter = <span class="self">self</span>.ast.formal_parameter(params_span, pattern, <span class="prelude-val">None</span>, <span class="bool-val">false</span>, <span class="prelude-val">None</span>);
         <span class="kw">let </span>params = <span class="self">self</span>.ast.formal_parameters(
-            params_node,
+            params_span,
             FormalParameterKind::ArrowFormalParameters,
             <span class="self">self</span>.ast.new_vec_single(formal_parameter),
         );
@@ -724,16 +724,16 @@
         <span class="kw">let </span>expression = !<span class="self">self</span>.at(Kind::LCurly);
         <span class="kw">let </span>body = <span class="kw">if </span>expression {
             <span class="kw">let </span>expr = <span class="self">self</span>.parse_assignment_expression_base()<span class="question-mark">?</span>;
-            <span class="kw">let </span>node = expr.node();
-            <span class="kw">let </span>expr_stmt = <span class="self">self</span>.ast.expression_statement(node, expr);
-            <span class="self">self</span>.ast.function_body(node, <span class="self">self</span>.ast.new_vec(), <span class="self">self</span>.ast.new_vec_single(expr_stmt))
+            <span class="kw">let </span>span = expr.span();
+            <span class="kw">let </span>expr_stmt = <span class="self">self</span>.ast.expression_statement(span, expr);
+            <span class="self">self</span>.ast.function_body(span, <span class="self">self</span>.ast.new_vec(), <span class="self">self</span>.ast.new_vec_single(expr_stmt))
         } <span class="kw">else </span>{
             <span class="self">self</span>.parse_function_body()<span class="question-mark">?
         </span>};
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_await(has_await).and_yield(has_yield);
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.arrow_expression(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             expression,
             <span class="bool-val">false</span>,
             r#async,
@@ -757,8 +757,8 @@
         r#async: bool,
         generator: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, Function&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
-        <span class="self">self</span>.parse_function(node, <span class="prelude-val">None</span>, r#async, generator, FunctionKind::Expression)
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
+        <span class="self">self</span>.parse_function(span, <span class="prelude-val">None</span>, r#async, generator, FunctionKind::Expression)
     }
 
     <span class="doccomment">/// Section 15.5 Yield Expression
@@ -766,7 +766,7 @@
     /// yield [no `LineTerminator` here] `AssignmentExpression`
     /// yield [no `LineTerminator` here] * `AssignmentExpression`
     </span><span class="kw">pub fn </span>parse_yield_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// advance `yield`
 
         </span><span class="kw">let </span><span class="kw-2">mut </span>delegate = <span class="bool-val">false</span>;
@@ -792,7 +792,7 @@
             }
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.yield_expression(<span class="self">self</span>.end_node(node), delegate, argument))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.yield_expression(<span class="self">self</span>.end_span(span), delegate, argument))
     }
 
     <span class="comment">// id: None - for AnonymousDefaultExportedFunctionDeclaration
@@ -807,13 +807,13 @@
             <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_await(r#async).and_yield(generator);
         }
         <span class="kw">let </span>id = <span class="self">self</span>.cur_kind().is_binding_identifier().then(|| {
-            <span class="kw">let </span>(node, name) = <span class="self">self</span>.parse_identifier_kind(Kind::Ident);
-            BindingIdentifier { node, name }
+            <span class="kw">let </span>(span, name) = <span class="self">self</span>.parse_identifier_kind(Kind::Ident);
+            BindingIdentifier { span, name }
         });
         <span class="self">self</span>.ctx = ctx;
 
         <span class="kw">if </span>kind.is_id_required() &amp;&amp; id.is_none() {
-            <span class="self">self</span>.error(Diagnostic::ExpectFunctionName(<span class="self">self</span>.cur_token().node()));
+            <span class="self">self</span>.error(Diagnostic::ExpectFunctionName(<span class="self">self</span>.cur_token().span()));
         }
 
         id
@@ -911,7 +911,7 @@
     }
 
     <span class="kw">pub fn </span>parse_parenthesized_arrow_function_head(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ArrowFunctionHead&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>r#async = <span class="self">self</span>.eat(Kind::Async);
 
         <span class="kw">let </span>has_await = <span class="self">self</span>.ctx.has_await();
@@ -926,12 +926,12 @@
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_await(has_await);
 
         <span class="kw">if </span><span class="self">self</span>.cur_token().is_on_new_line {
-            <span class="self">self</span>.error(Diagnostic::LineterminatorBeforeArrow(<span class="self">self</span>.cur_token().node()));
+            <span class="self">self</span>.error(Diagnostic::LineterminatorBeforeArrow(<span class="self">self</span>.cur_token().span()));
         }
 
         <span class="self">self</span>.expect(Kind::Arrow)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>((type_parameters, params, return_type, r#async, node))
+        <span class="prelude-val">Ok</span>((type_parameters, params, return_type, r#async, span))
     }
 
     <span class="doccomment">/// [`ConciseBody`](https://tc39.es/ecma262/#prod-ConciseBody)
@@ -941,7 +941,7 @@
     ///     `AssignmentExpression`[?In, ~Yield, ?Await]
     </span><span class="kw">pub fn </span>parse_arrow_function_body(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
@@ -954,9 +954,9 @@
         <span class="kw">let </span>expression = !<span class="self">self</span>.at(Kind::LCurly);
         <span class="kw">let </span>body = <span class="kw">if </span>expression {
             <span class="kw">let </span>expr = <span class="self">self</span>.parse_assignment_expression_base()<span class="question-mark">?</span>;
-            <span class="kw">let </span>node = expr.node();
-            <span class="kw">let </span>expr_stmt = <span class="self">self</span>.ast.expression_statement(node, expr);
-            <span class="self">self</span>.ast.function_body(node, <span class="self">self</span>.ast.new_vec(), <span class="self">self</span>.ast.new_vec_single(expr_stmt))
+            <span class="kw">let </span>span = expr.span();
+            <span class="kw">let </span>expr_stmt = <span class="self">self</span>.ast.expression_statement(span, expr);
+            <span class="self">self</span>.ast.function_body(span, <span class="self">self</span>.ast.new_vec(), <span class="self">self</span>.ast.new_vec_single(expr_stmt))
         } <span class="kw">else </span>{
             <span class="self">self</span>.parse_function_body()<span class="question-mark">?
         </span>};
@@ -964,7 +964,7 @@
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_await(has_await).and_yield(has_yield);
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.arrow_expression(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             expression,
             <span class="bool-val">false</span>,
             r#async,
@@ -979,9 +979,9 @@
     /// `ArrowFunction`[In, Yield, Await] :
     ///     `ArrowParameters`[?Yield, ?Await] [no `LineTerminator` here] =&gt; `ConciseBody`[?In]
     </span><span class="kw">pub fn </span>parse_parenthesized_arrow_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>(type_parameters, params, return_type, r#async, node) =
+        <span class="kw">let </span>(type_parameters, params, return_type, r#async, span) =
             <span class="self">self</span>.parse_parenthesized_arrow_function_head()<span class="question-mark">?</span>;
-        <span class="self">self</span>.parse_arrow_function_body(node, type_parameters, params, return_type, r#async)
+        <span class="self">self</span>.parse_arrow_function_body(span, type_parameters, params, return_type, r#async)
     }
 }
 </code></pre></div>

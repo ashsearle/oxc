@@ -312,7 +312,7 @@
 <a href="#312" id="312">312</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Code related to navigating `Token`s from the lexer
 
-</span><span class="kw">use </span>oxc_ast::{context::Context, Atom, Node};
+</span><span class="kw">use </span>oxc_ast::{context::Context, Atom, Span};
 <span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
 
 <span class="kw">use </span><span class="kw">crate</span>::lexer::{Kind, LexerCheckpoint, LexerContext, Token};
@@ -321,22 +321,22 @@
 <span class="kw">pub struct </span>ParserCheckpoint&lt;<span class="lifetime">&#39;a</span>&gt; {
     lexer: LexerCheckpoint&lt;<span class="lifetime">&#39;a</span>&gt;,
     cur_token: Token,
-    prev_node_end: u32,
+    prev_span_end: u32,
     errors_pos: usize,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Parser&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>start_node(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Node {
+    </span><span class="kw">pub const fn </span>start_span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
         <span class="kw">let </span>token = <span class="self">self</span>.cur_token();
-        Node::new(token.start, <span class="number">0</span>)
+        Span::new(token.start, <span class="number">0</span>)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>end_node(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; Node {
-        <span class="kw">let </span><span class="kw-2">mut </span>node = node;
-        node.end = <span class="self">self</span>.prev_token_end;
-        node
+    </span><span class="kw">pub const fn </span>end_span(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; Span {
+        <span class="kw">let </span><span class="kw-2">mut </span>span = span;
+        span.end = <span class="self">self</span>.prev_token_end;
+        span
     }
 
     <span class="doccomment">/// Get current token
@@ -354,7 +354,7 @@
     <span class="doccomment">/// Get current source text
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>cur_src(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
-        <span class="kw">let </span>range = <span class="self">self</span>.cur_token().node().range();
+        <span class="kw">let </span>range = <span class="self">self</span>.cur_token().span();
         <span class="kw">unsafe </span>{ <span class="self">self</span>.source.get_unchecked(range.start <span class="kw">as </span>usize..range.end <span class="kw">as </span>usize) }
     }
 
@@ -413,8 +413,8 @@
         // in IdentifierName hence such escapes cannot be used to write an Identifier
         // whose code point sequence is the same as a ReservedWord.
         </span><span class="kw">if </span><span class="self">self</span>.cur_token().escaped &amp;&amp; kind.is_all_keyword() {
-            <span class="kw">let </span>node = <span class="self">self</span>.cur_token().node();
-            <span class="self">self</span>.error(Diagnostic::EscapedKeyword(node));
+            <span class="kw">let </span>span = <span class="self">self</span>.cur_token().span();
+            <span class="self">self</span>.error(Diagnostic::EscapedKeyword(span));
         }
         <span class="self">self</span>.prev_token_end = <span class="self">self</span>.token.end;
         <span class="self">self</span>.token = <span class="self">self</span>.lexer.next_token();
@@ -452,8 +452,8 @@
     /// # Errors
     </span><span class="kw">pub fn </span>asi(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.can_insert_semicolon() {
-            <span class="kw">let </span>node = Node::new(<span class="self">self</span>.prev_token_end, <span class="self">self</span>.cur_token().start);
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::AutoSemicolonInsertion(node));
+            <span class="kw">let </span>span = Span::new(<span class="self">self</span>.prev_token_end, <span class="self">self</span>.cur_token().start);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::AutoSemicolonInsertion(span));
         }
         <span class="kw">if </span><span class="self">self</span>.at(Kind::Semicolon) {
             <span class="self">self</span>.advance(Kind::Semicolon);
@@ -482,17 +482,17 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>current_range(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Node {
+    </span><span class="kw">pub const fn </span>current_range(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
         <span class="kw">let </span>cur_token = <span class="self">self</span>.cur_token();
         <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             Kind::Eof =&gt; {
                 <span class="kw">if </span><span class="self">self</span>.prev_token_end &lt; cur_token.end {
-                    Node::new(<span class="self">self</span>.prev_token_end, <span class="self">self</span>.prev_token_end)
+                    Span::new(<span class="self">self</span>.prev_token_end, <span class="self">self</span>.prev_token_end)
                 } <span class="kw">else </span>{
-                    Node::new(<span class="self">self</span>.prev_token_end - <span class="number">1</span>, <span class="self">self</span>.prev_token_end)
+                    Span::new(<span class="self">self</span>.prev_token_end - <span class="number">1</span>, <span class="self">self</span>.prev_token_end)
                 }
             }
-            <span class="kw">_ </span>=&gt; cur_token.node(),
+            <span class="kw">_ </span>=&gt; cur_token.span(),
         }
     }
 
@@ -567,18 +567,18 @@
         ParserCheckpoint {
             lexer: <span class="self">self</span>.lexer.checkpoint(),
             cur_token: <span class="self">self</span>.token.clone(),
-            prev_node_end: <span class="self">self</span>.prev_token_end,
+            prev_span_end: <span class="self">self</span>.prev_token_end,
             errors_pos: <span class="self">self</span>.errors.borrow().len(),
         }
     }
 
     <span class="kw">pub fn </span>rewind(<span class="kw-2">&amp;mut </span><span class="self">self</span>, checkpoint: ParserCheckpoint&lt;<span class="lifetime">&#39;a</span>&gt;) {
-        <span class="kw">let </span>ParserCheckpoint { lexer, cur_token, prev_node_end, errors_pos: errors_lens } =
+        <span class="kw">let </span>ParserCheckpoint { lexer, cur_token, prev_span_end, errors_pos: errors_lens } =
             checkpoint;
 
         <span class="self">self</span>.lexer.rewind(lexer);
         <span class="self">self</span>.token = cur_token;
-        <span class="self">self</span>.prev_token_end = prev_node_end;
+        <span class="self">self</span>.prev_token_end = prev_span_end;
         <span class="self">self</span>.errors.borrow_mut().truncate(errors_lens);
     }
 

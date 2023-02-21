@@ -431,13 +431,13 @@
     Serialize,
 };
 
-<span class="kw">use crate</span>::{Atom, Node};
+<span class="kw">use crate</span>::{Atom, Span};
 
 <span class="attr">#[derive(Debug, Clone, Serialize, PartialEq, Eq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename = <span class="string">&quot;Literal&quot;</span>)]
 </span><span class="kw">pub struct </span>BooleanLiteral {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>value: bool,
 }
 
@@ -450,7 +450,7 @@
 
 <span class="attr">#[derive(Debug, Clone, Eq)]
 </span><span class="kw">pub struct </span>NullLiteral {
-    <span class="kw">pub </span>node: Node,
+    <span class="kw">pub </span>span: Span,
 }
 
 <span class="kw">impl </span>Hash <span class="kw">for </span>NullLiteral {
@@ -472,8 +472,8 @@
     {
         <span class="kw">let </span><span class="kw-2">mut </span>state = serializer.serialize_struct(<span class="string">&quot;NullLiteral&quot;</span>, <span class="number">4</span>)<span class="question-mark">?</span>;
         state.serialize_field(<span class="string">&quot;type&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;Literal&quot;</span>)<span class="question-mark">?</span>;
-        state.serialize_field(<span class="string">&quot;start&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.node.start)<span class="question-mark">?</span>;
-        state.serialize_field(<span class="string">&quot;end&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.node.end)<span class="question-mark">?</span>;
+        state.serialize_field(<span class="string">&quot;start&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.span.start)<span class="question-mark">?</span>;
+        state.serialize_field(<span class="string">&quot;end&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.span.end)<span class="question-mark">?</span>;
         state.serialize_field(<span class="string">&quot;value&quot;</span>, <span class="kw-2">&amp;</span>())<span class="question-mark">?</span>;
         state.end()
     }
@@ -483,7 +483,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename = <span class="string">&quot;Literal&quot;</span>)]
 </span><span class="kw">pub struct </span>NumberLiteral&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>value: NotNan&lt;f64&gt;, <span class="comment">// using NotNan for `Hash`
     </span><span class="attr">#[serde(skip)]
     </span><span class="kw">pub </span>raw: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
@@ -493,9 +493,9 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; NumberLiteral&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new(node: Node, value: f64, raw: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, base: NumberBase) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>new(span: Span, value: f64, raw: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, base: NumberBase) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>value = <span class="kw">unsafe </span>{ NotNan::new_unchecked(value) };
-        <span class="self">Self </span>{ node, value, raw, base }
+        <span class="self">Self </span>{ span, value, raw, base }
     }
 }
 
@@ -510,7 +510,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename = <span class="string">&quot;Literal&quot;</span>)]
 </span><span class="kw">pub struct </span>BigintLiteral {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="attr">#[serde(serialize_with = <span class="string">&quot;crate::serialize::serialize_bigint&quot;</span>)]
     </span><span class="kw">pub </span>value: BigUint,
 }
@@ -519,7 +519,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename = <span class="string">&quot;Literal&quot;</span>)]
 </span><span class="kw">pub struct </span>RegExpLiteral {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="comment">// valid regex is printed as {}
     // invalid regex is printed as null, which we can&#39;t implement yet
     </span><span class="kw">pub </span>value: EmptyObject,
@@ -598,7 +598,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename = <span class="string">&quot;Literal&quot;</span>)]
 </span><span class="kw">pub struct </span>StringLiteral {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>value: Atom,
 }
 

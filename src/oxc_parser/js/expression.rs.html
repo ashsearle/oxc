@@ -1009,7 +1009,7 @@
 <a href="#1009" id="1009">1009</a>
 <a href="#1010" id="1010">1010</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
-<span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Atom, Node};
+<span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Atom, Span};
 <span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
 
 <span class="kw">use </span><span class="kw">super</span>::function::IsParenthesizedArrowFunction;
@@ -1033,7 +1033,7 @@
 
     <span class="doccomment">/// Section Expression `https://tc39.es/ecma262/#sec-ecmascript-language-expressions`
     </span><span class="kw">pub fn </span>parse_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
 
         <span class="comment">// clear the decorator context when parsing Expression, as it should be unambiguous when parsing a decorator
         </span><span class="kw">let </span>save_decorator_context = <span class="self">self</span>.ctx.has_decorator();
@@ -1046,7 +1046,7 @@
             <span class="kw">return </span><span class="prelude-val">Ok</span>(lhs);
         }
 
-        <span class="kw">let </span>expr = <span class="self">self</span>.parse_sequence_expression(node, lhs)<span class="question-mark">?</span>;
+        <span class="kw">let </span>expr = <span class="self">self</span>.parse_sequence_expression(span, lhs)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>save_decorator_context {
             <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_decorator(<span class="bool-val">true</span>);
@@ -1066,8 +1066,8 @@
         </span><span class="kw">if </span>!<span class="self">self</span>.cur_kind().is_identifier_reference(<span class="bool-val">false</span>, <span class="bool-val">false</span>) {
             <span class="kw">return </span><span class="self">self</span>.unexpected();
         }
-        <span class="kw">let </span>(node, name) = <span class="self">self</span>.parse_identifier_kind(Kind::Ident);
-        <span class="prelude-val">Ok</span>(IdentifierReference { node, name })
+        <span class="kw">let </span>(span, name) = <span class="self">self</span>.parse_identifier_kind(Kind::Ident);
+        <span class="prelude-val">Ok</span>(IdentifierReference { span, name })
     }
 
     <span class="doccomment">/// `BindingIdentifier` : Identifier
@@ -1075,40 +1075,40 @@
         <span class="kw">if </span>!<span class="self">self</span>.cur_kind().is_binding_identifier() {
             <span class="kw">return </span><span class="self">self</span>.unexpected();
         }
-        <span class="kw">let </span>(node, name) = <span class="self">self</span>.parse_identifier_kind(Kind::Ident);
-        <span class="prelude-val">Ok</span>(BindingIdentifier { node, name })
+        <span class="kw">let </span>(span, name) = <span class="self">self</span>.parse_identifier_kind(Kind::Ident);
+        <span class="prelude-val">Ok</span>(BindingIdentifier { span, name })
     }
 
     <span class="kw">pub fn </span>parse_label_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;LabelIdentifier&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.cur_kind().is_label_identifier(<span class="self">self</span>.ctx.has_yield(), <span class="self">self</span>.ctx.has_await()) {
             <span class="kw">return </span><span class="self">self</span>.unexpected();
         }
-        <span class="kw">let </span>(node, name) = <span class="self">self</span>.parse_identifier_kind(Kind::Ident);
-        <span class="prelude-val">Ok</span>(LabelIdentifier { node, name })
+        <span class="kw">let </span>(span, name) = <span class="self">self</span>.parse_identifier_kind(Kind::Ident);
+        <span class="prelude-val">Ok</span>(LabelIdentifier { span, name })
     }
 
     <span class="kw">pub fn </span>parse_identifier_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;IdentifierName&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.cur_kind().is_identifier_name() {
             <span class="kw">return </span><span class="self">self</span>.unexpected();
         }
-        <span class="kw">let </span>(node, name) = <span class="self">self</span>.parse_identifier_kind(Kind::Ident);
-        <span class="prelude-val">Ok</span>(IdentifierName { node, name })
+        <span class="kw">let </span>(span, name) = <span class="self">self</span>.parse_identifier_kind(Kind::Ident);
+        <span class="prelude-val">Ok</span>(IdentifierName { span, name })
     }
 
     <span class="doccomment">/// Parse keyword kind as identifier
     </span><span class="kw">pub fn </span>parse_keyword_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; IdentifierName {
-        <span class="kw">let </span>(node, name) = <span class="self">self</span>.parse_identifier_kind(kind);
-        IdentifierName { node, name }
+        <span class="kw">let </span>(span, name) = <span class="self">self</span>.parse_identifier_kind(kind);
+        IdentifierName { span, name }
     }
 
-    <span class="kw">pub fn </span>parse_identifier_kind(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; (Node, Atom) {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+    <span class="kw">pub fn </span>parse_identifier_kind(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; (Span, Atom) {
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>name = <span class="kw">match </span>std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.token.value) {
             TokenValue::String(value) =&gt; value,
             <span class="kw">_ </span>=&gt; <span class="string">&quot;&quot;</span>.into(),
         };
         <span class="self">self</span>.bump_remap(kind);
-        (<span class="self">self</span>.end_node(node), name)
+        (<span class="self">self</span>.end_span(span), name)
     }
 
     <span class="doccomment">/// Section `https://tc39.es/ecma262/#prod-PrivateIdentifier`
@@ -1116,10 +1116,10 @@
     ///     # `IdentifierName`
     /// # Panics
     </span><span class="kw">pub fn </span>parse_private_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; PrivateIdentifier {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>name = <span class="self">self</span>.cur_atom().unwrap().clone();
         <span class="self">self</span>.bump_any();
-        PrivateIdentifier { node: <span class="self">self</span>.end_node(node), name }
+        PrivateIdentifier { span: <span class="self">self</span>.end_span(span), name }
     }
 
     <span class="doccomment">/// Section Primary Expression `https://tc39.es/ecma262/#sec-primary-expression`
@@ -1138,13 +1138,13 @@
     ///     `TemplateLiteral`[?Yield, ?Await, ~Tagged]
     ///     `CoverParenthesizedExpressionAndArrowParameterList`[?Yield, ?Await]
     </span><span class="kw">fn </span>parse_primary_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
 
         <span class="comment">// AsyncFunctionExpression
         // AsyncGeneratorExpression
         </span><span class="kw">if </span><span class="self">self</span>.at_function_with_async() {
             <span class="kw">let </span>r#async = <span class="self">self</span>.eat(Kind::Async);
-            <span class="kw">return </span><span class="self">self</span>.parse_function_expression(node, r#async);
+            <span class="kw">return </span><span class="self">self</span>.parse_function_expression(span, r#async);
         }
 
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.cur_kind() {
@@ -1156,7 +1156,7 @@
             <span class="comment">// ObjectLiteral
             </span>Kind::LCurly =&gt; <span class="self">self</span>.parse_object_expression(),
             <span class="comment">// FunctionExpession, GeneratorExpression
-            </span>Kind::Function =&gt; <span class="self">self</span>.parse_function_expression(node, <span class="bool-val">false</span>),
+            </span>Kind::Function =&gt; <span class="self">self</span>.parse_function_expression(span, <span class="bool-val">false</span>),
             <span class="comment">// ClassExpression
             </span>Kind::Class =&gt; <span class="self">self</span>.parse_class_expression(),
             <span class="comment">// This
@@ -1168,15 +1168,15 @@
             Kind::New =&gt; <span class="self">self</span>.parse_new_expression(),
             Kind::Super =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.parse_super()),
             Kind::Import =&gt; {
-                <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+                <span class="kw">let </span>span = <span class="self">self</span>.start_span();
                 <span class="kw">let </span>identifier = <span class="self">self</span>.parse_keyword_identifier(Kind::Import);
                 <span class="kw">match </span><span class="self">self</span>.cur_kind() {
-                    Kind::Dot =&gt; <span class="self">self</span>.parse_meta_property(node, identifier),
-                    Kind::LParen =&gt; <span class="self">self</span>.parse_import_expression(node),
+                    Kind::Dot =&gt; <span class="self">self</span>.parse_meta_property(span, identifier),
+                    Kind::LParen =&gt; <span class="self">self</span>.parse_import_expression(span),
                     <span class="kw">_ </span>=&gt; <span class="self">self</span>.unexpected(),
                 }
             }
-            Kind::LParen =&gt; <span class="self">self</span>.parse_parenthesized_expression(node),
+            Kind::LParen =&gt; <span class="self">self</span>.parse_parenthesized_expression(span),
             Kind::Slash | Kind::SlashEq =&gt; {
                 <span class="self">self</span>.read_regex();
                 <span class="self">self</span>.parse_literal_regexp()
@@ -1188,7 +1188,7 @@
         }
     }
 
-    <span class="kw">fn </span>parse_parenthesized_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    <span class="kw">fn </span>parse_parenthesized_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span>has_in = <span class="self">self</span>.ctx.has_in();
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_in(<span class="bool-val">true</span>);
         <span class="kw">let </span>list = SequenceExpressionList::parse(<span class="self">self</span>)<span class="question-mark">?</span>;
@@ -1201,19 +1201,19 @@
             expressions.remove(<span class="number">0</span>)
         } <span class="kw">else </span>{
             <span class="kw">if </span>expressions.is_empty() {
-                <span class="self">self</span>.error(Diagnostic::EmptyParenthesizedExpression(list.node));
+                <span class="self">self</span>.error(Diagnostic::EmptyParenthesizedExpression(list.span));
             }
-            <span class="self">self</span>.ast.sequence_expression(list.node, expressions)
+            <span class="self">self</span>.ast.sequence_expression(list.span, expressions)
         };
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.parenthesized_expression(<span class="self">self</span>.end_node(node), expression))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.parenthesized_expression(<span class="self">self</span>.end_span(span), expression))
     }
 
     <span class="doccomment">/// Section 13.2.2 This Expression
     </span><span class="kw">fn </span>parse_this_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any();
-        <span class="self">self</span>.ast.this_expression(<span class="self">self</span>.end_node(node))
+        <span class="self">self</span>.ast.this_expression(<span class="self">self</span>.end_span(span))
     }
 
     <span class="doccomment">/// [Literal Expression](https://tc39.es/ecma262/#prod-Literal)
@@ -1247,24 +1247,24 @@
     }
 
     <span class="kw">pub fn </span>parse_literal_boolean(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;BooleanLiteral&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>value = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             Kind::True =&gt; <span class="bool-val">true</span>,
             Kind::False =&gt; <span class="bool-val">false</span>,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="self">self</span>.unexpected(),
         };
         <span class="self">self</span>.bump_any();
-        <span class="prelude-val">Ok</span>(BooleanLiteral { node: <span class="self">self</span>.end_node(node), value })
+        <span class="prelude-val">Ok</span>(BooleanLiteral { span: <span class="self">self</span>.end_span(span), value })
     }
 
     <span class="kw">pub fn </span>parse_literal_null(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; NullLiteral {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// bump `null`
-        </span>NullLiteral { node: <span class="self">self</span>.end_node(node) }
+        </span>NullLiteral { span: <span class="self">self</span>.end_span(span) }
     }
 
     <span class="kw">pub fn </span>parse_literal_number(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;NumberLiteral&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>base = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             Kind::Float | Kind::Decimal =&gt; NumberBase::Decimal,
             Kind::Binary =&gt; NumberBase::Binary,
@@ -1275,28 +1275,28 @@
         <span class="kw">let </span>value = <span class="self">self</span>.cur_token().value.as_number();
         <span class="kw">let </span>raw = <span class="self">self</span>.cur_src();
         <span class="self">self</span>.bump_any();
-        <span class="prelude-val">Ok</span>(NumberLiteral::new(<span class="self">self</span>.end_node(node), value, raw, base))
+        <span class="prelude-val">Ok</span>(NumberLiteral::new(<span class="self">self</span>.end_span(span), value, raw, base))
     }
 
     <span class="kw">pub fn </span>parse_literal_bigint(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;BigintLiteral&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>value = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             kind <span class="kw">if </span>kind.is_number() =&gt; <span class="self">self</span>.cur_token().value.as_bigint(),
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="self">self</span>.unexpected(),
         };
         <span class="self">self</span>.bump_any();
-        <span class="prelude-val">Ok</span>(BigintLiteral { node: <span class="self">self</span>.end_node(node), value })
+        <span class="prelude-val">Ok</span>(BigintLiteral { span: <span class="self">self</span>.end_span(span), value })
     }
 
     <span class="kw">pub fn </span>parse_literal_regexp(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;RegExpLiteral&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>r = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             Kind::RegExp =&gt; <span class="self">self</span>.cur_token().value.as_regex(),
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="self">self</span>.unexpected(),
         };
         <span class="self">self</span>.bump_any();
         <span class="prelude-val">Ok</span>(RegExpLiteral {
-            node: <span class="self">self</span>.end_node(node),
+            span: <span class="self">self</span>.end_span(span),
             value: EmptyObject {},
             regex: RegExp { pattern: r.pattern, flags: r.flags },
         })
@@ -1309,9 +1309,9 @@
         <span class="kw">let </span>TokenValue::String(value) = std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.token.value) <span class="kw">else </span>{
             <span class="macro">unreachable!</span>()
         };
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any();
-        <span class="prelude-val">Ok</span>(StringLiteral { node: <span class="self">self</span>.end_node(node), value })
+        <span class="prelude-val">Ok</span>(StringLiteral { span: <span class="self">self</span>.end_span(span), value })
     }
 
     <span class="doccomment">/// Section Array Expression `https://tc39.es/ecma262/#prod-ArrayLiteral`
@@ -1320,12 +1320,12 @@
     ///     [ `ElementList`[?Yield, ?Await] ]
     ///     [ `ElementList`[?Yield, ?Await] , Elisionopt ]
     </span><span class="kw">pub fn </span>parse_array_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>has_in = <span class="self">self</span>.ctx.has_in();
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_in(<span class="bool-val">true</span>);
         <span class="kw">let </span>list = ArrayExpressionList::parse(<span class="self">self</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_in(has_in);
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.array_expression(<span class="self">self</span>.end_node(node), list.elements, list.trailing_comma))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.array_expression(<span class="self">self</span>.end_span(span), list.elements, list.trailing_comma))
     }
 
     <span class="doccomment">/// Section Template Literal `https://tc39.es/ecma262/#prod-TemplateLiteral`
@@ -1333,7 +1333,7 @@
     ///     `NoSubstitutionTemplate`
     ///     `SubstitutionTemplate`[?Yield, ?Await, ?Tagged]
     </span><span class="kw">fn </span>parse_template_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tagged: bool) -&gt; <span class="prelude-ty">Result</span>&lt;TemplateLiteral&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span><span class="kw-2">mut </span>expressions = <span class="self">self</span>.ast.new_vec();
         <span class="kw">let </span><span class="kw-2">mut </span>quasis = <span class="self">self</span>.ast.new_vec();
         <span class="kw">match </span><span class="self">self</span>.cur_kind() {
@@ -1363,7 +1363,7 @@
             }
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;parse_template_literal&quot;</span>),
         }
-        <span class="prelude-val">Ok</span>(TemplateLiteral { node: <span class="self">self</span>.end_node(node), quasis, expressions })
+        <span class="prelude-val">Ok</span>(TemplateLiteral { span: <span class="self">self</span>.end_span(span), quasis, expressions })
     }
 
     <span class="kw">fn </span>parse_template_literal_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tagged: bool) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -1373,26 +1373,26 @@
 
     <span class="kw">fn </span>parse_tagged_template(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         lhs: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         in_optional_chain: bool,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span>quasi = <span class="self">self</span>.parse_template_literal(<span class="bool-val">true</span>)<span class="question-mark">?</span>;
-        <span class="kw">let </span>node = <span class="self">self</span>.end_node(node);
+        <span class="kw">let </span>span = <span class="self">self</span>.end_span(span);
         <span class="comment">// OptionalChain :
         //   ?. TemplateLiteral
         //   OptionalChain TemplateLiteral
         // It is a Syntax Error if any source text is matched by this production.
         // https://tc39.es/ecma262/#sec-left-hand-side-expressions-static-semantics-early-errors
         </span><span class="kw">if </span>in_optional_chain {
-            <span class="self">self</span>.error(Diagnostic::OptionalChainTaggedTemplate(quasi.node));
+            <span class="self">self</span>.error(Diagnostic::OptionalChainTaggedTemplate(quasi.span));
         }
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.tagged_template_expression(node, lhs, quasi, type_parameters))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.tagged_template_expression(span, lhs, quasi, type_parameters))
     }
 
     <span class="kw">pub fn </span>parse_template_element(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tagged: bool) -&gt; TemplateElement {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>cur_kind = <span class="self">self</span>.cur_kind();
         <span class="kw">let </span>end_offset: u32 = <span class="kw">match </span>cur_kind {
             Kind::TemplateHead | Kind::TemplateMiddle =&gt; <span class="number">2</span>,
@@ -1412,51 +1412,51 @@
 
         <span class="self">self</span>.bump_any();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>node = <span class="self">self</span>.end_node(node);
-        node.start += <span class="number">1</span>;
-        node.end -= end_offset;
+        <span class="kw">let </span><span class="kw-2">mut </span>span = <span class="self">self</span>.end_span(span);
+        span.start += <span class="number">1</span>;
+        span.end -= end_offset;
 
         <span class="kw">if </span>!tagged &amp;&amp; cooked.is_none() {
-            <span class="self">self</span>.error(Diagnostic::TemplateLiteral(node));
+            <span class="self">self</span>.error(Diagnostic::TemplateLiteral(span));
         }
 
         <span class="kw">let </span>tail = <span class="macro">matches!</span>(cur_kind, Kind::TemplateTail | Kind::NoSubstitutionTemplate);
-        TemplateElement { node, tail, value: TemplateElementValue { raw, cooked } }
+        TemplateElement { span, tail, value: TemplateElementValue { raw, cooked } }
     }
 
     <span class="doccomment">/// Section 13.3 Meta Property
-    </span><span class="kw">fn </span>parse_meta_property(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node, meta: IdentifierName) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="kw">fn </span>parse_meta_property(<span class="kw-2">&amp;mut </span><span class="self">self</span>, span: Span, meta: IdentifierName) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.bump_any(); <span class="comment">// bump `.`
         </span><span class="kw">let </span>property = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             Kind::Meta =&gt; <span class="self">self</span>.parse_keyword_identifier(Kind::Meta),
             Kind::Target =&gt; <span class="self">self</span>.parse_keyword_identifier(Kind::Target),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.parse_identifier_name()<span class="question-mark">?</span>,
         };
-        <span class="kw">let </span>node = <span class="self">self</span>.end_node(node);
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.meta_property(node, meta, property))
+        <span class="kw">let </span>span = <span class="self">self</span>.end_span(span);
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.meta_property(span, meta, property))
     }
 
     <span class="doccomment">/// Section 13.3 Left-Hand-Side Expression
     </span><span class="kw">pub fn </span>parse_lhs_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span><span class="kw-2">mut </span>in_optional_chain = <span class="bool-val">false</span>;
         <span class="kw">let </span>lhs = <span class="self">self</span>.parse_member_expression_base(<span class="kw-2">&amp;mut </span>in_optional_chain)<span class="question-mark">?</span>;
-        <span class="kw">let </span>lhs = <span class="self">self</span>.parse_call_expression(node, lhs, <span class="kw-2">&amp;mut </span>in_optional_chain)<span class="question-mark">?</span>;
+        <span class="kw">let </span>lhs = <span class="self">self</span>.parse_call_expression(span, lhs, <span class="kw-2">&amp;mut </span>in_optional_chain)<span class="question-mark">?</span>;
         <span class="kw">if </span>in_optional_chain {
-            <span class="kw">let </span>node = <span class="self">self</span>.end_node(node);
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.map_to_chain_expression(node, lhs))
+            <span class="kw">let </span>span = <span class="self">self</span>.end_span(span);
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.map_to_chain_expression(span, lhs))
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(lhs)
         }
     }
 
-    <span class="kw">fn </span>map_to_chain_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node, expr: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>map_to_chain_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, span: Span, expr: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="kw">match </span>expr {
             Expression::MemberExpression(result) =&gt; {
-                <span class="self">self</span>.ast.chain_expression(node, ChainElement::MemberExpression(result))
+                <span class="self">self</span>.ast.chain_expression(span, ChainElement::MemberExpression(result))
             }
             Expression::CallExpression(result) =&gt; {
-                <span class="self">self</span>.ast.chain_expression(node, ChainElement::CallExpression(result))
+                <span class="self">self</span>.ast.chain_expression(span, ChainElement::CallExpression(result))
             }
             expr =&gt; expr,
         }
@@ -1467,16 +1467,16 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         in_optional_chain: <span class="kw-2">&amp;mut </span>bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.parse_primary_expression()
-            .and_then(|lhs| <span class="self">self</span>.parse_member_expression_rhs(node, lhs, in_optional_chain))
+            .and_then(|lhs| <span class="self">self</span>.parse_member_expression_rhs(span, lhs, in_optional_chain))
     }
 
     <span class="doccomment">/// Section 13.3 Super Call
     </span><span class="kw">fn </span>parse_super(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// bump `super`
-        </span><span class="kw">let </span>node = <span class="self">self</span>.end_node(node);
+        </span><span class="kw">let </span>span = <span class="self">self</span>.end_span(span);
 
         <span class="comment">// The `super` keyword can appear at below:
         // SuperProperty:
@@ -1485,16 +1485,16 @@
         // SuperCall:
         //     super ( Arguments )
         </span><span class="kw">if </span>!<span class="macro">matches!</span>(<span class="self">self</span>.cur_kind(), Kind::Dot | Kind::LBrack | Kind::LParen) {
-            <span class="self">self</span>.error(Diagnostic::UnexpectedSuper(node));
+            <span class="self">self</span>.error(Diagnostic::UnexpectedSuper(span));
         }
 
-        <span class="self">self</span>.ast.super_(node)
+        <span class="self">self</span>.ast.super_(span)
     }
 
     <span class="doccomment">/// parse rhs of a member expression, starting from lhs
     </span><span class="kw">fn </span>parse_member_expression_rhs(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        lhs_node: Node,
+        lhs_span: Span,
         lhs: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         in_optional_chain: <span class="kw-2">&amp;mut </span>bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -1504,34 +1504,34 @@
                 <span class="comment">// Decorator context does not parse computed member expressions, e.g.
                 // `class C { @dec() [&quot;method&quot;]() {} }`
                 </span>Kind::LBrack <span class="kw">if </span>!<span class="self">self</span>.ctx.has_decorator() =&gt; {
-                    <span class="self">self</span>.parse_computed_member_expression(lhs_node, lhs, <span class="bool-val">false</span>)<span class="question-mark">?
+                    <span class="self">self</span>.parse_computed_member_expression(lhs_span, lhs, <span class="bool-val">false</span>)<span class="question-mark">?
                 </span>}
-                Kind::Dot =&gt; <span class="self">self</span>.parse_static_member_expression(lhs_node, lhs, <span class="bool-val">false</span>)<span class="question-mark">?</span>,
+                Kind::Dot =&gt; <span class="self">self</span>.parse_static_member_expression(lhs_span, lhs, <span class="bool-val">false</span>)<span class="question-mark">?</span>,
                 Kind::QuestionDot =&gt; {
                     <span class="kw-2">*</span>in_optional_chain = <span class="bool-val">true</span>;
                     <span class="kw">match </span><span class="self">self</span>.peek_kind() {
                         Kind::LBrack =&gt; {
                             <span class="self">self</span>.bump_any(); <span class="comment">// bump `?.`
-                            </span><span class="self">self</span>.parse_computed_member_expression(lhs_node, lhs, <span class="bool-val">true</span>)<span class="question-mark">?
+                            </span><span class="self">self</span>.parse_computed_member_expression(lhs_span, lhs, <span class="bool-val">true</span>)<span class="question-mark">?
                         </span>}
                         Kind::PrivateIdentifier =&gt; {
-                            <span class="self">self</span>.parse_static_member_expression(lhs_node, lhs, <span class="bool-val">true</span>)<span class="question-mark">?
+                            <span class="self">self</span>.parse_static_member_expression(lhs_span, lhs, <span class="bool-val">true</span>)<span class="question-mark">?
                         </span>}
                         kind <span class="kw">if </span>kind.is_identifier_name() =&gt; {
-                            <span class="self">self</span>.parse_static_member_expression(lhs_node, lhs, <span class="bool-val">true</span>)<span class="question-mark">?
+                            <span class="self">self</span>.parse_static_member_expression(lhs_span, lhs, <span class="bool-val">true</span>)<span class="question-mark">?
                         </span>}
                         <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
                     }
                 }
                 Kind::Bang <span class="kw">if </span>!<span class="self">self</span>.cur_token().is_on_new_line &amp;&amp; <span class="self">self</span>.ts_enabled() =&gt; {
                     <span class="self">self</span>.bump_any();
-                    <span class="self">self</span>.ast.ts_non_null_expression(<span class="self">self</span>.end_node(lhs_node), lhs)
+                    <span class="self">self</span>.ast.ts_non_null_expression(<span class="self">self</span>.end_span(lhs_span), lhs)
                 }
                 Kind::LAngle | Kind::ShiftLeft <span class="kw">if </span><span class="self">self</span>.ts_enabled() =&gt; {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(arguments) = <span class="self">self</span>.parse_ts_type_arguments_in_expression()<span class="question-mark">? </span>{
                         lhs = Expression::TSInstantiationExpression(<span class="self">self</span>.ast.alloc(
                             TSInstantiationExpression {
-                                node: <span class="self">self</span>.end_node(lhs_node),
+                                span: <span class="self">self</span>.end_span(lhs_span),
                                 expression: lhs,
                                 type_parameters: arguments,
                             },
@@ -1550,7 +1550,7 @@
     /// static member `a.b`
     </span><span class="kw">fn </span>parse_static_member_expression(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        lhs_node: Node,
+        lhs_span: Span,
         lhs: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         optional: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -1558,14 +1558,14 @@
         </span><span class="kw">if </span><span class="self">self</span>.cur_kind() == Kind::PrivateIdentifier {
             <span class="kw">let </span>private_ident = <span class="self">self</span>.parse_private_identifier();
             <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.private_field_expression(
-                <span class="self">self</span>.end_node(lhs_node),
+                <span class="self">self</span>.end_span(lhs_span),
                 lhs,
                 private_ident,
                 optional,
             ))
         } <span class="kw">else </span>{
             <span class="kw">let </span>ident = <span class="self">self</span>.parse_identifier_name()<span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.static_member_expression(<span class="self">self</span>.end_node(lhs_node), lhs, ident, optional))
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.static_member_expression(<span class="self">self</span>.end_span(lhs_span), lhs, ident, optional))
         }
     }
 
@@ -1574,7 +1574,7 @@
     ///   `MemberExpression`[?Yield, ?Await] [ Expression[+In, ?Yield, ?Await] ]
     </span><span class="kw">fn </span>parse_computed_member_expression(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        lhs_node: Node,
+        lhs_span: Span,
         lhs: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         optional: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -1584,18 +1584,18 @@
         <span class="kw">let </span>property = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_in(has_in);
         <span class="self">self</span>.expect(Kind::RBrack)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.computed_member_expression(<span class="self">self</span>.end_node(lhs_node), lhs, property, optional))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.computed_member_expression(<span class="self">self</span>.end_span(lhs_span), lhs, property, optional))
     }
 
     <span class="doccomment">/// `NewExpression` : new `NewExpression`
     /// `https://tc39.es/ecma262/#sec-new-operator`
     </span><span class="kw">fn </span>parse_new_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>identifier = <span class="self">self</span>.parse_keyword_identifier(Kind::New);
         <span class="kw">if </span><span class="self">self</span>.at(Kind::Dot) {
-            <span class="kw">return </span><span class="self">self</span>.parse_meta_property(node, identifier);
+            <span class="kw">return </span><span class="self">self</span>.parse_meta_property(span, identifier);
         }
-        <span class="kw">let </span>rhs_node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>rhs_span = <span class="self">self</span>.start_span();
 
         <span class="kw">let </span><span class="kw-2">mut </span>optional = <span class="bool-val">false</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>callee = <span class="self">self</span>.parse_member_expression_base(<span class="kw-2">&amp;mut </span>optional)<span class="question-mark">?</span>;
@@ -1615,29 +1615,29 @@
         };
 
         <span class="kw">if </span><span class="macro">matches!</span>(callee, Expression::ImportExpression(<span class="kw">_</span>)) {
-            <span class="self">self</span>.error(Diagnostic::NewDynamicImport(<span class="self">self</span>.end_node(rhs_node)));
+            <span class="self">self</span>.error(Diagnostic::NewDynamicImport(<span class="self">self</span>.end_span(rhs_span)));
         }
 
-        <span class="kw">let </span>node = <span class="self">self</span>.end_node(node);
+        <span class="kw">let </span>span = <span class="self">self</span>.end_span(span);
 
         <span class="kw">if </span>optional {
-            <span class="self">self</span>.error(Diagnostic::NewOptionalChain(node));
+            <span class="self">self</span>.error(Diagnostic::NewOptionalChain(span));
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.new_expression(node, callee, arguments, type_parameter))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.new_expression(span, callee, arguments, type_parameter))
     }
 
     <span class="doccomment">/// Section 13.3 Call Expression
     </span><span class="kw">fn </span>parse_call_expression(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        lhs_node: Node,
+        lhs_span: Span,
         lhs: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         in_optional_chain: <span class="kw-2">&amp;mut </span>bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>lhs = lhs;
         <span class="kw">let </span><span class="kw-2">mut </span>type_arguments = <span class="prelude-val">None</span>;
         <span class="kw">loop </span>{
-            lhs = <span class="self">self</span>.parse_member_expression_rhs(lhs_node, lhs, in_optional_chain)<span class="question-mark">?</span>;
+            lhs = <span class="self">self</span>.parse_member_expression_rhs(lhs_span, lhs, in_optional_chain)<span class="question-mark">?</span>;
             <span class="kw">let </span>optional_call = <span class="self">self</span>.eat(Kind::QuestionDot);
             <span class="kw-2">*</span>in_optional_chain = <span class="kw">if </span>optional_call { <span class="bool-val">true </span>} <span class="kw">else </span>{ <span class="kw-2">*</span>in_optional_chain };
             <span class="kw">if let </span>Expression::TSInstantiationExpression(expr) = lhs {
@@ -1648,7 +1648,7 @@
             <span class="kw">match </span><span class="self">self</span>.cur_kind() {
                 Kind::LParen =&gt; {
                     lhs = <span class="self">self</span>.parse_call_arguments(
-                        lhs_node,
+                        lhs_span,
                         lhs,
                         optional_call,
                         type_arguments.take(),
@@ -1656,7 +1656,7 @@
                 }
                 Kind::NoSubstitutionTemplate | Kind::TemplateHead =&gt; {
                     lhs = <span class="self">self</span>.parse_tagged_template(
-                        lhs_node,
+                        lhs_span,
                         lhs,
                         <span class="kw-2">*</span>in_optional_chain,
                         type_arguments.take(),
@@ -1696,7 +1696,7 @@
 
     <span class="kw">fn </span>parse_call_arguments(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        lhs_node: Node,
+        lhs_span: Span,
         lhs: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         optional: bool,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
@@ -1706,7 +1706,7 @@
         <span class="kw">let </span>call_arguments = CallArguments::parse(<span class="self">self</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_in(has_in);
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.call_expression(
-            <span class="self">self</span>.end_node(lhs_node),
+            <span class="self">self</span>.end_span(lhs_span),
             lhs,
             call_arguments.elements,
             optional,
@@ -1716,23 +1716,23 @@
 
     <span class="doccomment">/// Section 13.4 Update Expression
     </span><span class="kw">fn </span>parse_update_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>lhs = <span class="self">self</span>.parse_lhs_expression()<span class="question-mark">?</span>;
         <span class="comment">// ++ -- postfix update expressions
         </span><span class="kw">if </span><span class="self">self</span>.cur_kind().is_update_operator() &amp;&amp; !<span class="self">self</span>.cur_token().is_on_new_line {
             <span class="kw">let </span>operator = map_update_operator(<span class="self">self</span>.cur_kind());
             <span class="self">self</span>.bump_any();
             <span class="kw">let </span>lhs = SimpleAssignmentTarget::cover(lhs, <span class="self">self</span>)<span class="question-mark">?</span>;
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.update_expression(<span class="self">self</span>.end_node(node), operator, <span class="bool-val">false</span>, lhs));
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.update_expression(<span class="self">self</span>.end_span(span), operator, <span class="bool-val">false</span>, lhs));
         }
         <span class="prelude-val">Ok</span>(lhs)
     }
 
     <span class="doccomment">/// Section 13.5 Unary Expression
-    </span><span class="kw">pub fn </span>parse_unary_expression_base(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lhs_node: Node) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>parse_unary_expression_base(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lhs_span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="comment">// [+Await] AwaitExpression
         </span><span class="kw">if </span><span class="self">self</span>.is_await_expression() {
-            <span class="kw">return </span><span class="self">self</span>.parse_await_expression(lhs_node);
+            <span class="kw">return </span><span class="self">self</span>.parse_await_expression(lhs_span);
         }
 
         <span class="kw">if </span>(<span class="self">self</span>.at(Kind::LAngle) || <span class="self">self</span>.at(Kind::ShiftLeft))
@@ -1746,10 +1746,10 @@
         </span><span class="kw">if </span><span class="self">self</span>.cur_kind().is_update_operator() {
             <span class="kw">let </span>operator = map_update_operator(<span class="self">self</span>.cur_kind());
             <span class="self">self</span>.bump_any();
-            <span class="kw">let </span>argument = <span class="self">self</span>.parse_unary_expression_base(lhs_node)<span class="question-mark">?</span>;
+            <span class="kw">let </span>argument = <span class="self">self</span>.parse_unary_expression_base(lhs_span)<span class="question-mark">?</span>;
             <span class="kw">let </span>argument = SimpleAssignmentTarget::cover(argument, <span class="self">self</span>)<span class="question-mark">?</span>;
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.update_expression(
-                <span class="self">self</span>.end_node(lhs_node),
+                <span class="self">self</span>.end_span(lhs_span),
                 operator,
                 <span class="bool-val">true</span>,
                 argument,
@@ -1765,40 +1765,40 @@
     }
 
     <span class="kw">fn </span>parse_unary_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>operator = map_unary_operator(<span class="self">self</span>.cur_kind());
         <span class="self">self</span>.bump_any();
-        <span class="kw">let </span>argument = <span class="self">self</span>.parse_unary_expression_base(node)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.unary_expression(<span class="self">self</span>.end_node(node), operator, <span class="bool-val">true</span>, argument))
+        <span class="kw">let </span>argument = <span class="self">self</span>.parse_unary_expression_base(span)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.unary_expression(<span class="self">self</span>.end_span(span), operator, <span class="bool-val">true</span>, argument))
     }
 
     <span class="kw">fn </span>parse_binary_or_logical_expression_base(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         lhs_binding_power: BindingPower,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>lhs_node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>lhs_span = <span class="self">self</span>.start_span();
 
         <span class="kw">let </span>lhs = <span class="kw">if </span><span class="self">self</span>.ctx.has_in() &amp;&amp; <span class="self">self</span>.at(Kind::PrivateIdentifier) {
             <span class="kw">let </span>left = <span class="self">self</span>.parse_private_identifier();
             <span class="self">self</span>.expect(Kind::In)<span class="question-mark">?</span>;
-            <span class="kw">let </span>right = <span class="self">self</span>.parse_unary_expression_base(lhs_node)<span class="question-mark">?</span>;
+            <span class="kw">let </span>right = <span class="self">self</span>.parse_unary_expression_base(lhs_span)<span class="question-mark">?</span>;
             Expression::PrivateInExpression(<span class="self">self</span>.ast.alloc(PrivateInExpression {
-                node: <span class="self">self</span>.end_node(lhs_node),
+                span: <span class="self">self</span>.end_span(lhs_span),
                 left,
                 operator: BinaryOperator::In,
                 right,
             }))
         } <span class="kw">else </span>{
-            <span class="self">self</span>.parse_unary_expression_base(lhs_node)<span class="question-mark">?
+            <span class="self">self</span>.parse_unary_expression_base(lhs_span)<span class="question-mark">?
         </span>};
 
-        <span class="self">self</span>.parse_binary_or_logical_expression_recursive(lhs_node, lhs, lhs_binding_power)
+        <span class="self">self</span>.parse_binary_or_logical_expression_recursive(lhs_span, lhs, lhs_binding_power)
     }
 
     <span class="doccomment">/// Section 13.6 - 13.13 Binary Expression
     </span><span class="kw">fn </span>parse_binary_or_logical_expression_recursive(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        lhs_node: Node,
+        lhs_span: Span,
         lhs: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         min_binding_power: BindingPower,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -1836,7 +1836,7 @@
             </span><span class="kw">if </span><span class="self">self</span>.ts_enabled() &amp;&amp; kind == Kind::As {
                 <span class="kw">let </span>type_annotation = <span class="self">self</span>.parse_ts_type()<span class="question-mark">?</span>;
                 lhs = Expression::TSAsExpression(<span class="self">self</span>.ast.alloc(TSAsExpression {
-                    node: <span class="self">self</span>.end_node(lhs_node),
+                    span: <span class="self">self</span>.end_span(lhs_span),
                     expression: lhs,
                     type_annotation,
                 }));
@@ -1847,14 +1847,14 @@
 
             lhs = <span class="kw">if </span>kind.is_logical_operator() {
                 <span class="self">self</span>.ast.logical_expression(
-                    <span class="self">self</span>.end_node(lhs_node),
+                    <span class="self">self</span>.end_span(lhs_span),
                     lhs,
                     map_logical_operator(kind),
                     rhs,
                 )
             } <span class="kw">else if </span>kind.is_binary_operator() {
                 <span class="self">self</span>.ast.binary_expression(
-                    <span class="self">self</span>.end_node(lhs_node),
+                    <span class="self">self</span>.end_span(lhs_span),
                     lhs,
                     map_binary_operator(kind),
                     rhs,
@@ -1872,7 +1872,7 @@
     ///     `ShortCircuitExpression`[?In, ?Yield, ?Await]
     ///     `ShortCircuitExpression`[?In, ?Yield, ?Await] ? `AssignmentExpression`[+In, ?Yield, ?Await] : `AssignmentExpression`[?In, ?Yield, ?Await]
     </span><span class="kw">fn </span>parse_conditional_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>lhs = <span class="self">self</span>.parse_binary_or_logical_expression_base(BindingPower::lowest())<span class="question-mark">?</span>;
         <span class="kw">if </span>!<span class="self">self</span>.eat(Kind::Question) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(lhs);
@@ -1885,7 +1885,7 @@
 
         <span class="self">self</span>.expect(Kind::Colon)<span class="question-mark">?</span>;
         <span class="kw">let </span>alternate = <span class="self">self</span>.parse_assignment_expression_base()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.conditional_expression(<span class="self">self</span>.end_node(node), lhs, consequent, alternate))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.conditional_expression(<span class="self">self</span>.end_span(span), lhs, consequent, alternate))
     }
 
     <span class="kw">pub fn </span>parse_assignment_expression_base(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -1896,11 +1896,11 @@
             IsParenthesizedArrowFunction::Maybe =&gt; {
                 <span class="kw">let </span>pos = <span class="self">self</span>.cur_token().start;
                 <span class="kw">if </span>!<span class="self">self</span>.state.not_parenthesized_arrow.contains(<span class="kw-2">&amp;</span>pos) {
-                    <span class="kw">if let </span><span class="prelude-val">Ok</span>((type_parameters, params, return_type, r#async, node)) =
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>((type_parameters, params, return_type, r#async, span)) =
                         <span class="self">self</span>.try_parse(Parser::parse_parenthesized_arrow_function_head)
                     {
                         <span class="kw">return </span><span class="self">self</span>.parse_arrow_function_body(
-                            node,
+                            span,
                             type_parameters,
                             params,
                             return_type,
@@ -1913,12 +1913,12 @@
             IsParenthesizedArrowFunction::False =&gt; {}
         }
 
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">if </span><span class="self">self</span>.cur_kind().is_binding_identifier()
             &amp;&amp; <span class="self">self</span>.peek_at(Kind::Arrow)
             &amp;&amp; !<span class="self">self</span>.peek_token().is_on_new_line
         {
-            <span class="self">self</span>.parse_single_param_function_expression(node, <span class="bool-val">false</span>, <span class="bool-val">false</span>)
+            <span class="self">self</span>.parse_single_param_function_expression(span, <span class="bool-val">false</span>, <span class="bool-val">false</span>)
         } <span class="kw">else if </span><span class="self">self</span>.at_async_no_new_line()
             &amp;&amp; <span class="self">self</span>.peek_kind().is_binding_identifier()
             &amp;&amp; !<span class="self">self</span>.peek_token().is_on_new_line
@@ -1926,7 +1926,7 @@
             &amp;&amp; !<span class="self">self</span>.nth(<span class="number">2</span>).is_on_new_line
         {
             <span class="self">self</span>.bump_any(); <span class="comment">// bump async
-            </span><span class="self">self</span>.parse_single_param_function_expression(node, <span class="bool-val">true</span>, <span class="bool-val">false</span>)
+            </span><span class="self">self</span>.parse_single_param_function_expression(span, <span class="bool-val">true</span>, <span class="bool-val">false</span>)
         } <span class="kw">else </span>{
             <span class="self">self</span>.parse_assignment_expression()
         }
@@ -1939,15 +1939,15 @@
             <span class="kw">return </span><span class="self">self</span>.parse_yield_expression();
         }
 
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
 
         <span class="kw">let </span>lhs = <span class="self">self</span>.parse_conditional_expression()<span class="question-mark">?</span>;
-        <span class="self">self</span>.parse_assignment_expression_recursive(node, lhs)
+        <span class="self">self</span>.parse_assignment_expression_recursive(span, lhs)
     }
 
     <span class="kw">fn </span>parse_assignment_expression_recursive(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         lhs: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.cur_kind().is_assignment_operator() {
@@ -1967,13 +1967,13 @@
         <span class="self">self</span>.bump_any();
 
         <span class="kw">let </span>right = <span class="self">self</span>.parse_assignment_expression_base()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.assignment_expression(<span class="self">self</span>.end_node(node), operator, left, right))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.assignment_expression(<span class="self">self</span>.end_span(span), operator, left, right))
     }
 
     <span class="doccomment">/// Section 13.16 Sequence Expression
     </span><span class="kw">fn </span>parse_sequence_expression(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         first_expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>expressions = <span class="self">self</span>.ast.new_vec_single(first_expression);
@@ -1981,19 +1981,19 @@
             <span class="kw">let </span>expression = <span class="self">self</span>.parse_assignment_expression_base()<span class="question-mark">?</span>;
             expressions.push(expression);
         }
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.sequence_expression(<span class="self">self</span>.end_node(node), expressions))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.sequence_expression(<span class="self">self</span>.end_span(span), expressions))
     }
 
     <span class="doccomment">/// `AwaitExpression`[Yield] :
     ///     await `UnaryExpression`[?Yield, +Await]
-    </span><span class="kw">fn </span>parse_await_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lhs_node: Node) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+    </span><span class="kw">fn </span>parse_await_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lhs_span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any();
         <span class="kw">let </span>has_await = <span class="self">self</span>.ctx.has_await();
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_await(<span class="bool-val">true</span>);
-        <span class="kw">let </span>argument = <span class="self">self</span>.parse_unary_expression_base(lhs_node)<span class="question-mark">?</span>;
+        <span class="kw">let </span>argument = <span class="self">self</span>.parse_unary_expression_base(lhs_span)<span class="question-mark">?</span>;
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_await(has_await);
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.await_expression(<span class="self">self</span>.end_node(node), argument))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.await_expression(<span class="self">self</span>.end_span(span), argument))
     }
 
     <span class="kw">fn </span>is_await_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {

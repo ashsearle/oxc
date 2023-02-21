@@ -1743,14 +1743,14 @@
 <a href="#1743" id="1743">1743</a>
 <a href="#1744" id="1744">1744</a>
 <a href="#1745" id="1745">1745</a>
-</pre><pre class="rust"><code><span class="doccomment">//! AST builder for creating AST nodes
+</pre><pre class="rust"><code><span class="doccomment">//! AST builder for creating AST spans
 
 </span><span class="attr">#![allow(clippy::unused_self, clippy::missing_const_for_fn, clippy::too_many_arguments)]
 
 </span><span class="kw">use </span>oxc_allocator::{Allocator, Box, String, Vec};
 
 <span class="attr">#[allow(clippy::wildcard_imports)]
-</span><span class="kw">use crate</span>::{ast::<span class="kw-2">*</span>, Atom, Node, SourceType};
+</span><span class="kw">use crate</span>::{ast::<span class="kw-2">*</span>, Atom, SourceType, Span};
 
 <span class="kw">pub struct </span>AstBuilder&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub </span>allocator: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Allocator,
@@ -1794,12 +1794,12 @@
     #[inline]
     </span><span class="kw">pub fn </span>program(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         directives: Vec&lt;<span class="lifetime">&#39;a</span>, Directive&gt;,
         body: Vec&lt;<span class="lifetime">&#39;a</span>, Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         source_type: SourceType,
     ) -&gt; Program&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Program { node, directives, body, source_type }
+        Program { span, directives, body, source_type }
     }
 
     <span class="comment">/* ---------- Literals ---------- */
@@ -1854,243 +1854,243 @@
     #[inline]
     </span><span class="kw">pub fn </span>directive(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         expression: StringLiteral,
         directive: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
     ) -&gt; Directive&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Directive { node, expression, directive }
+        Directive { span, expression, directive }
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>block(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, body: Vec&lt;<span class="lifetime">&#39;a</span>, Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, BlockStatement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(BlockStatement { node, body })
+    </span><span class="kw">pub fn </span>block(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, body: Vec&lt;<span class="lifetime">&#39;a</span>, Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, BlockStatement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="self">self</span>.alloc(BlockStatement { span, body })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>block_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, block: Box&lt;<span class="lifetime">&#39;a</span>, BlockStatement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
         Statement::BlockStatement(
-            <span class="self">self</span>.alloc(BlockStatement { node: block.node, body: block.unbox().body }),
+            <span class="self">self</span>.alloc(BlockStatement { span: block.span, body: block.unbox().body }),
         )
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>break_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, label: <span class="prelude-ty">Option</span>&lt;LabelIdentifier&gt;) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::BreakStatement(<span class="self">self</span>.alloc(BreakStatement { node, label }))
+    </span><span class="kw">pub fn </span>break_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, label: <span class="prelude-ty">Option</span>&lt;LabelIdentifier&gt;) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
+        Statement::BreakStatement(<span class="self">self</span>.alloc(BreakStatement { span, label }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>continue_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, label: <span class="prelude-ty">Option</span>&lt;LabelIdentifier&gt;) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::ContinueStatement(<span class="self">self</span>.alloc(ContinueStatement { node, label }))
+    </span><span class="kw">pub fn </span>continue_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, label: <span class="prelude-ty">Option</span>&lt;LabelIdentifier&gt;) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
+        Statement::ContinueStatement(<span class="self">self</span>.alloc(ContinueStatement { span, label }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>debugger_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::DebuggerStatement(<span class="self">self</span>.alloc(DebuggerStatement { node }))
+    </span><span class="kw">pub fn </span>debugger_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
+        Statement::DebuggerStatement(<span class="self">self</span>.alloc(DebuggerStatement { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>do_while_statement(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         body: Statement&lt;<span class="lifetime">&#39;a</span>&gt;,
         test: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::DoWhileStatement(<span class="self">self</span>.alloc(DoWhileStatement { node, body, test }))
+        Statement::DoWhileStatement(<span class="self">self</span>.alloc(DoWhileStatement { span, body, test }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>empty_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::EmptyStatement(<span class="self">self</span>.alloc(EmptyStatement { node }))
+    </span><span class="kw">pub fn </span>empty_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
+        Statement::EmptyStatement(<span class="self">self</span>.alloc(EmptyStatement { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>expression_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::ExpressionStatement(<span class="self">self</span>.alloc(ExpressionStatement { node, expression }))
+    </span><span class="kw">pub fn </span>expression_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
+        Statement::ExpressionStatement(<span class="self">self</span>.alloc(ExpressionStatement { span, expression }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>for_in_statement(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         left: ForStatementLeft&lt;<span class="lifetime">&#39;a</span>&gt;,
         right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         body: Statement&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::ForInStatement(<span class="self">self</span>.alloc(ForInStatement { node, left, right, body }))
+        Statement::ForInStatement(<span class="self">self</span>.alloc(ForInStatement { span, left, right, body }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>for_of_statement(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         r#await: bool,
         left: ForStatementLeft&lt;<span class="lifetime">&#39;a</span>&gt;,
         right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         body: Statement&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::ForOfStatement(<span class="self">self</span>.alloc(ForOfStatement { node, r#await, left, right, body }))
+        Statement::ForOfStatement(<span class="self">self</span>.alloc(ForOfStatement { span, r#await, left, right, body }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>for_statement(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         init: <span class="prelude-ty">Option</span>&lt;ForStatementInit&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         test: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         update: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         body: Statement&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::ForStatement(<span class="self">self</span>.alloc(ForStatement { node, init, test, update, body }))
+        Statement::ForStatement(<span class="self">self</span>.alloc(ForStatement { span, init, test, update, body }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>if_statement(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         test: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         consequent: Statement&lt;<span class="lifetime">&#39;a</span>&gt;,
         alternate: <span class="prelude-ty">Option</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::IfStatement(<span class="self">self</span>.alloc(IfStatement { node, test, consequent, alternate }))
+        Statement::IfStatement(<span class="self">self</span>.alloc(IfStatement { span, test, consequent, alternate }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>labeled_statement(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         label: LabelIdentifier,
         body: Statement&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::LabeledStatement(<span class="self">self</span>.alloc(LabeledStatement { node, label, body }))
+        Statement::LabeledStatement(<span class="self">self</span>.alloc(LabeledStatement { span, label, body }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>return_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, argument: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::ReturnStatement(<span class="self">self</span>.alloc(ReturnStatement { node, argument }))
+    </span><span class="kw">pub fn </span>return_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, argument: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
+        Statement::ReturnStatement(<span class="self">self</span>.alloc(ReturnStatement { span, argument }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>switch_statement(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         discriminant: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         cases: Vec&lt;<span class="lifetime">&#39;a</span>, SwitchCase&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::SwitchStatement(<span class="self">self</span>.alloc(SwitchStatement { node, discriminant, cases }))
+        Statement::SwitchStatement(<span class="self">self</span>.alloc(SwitchStatement { span, discriminant, cases }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>switch_case(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         test: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         consequent: Vec&lt;<span class="lifetime">&#39;a</span>, Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; SwitchCase&lt;<span class="lifetime">&#39;a</span>&gt; {
-        SwitchCase { node, test, consequent }
+        SwitchCase { span, test, consequent }
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>throw_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, argument: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::ThrowStatement(<span class="self">self</span>.alloc(ThrowStatement { node, argument }))
+    </span><span class="kw">pub fn </span>throw_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, argument: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
+        Statement::ThrowStatement(<span class="self">self</span>.alloc(ThrowStatement { span, argument }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>try_statement(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         block: Box&lt;<span class="lifetime">&#39;a</span>, BlockStatement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         handler: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, CatchClause&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         finalizer: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, BlockStatement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::TryStatement(<span class="self">self</span>.alloc(TryStatement { node, block, handler, finalizer }))
+        Statement::TryStatement(<span class="self">self</span>.alloc(TryStatement { span, block, handler, finalizer }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>catch_clause(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         param: <span class="prelude-ty">Option</span>&lt;BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         body: Box&lt;<span class="lifetime">&#39;a</span>, BlockStatement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, CatchClause&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(CatchClause { node, param, body })
+        <span class="self">self</span>.alloc(CatchClause { span, param, body })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>while_statement(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         test: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         body: Statement&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::WhileStatement(<span class="self">self</span>.alloc(WhileStatement { node, test, body }))
+        Statement::WhileStatement(<span class="self">self</span>.alloc(WhileStatement { span, test, body }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>with_statement(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         object: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         body: Statement&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::WithStatement(<span class="self">self</span>.alloc(WithStatement { node, object, body }))
+        Statement::WithStatement(<span class="self">self</span>.alloc(WithStatement { span, object, body }))
     }
 
     <span class="comment">/* ---------- Expressions ---------- */
 
     </span><span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>super_(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Expression::Super(<span class="self">self</span>.alloc(Super { node }))
+    </span><span class="kw">pub fn </span>super_(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
+        Expression::Super(<span class="self">self</span>.alloc(Super { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>meta_property(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         meta: IdentifierName,
         property: IdentifierName,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Expression::MetaProperty(<span class="self">self</span>.alloc(MetaProperty { node, meta, property }))
+        Expression::MetaProperty(<span class="self">self</span>.alloc(MetaProperty { span, meta, property }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>array_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         elements: Vec&lt;<span class="lifetime">&#39;a</span>, <span class="prelude-ty">Option</span>&lt;Argument&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-        trailing_comma: <span class="prelude-ty">Option</span>&lt;Node&gt;,
+        trailing_comma: <span class="prelude-ty">Option</span>&lt;Span&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Expression::ArrayExpression(<span class="self">self</span>.alloc(ArrayExpression { node, elements, trailing_comma }))
+        Expression::ArrayExpression(<span class="self">self</span>.alloc(ArrayExpression { span, elements, trailing_comma }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>arrow_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         expression: bool,
         generator: bool,
         r#async: bool,
@@ -2100,7 +2100,7 @@
         return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         Expression::ArrowFunctionExpression(<span class="self">self</span>.alloc(ArrowExpression {
-            node,
+            span,
             expression,
             generator,
             r#async,
@@ -2115,13 +2115,13 @@
     #[inline]
     </span><span class="kw">pub fn </span>assignment_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         operator: AssignmentOperator,
         left: AssignmentTarget&lt;<span class="lifetime">&#39;a</span>&gt;,
         right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         Expression::AssignmentExpression(<span class="self">self</span>.alloc(AssignmentExpression {
-            node,
+            span,
             operator,
             left,
             right,
@@ -2130,34 +2130,34 @@
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>await_expression(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, argument: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Expression::AwaitExpression(<span class="self">self</span>.alloc(AwaitExpression { node, argument }))
+    </span><span class="kw">pub fn </span>await_expression(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, argument: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
+        Expression::AwaitExpression(<span class="self">self</span>.alloc(AwaitExpression { span, argument }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>binary_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         operator: BinaryOperator,
         right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Expression::BinaryExpression(<span class="self">self</span>.alloc(BinaryExpression { node, left, operator, right }))
+        Expression::BinaryExpression(<span class="self">self</span>.alloc(BinaryExpression { span, left, operator, right }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>call_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         callee: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         arguments: Vec&lt;<span class="lifetime">&#39;a</span>, Argument&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         optional: bool, <span class="comment">// for optional chaining
         </span>type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         Expression::CallExpression(<span class="self">self</span>.alloc(CallExpression {
-            node,
+            span,
             callee,
             arguments,
             optional,
@@ -2167,8 +2167,8 @@
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>chain_expression(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, expression: ChainElement&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Expression::ChainExpression(<span class="self">self</span>.alloc(ChainExpression { node, expression }))
+    </span><span class="kw">pub fn </span>chain_expression(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, expression: ChainElement&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
+        Expression::ChainExpression(<span class="self">self</span>.alloc(ChainExpression { span, expression }))
     }
 
     <span class="attr">#[must_use]
@@ -2181,13 +2181,13 @@
     #[inline]
     </span><span class="kw">pub fn </span>conditional_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         test: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         consequent: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         alternate: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         Expression::ConditionalExpression(<span class="self">self</span>.alloc(ConditionalExpression {
-            node,
+            span,
             test,
             consequent,
             alternate,
@@ -2204,37 +2204,37 @@
     #[inline]
     </span><span class="kw">pub fn </span>import_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         source: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         arguments: Vec&lt;<span class="lifetime">&#39;a</span>, Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Expression::ImportExpression(<span class="self">self</span>.alloc(ImportExpression { node, source, arguments }))
+        Expression::ImportExpression(<span class="self">self</span>.alloc(ImportExpression { span, source, arguments }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>logical_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         operator: LogicalOperator,
         right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Expression::LogicalExpression(<span class="self">self</span>.alloc(LogicalExpression { node, left, operator, right }))
+        Expression::LogicalExpression(<span class="self">self</span>.alloc(LogicalExpression { span, left, operator, right }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>computed_member_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         object: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         optional: bool, <span class="comment">// for optional chaining
     </span>) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         Expression::MemberExpression(<span class="self">self</span>.alloc({
             MemberExpression::ComputedMemberExpression(ComputedMemberExpression {
-                node,
+                span,
                 object,
                 expression,
                 optional,
@@ -2246,14 +2246,14 @@
     #[inline]
     </span><span class="kw">pub fn </span>static_member_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         object: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         property: IdentifierName,
         optional: bool, <span class="comment">// for optional chaining
     </span>) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         Expression::MemberExpression(<span class="self">self</span>.alloc({
             MemberExpression::StaticMemberExpression(StaticMemberExpression {
-                node,
+                span,
                 object,
                 property,
                 optional,
@@ -2265,14 +2265,14 @@
     #[inline]
     </span><span class="kw">pub fn </span>private_field_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         object: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         field: PrivateIdentifier,
         optional: bool,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         Expression::MemberExpression(<span class="self">self</span>.alloc({
             MemberExpression::PrivateFieldExpression(PrivateFieldExpression {
-                node,
+                span,
                 object,
                 field,
                 optional,
@@ -2284,13 +2284,13 @@
     #[inline]
     </span><span class="kw">pub fn </span>new_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         callee: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         arguments: Vec&lt;<span class="lifetime">&#39;a</span>, Argument&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         Expression::NewExpression(<span class="self">self</span>.alloc(NewExpression {
-            node,
+            span,
             callee,
             arguments,
             type_parameters,
@@ -2301,12 +2301,12 @@
     #[inline]
     </span><span class="kw">pub fn </span>object_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         properties: Vec&lt;<span class="lifetime">&#39;a</span>, ObjectProperty&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-        trailing_comma: <span class="prelude-ty">Option</span>&lt;Node&gt;,
+        trailing_comma: <span class="prelude-ty">Option</span>&lt;Span&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         Expression::ObjectExpression(<span class="self">self</span>.alloc(ObjectExpression {
-            node,
+            span,
             properties,
             trailing_comma,
         }))
@@ -2316,11 +2316,11 @@
     #[inline]
     </span><span class="kw">pub fn </span>parenthesized_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         Expression::ParenthesizedExpression(
-            <span class="self">self</span>.alloc(ParenthesizedExpression { node, expression }),
+            <span class="self">self</span>.alloc(ParenthesizedExpression { span, expression }),
         )
     }
 
@@ -2328,23 +2328,23 @@
     #[inline]
     </span><span class="kw">pub fn </span>sequence_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         expressions: Vec&lt;<span class="lifetime">&#39;a</span>, Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Expression::SequenceExpression(<span class="self">self</span>.alloc(SequenceExpression { node, expressions }))
+        Expression::SequenceExpression(<span class="self">self</span>.alloc(SequenceExpression { span, expressions }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>tagged_template_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         tag: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
         quasi: TemplateLiteral&lt;<span class="lifetime">&#39;a</span>&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         Expression::TaggedTemplateExpression(<span class="self">self</span>.alloc(TaggedTemplateExpression {
-            node,
+            span,
             tag,
             quasi,
             type_parameters,
@@ -2362,21 +2362,21 @@
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>this_expression(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Expression::ThisExpression(<span class="self">self</span>.alloc(ThisExpression { node }))
+    </span><span class="kw">pub fn </span>this_expression(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
+        Expression::ThisExpression(<span class="self">self</span>.alloc(ThisExpression { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>unary_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         operator: UnaryOperator,
         prefix: bool,
         argument: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         Expression::UnaryExpression(<span class="self">self</span>.alloc(UnaryExpression {
-            node,
+            span,
             operator,
             prefix,
             argument,
@@ -2387,13 +2387,13 @@
     #[inline]
     </span><span class="kw">pub fn </span>update_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         operator: UpdateOperator,
         prefix: bool,
         argument: SimpleAssignmentTarget&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         Expression::UpdateExpression(<span class="self">self</span>.alloc(UpdateExpression {
-            node,
+            span,
             operator,
             prefix,
             argument,
@@ -2404,11 +2404,11 @@
     #[inline]
     </span><span class="kw">pub fn </span>yield_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         delegate: bool,
         argument: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Expression::YieldExpression(<span class="self">self</span>.alloc(YieldExpression { node, delegate, argument }))
+        Expression::YieldExpression(<span class="self">self</span>.alloc(YieldExpression { span, delegate, argument }))
     }
 
     <span class="comment">/* ---------- Functions ---------- */
@@ -2422,24 +2422,24 @@
     #[inline]
     </span><span class="kw">pub fn </span>formal_parameters(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         kind: FormalParameterKind,
         items: Vec&lt;<span class="lifetime">&#39;a</span>, FormalParameter&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(FormalParameters { node, kind, items })
+        <span class="self">self</span>.alloc(FormalParameters { span, kind, items })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>formal_parameter(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         pattern: BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;,
         accessibility: <span class="prelude-ty">Option</span>&lt;TSAccessibility&gt;,
         readonly: bool,
         decorators: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; FormalParameter&lt;<span class="lifetime">&#39;a</span>&gt; {
-        FormalParameter { node, pattern, accessibility, readonly, decorators }
+        FormalParameter { span, pattern, accessibility, readonly, decorators }
     }
 
     <span class="attr">#[must_use]
@@ -2448,7 +2448,7 @@
     </span><span class="kw">pub fn </span>function(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         r#type: FunctionType,
-        node: Node,
+        span: Span,
         id: <span class="prelude-ty">Option</span>&lt;BindingIdentifier&gt;,
         expression: bool,
         generator: bool,
@@ -2461,7 +2461,7 @@
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, Function&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.alloc(Function {
             r#type,
-            node,
+            span,
             id,
             expression,
             generator,
@@ -2478,11 +2478,11 @@
     #[inline]
     </span><span class="kw">pub fn </span>function_body(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         directives: Vec&lt;<span class="lifetime">&#39;a</span>, Directive&gt;,
         statements: Vec&lt;<span class="lifetime">&#39;a</span>, Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, FunctionBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(FunctionBody { node, directives, statements })
+        <span class="self">self</span>.alloc(FunctionBody { span, directives, statements })
     }
 
     <span class="comment">/* ---------- Class ---------- */
@@ -2492,7 +2492,7 @@
     </span><span class="kw">pub fn </span>class(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         r#type: ClassType,
-        node: Node,
+        span: Span,
         id: <span class="prelude-ty">Option</span>&lt;BindingIdentifier&gt;,
         super_class: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         body: ClassBody&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -2505,7 +2505,7 @@
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, Class&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.alloc(Class {
             r#type,
-            node,
+            span,
             id,
             super_class,
             body,
@@ -2526,22 +2526,22 @@
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>static_block(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, body: Vec&lt;<span class="lifetime">&#39;a</span>, Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; ClassElement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        ClassElement::StaticBlock(<span class="self">self</span>.alloc(StaticBlock { node, body }))
+    </span><span class="kw">pub fn </span>static_block(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, body: Vec&lt;<span class="lifetime">&#39;a</span>, Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; ClassElement&lt;<span class="lifetime">&#39;a</span>&gt; {
+        ClassElement::StaticBlock(<span class="self">self</span>.alloc(StaticBlock { span, body }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>accessor_property(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         key: PropertyKey&lt;<span class="lifetime">&#39;a</span>&gt;,
         value: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         computed: bool,
         r#static: bool,
     ) -&gt; ClassElement&lt;<span class="lifetime">&#39;a</span>&gt; {
         ClassElement::AccessorProperty(<span class="self">self</span>.alloc(AccessorProperty {
-            node,
+            span,
             key,
             value,
             computed,
@@ -2555,24 +2555,24 @@
     #[inline]
     </span><span class="kw">pub fn </span>variable_declaration(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         kind: VariableDeclarationKind,
         declarations: Vec&lt;<span class="lifetime">&#39;a</span>, VariableDeclarator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, VariableDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(VariableDeclaration { node, kind, declarations })
+        <span class="self">self</span>.alloc(VariableDeclaration { span, kind, declarations })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>variable_declarator(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         kind: VariableDeclarationKind,
         id: BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;,
         init: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         definite: bool,
     ) -&gt; VariableDeclarator&lt;<span class="lifetime">&#39;a</span>&gt; {
-        VariableDeclarator { node, kind, id, init, definite }
+        VariableDeclarator { span, kind, id, init, definite }
     }
 
     <span class="comment">/* ---------- Patterns ---------- */
@@ -2598,27 +2598,27 @@
     #[inline]
     </span><span class="kw">pub fn </span>object_pattern(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         properties: Vec&lt;<span class="lifetime">&#39;a</span>, ObjectPatternProperty&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; BindingPatternKind&lt;<span class="lifetime">&#39;a</span>&gt; {
-        BindingPatternKind::ObjectPattern(<span class="self">self</span>.alloc(ObjectPattern { node, properties }))
+        BindingPatternKind::ObjectPattern(<span class="self">self</span>.alloc(ObjectPattern { span, properties }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>spread_element(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         argument: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, SpreadElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(SpreadElement { node, argument })
+        <span class="self">self</span>.alloc(SpreadElement { span, argument })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>property(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         kind: PropertyKind,
         key: PropertyKey&lt;<span class="lifetime">&#39;a</span>&gt;,
         value: PropertyValue&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -2626,28 +2626,28 @@
         shorthand: bool,
         computed: bool,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, Property&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(Property { node, kind, key, value, method, shorthand, computed })
+        <span class="self">self</span>.alloc(Property { span, kind, key, value, method, shorthand, computed })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>array_pattern(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         elements: Vec&lt;<span class="lifetime">&#39;a</span>, <span class="prelude-ty">Option</span>&lt;BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; BindingPatternKind&lt;<span class="lifetime">&#39;a</span>&gt; {
-        BindingPatternKind::ArrayPattern(<span class="self">self</span>.alloc(ArrayPattern { node, elements }))
+        BindingPatternKind::ArrayPattern(<span class="self">self</span>.alloc(ArrayPattern { span, elements }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>assignment_pattern(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         left: BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;,
         right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt; {
-        <span class="kw">let </span>pattern = <span class="self">self</span>.alloc(AssignmentPattern { node, left, right });
+        <span class="kw">let </span>pattern = <span class="self">self</span>.alloc(AssignmentPattern { span, left, right });
         BindingPattern {
             kind: BindingPatternKind::AssignmentPattern(pattern),
             type_annotation: <span class="prelude-val">None</span>,
@@ -2659,10 +2659,10 @@
     #[inline]
     </span><span class="kw">pub fn </span>rest_element(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         argument: BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, RestElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(RestElement { node, argument })
+        <span class="self">self</span>.alloc(RestElement { span, argument })
     }
 
     <span class="attr">#[must_use]
@@ -2679,8 +2679,8 @@
 
     </span><span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>module_declaration(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, kind: ModuleDeclarationKind&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Statement::ModuleDeclaration(<span class="self">self</span>.alloc(ModuleDeclaration { node, kind }))
+    </span><span class="kw">pub fn </span>module_declaration(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, kind: ModuleDeclarationKind&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
+        Statement::ModuleDeclaration(<span class="self">self</span>.alloc(ModuleDeclaration { span, kind }))
     }
 
     <span class="attr">#[must_use]
@@ -2733,136 +2733,136 @@
     #[inline]
     </span><span class="kw">pub fn </span>jsx_element(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         opening_element: Box&lt;<span class="lifetime">&#39;a</span>, JSXOpeningElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         closing_element: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, JSXClosingElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         children: Vec&lt;<span class="lifetime">&#39;a</span>, JSXChild&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, JSXElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(JSXElement { node, opening_element, closing_element, children })
+        <span class="self">self</span>.alloc(JSXElement { span, opening_element, closing_element, children })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>jsx_opening_element(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         self_closing: bool,
         name: JSXElementName&lt;<span class="lifetime">&#39;a</span>&gt;,
         attributes: Vec&lt;<span class="lifetime">&#39;a</span>, JSXAttributeItem&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, JSXOpeningElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(JSXOpeningElement { node, self_closing, name, attributes, type_parameters })
+        <span class="self">self</span>.alloc(JSXOpeningElement { span, self_closing, name, attributes, type_parameters })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>jsx_closing_element(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         name: JSXElementName&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, JSXClosingElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(JSXClosingElement { node, name })
+        <span class="self">self</span>.alloc(JSXClosingElement { span, name })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>jsx_fragment(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         opening_fragment: JSXOpeningFragment,
         closing_fragment: JSXClosingFragment,
         children: Vec&lt;<span class="lifetime">&#39;a</span>, JSXChild&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, JSXFragment&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(JSXFragment { node, opening_fragment, closing_fragment, children })
+        <span class="self">self</span>.alloc(JSXFragment { span, opening_fragment, closing_fragment, children })
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>jsx_opening_fragment(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; JSXOpeningFragment {
-        JSXOpeningFragment { node }
+    </span><span class="kw">pub fn </span>jsx_opening_fragment(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; JSXOpeningFragment {
+        JSXOpeningFragment { span }
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>jsx_closing_fragment(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; JSXClosingFragment {
-        JSXClosingFragment { node }
+    </span><span class="kw">pub fn </span>jsx_closing_fragment(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; JSXClosingFragment {
+        JSXClosingFragment { span }
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>jsx_namespaced_name(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         namespace: JSXIdentifier,
         property: JSXIdentifier,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, JSXNamespacedName&gt; {
-        <span class="self">self</span>.alloc(JSXNamespacedName { node, namespace, property })
+        <span class="self">self</span>.alloc(JSXNamespacedName { span, namespace, property })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>jsx_member_expression(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         object: JSXMemberExpressionObject&lt;<span class="lifetime">&#39;a</span>&gt;,
         property: JSXIdentifier,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, JSXMemberExpression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(JSXMemberExpression { node, object, property })
+        <span class="self">self</span>.alloc(JSXMemberExpression { span, object, property })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>jsx_expression_container(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         expression: JSXExpression&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; JSXExpressionContainer&lt;<span class="lifetime">&#39;a</span>&gt; {
-        JSXExpressionContainer { node, expression }
+        JSXExpressionContainer { span, expression }
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>jsx_spread_child(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; JSXSpreadChild&lt;<span class="lifetime">&#39;a</span>&gt; {
-        JSXSpreadChild { node, expression }
+    </span><span class="kw">pub fn </span>jsx_spread_child(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; JSXSpreadChild&lt;<span class="lifetime">&#39;a</span>&gt; {
+        JSXSpreadChild { span, expression }
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>jsx_empty_expression(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; JSXEmptyExpression {
-        JSXEmptyExpression { node }
+    </span><span class="kw">pub fn </span>jsx_empty_expression(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; JSXEmptyExpression {
+        JSXEmptyExpression { span }
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>jsx_attribute(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         name: JSXAttributeName&lt;<span class="lifetime">&#39;a</span>&gt;,
         value: <span class="prelude-ty">Option</span>&lt;JSXAttributeValue&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, JSXAttribute&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(JSXAttribute { node, name, value })
+        <span class="self">self</span>.alloc(JSXAttribute { span, name, value })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>jsx_spread_attribute(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         argument: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, JSXSpreadAttribute&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(JSXSpreadAttribute { node, argument })
+        <span class="self">self</span>.alloc(JSXSpreadAttribute { span, argument })
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>jsx_identifier(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, name: Atom) -&gt; JSXIdentifier {
-        JSXIdentifier { node, name }
+    </span><span class="kw">pub fn </span>jsx_identifier(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, name: Atom) -&gt; JSXIdentifier {
+        JSXIdentifier { span, name }
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>jsx_text(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, value: Atom) -&gt; JSXText {
-        JSXText { node, value }
+    </span><span class="kw">pub fn </span>jsx_text(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, value: Atom) -&gt; JSXText {
+        JSXText { span, value }
     }
 
     <span class="comment">/* ---------- TypeScript ---------- */
@@ -2870,52 +2870,52 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_module_declaration(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         id: TSModuleDeclarationName,
         body: TSModuleDeclarationBody&lt;<span class="lifetime">&#39;a</span>&gt;,
         declare: bool,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, TSModuleDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(TSModuleDeclaration { node, id, body, declare })
+        <span class="self">self</span>.alloc(TSModuleDeclaration { span, id, body, declare })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>ts_type_annotation(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSTypeAnnotation { node, type_annotation }
+        TSTypeAnnotation { span, type_annotation }
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_literal_type(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, literal: TSLiteral&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSLiteralType(<span class="self">self</span>.alloc(TSLiteralType { node, literal }))
+    </span><span class="kw">pub fn </span>ts_literal_type(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, literal: TSLiteral&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSLiteralType(<span class="self">self</span>.alloc(TSLiteralType { span, literal }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_union_type(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, types: Vec&lt;<span class="lifetime">&#39;a</span>, TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSUnionType(<span class="self">self</span>.alloc(TSUnionType { node, types }))
+    </span><span class="kw">pub fn </span>ts_union_type(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, types: Vec&lt;<span class="lifetime">&#39;a</span>, TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSUnionType(<span class="self">self</span>.alloc(TSUnionType { span, types }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_intersection_type(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, types: Vec&lt;<span class="lifetime">&#39;a</span>, TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSIntersectionType(<span class="self">self</span>.alloc(TSIntersectionType { node, types }))
+    </span><span class="kw">pub fn </span>ts_intersection_type(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, types: Vec&lt;<span class="lifetime">&#39;a</span>, TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSIntersectionType(<span class="self">self</span>.alloc(TSIntersectionType { span, types }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>ts_type_operator_type(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         operator: TSTypeOperator,
         type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSType::TSTypeOperatorType(<span class="self">self</span>.alloc(TSTypeOperatorType {
-            node,
+            span,
             operator,
             type_annotation,
         }))
@@ -2923,20 +2923,20 @@
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_array_type(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, element_type: TSType&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSArrayType(<span class="self">self</span>.alloc(TSArrayType { node, element_type }))
+    </span><span class="kw">pub fn </span>ts_array_type(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, element_type: TSType&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSArrayType(<span class="self">self</span>.alloc(TSArrayType { span, element_type }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>ts_indexed_access_type(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         object_type: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
         index_type: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSType::TSIndexedAccessType(<span class="self">self</span>.alloc(TSIndexedAccessType {
-            node,
+            span,
             object_type,
             index_type,
         }))
@@ -2946,73 +2946,73 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_tuple_type(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         element_types: Vec&lt;<span class="lifetime">&#39;a</span>, TSTupleElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSTupleType(<span class="self">self</span>.alloc(TSTupleType { node, element_types }))
+        TSType::TSTupleType(<span class="self">self</span>.alloc(TSTupleType { span, element_types }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>ts_type_reference(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         type_name: TSTypeName&lt;<span class="lifetime">&#39;a</span>&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSTypeReference(<span class="self">self</span>.alloc(TSTypeReference { node, type_name, type_parameters }))
+        TSType::TSTypeReference(<span class="self">self</span>.alloc(TSTypeReference { span, type_name, type_parameters }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_type_literal(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, members: Vec&lt;<span class="lifetime">&#39;a</span>, TSSignature&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSTypeLiteral(<span class="self">self</span>.alloc(TSTypeLiteral { node, members }))
+    </span><span class="kw">pub fn </span>ts_type_literal(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, members: Vec&lt;<span class="lifetime">&#39;a</span>, TSSignature&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSTypeLiteral(<span class="self">self</span>.alloc(TSTypeLiteral { span, members }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>ts_type_implement(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         expression: TSTypeName&lt;<span class="lifetime">&#39;a</span>&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, TSClassImplements&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(TSClassImplements { node, expression, type_parameters })
+        <span class="self">self</span>.alloc(TSClassImplements { span, expression, type_parameters })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>ts_type_parameter(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         name: BindingIdentifier,
         constraint: <span class="prelude-ty">Option</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         default: <span class="prelude-ty">Option</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         r#in: bool,
         out: bool,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameter&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(TSTypeParameter { node, name, constraint, default, r#in, out })
+        <span class="self">self</span>.alloc(TSTypeParameter { span, name, constraint, default, r#in, out })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>ts_type_parameters(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         params: Vec&lt;<span class="lifetime">&#39;a</span>, Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameter&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(TSTypeParameterDeclaration { node, params })
+        <span class="self">self</span>.alloc(TSTypeParameterDeclaration { span, params })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>ts_interface_heritages(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        extends: Vec&lt;<span class="lifetime">&#39;a</span>, (Expression&lt;<span class="lifetime">&#39;a</span>&gt;, <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;, Node)&gt;,
+        extends: Vec&lt;<span class="lifetime">&#39;a</span>, (Expression&lt;<span class="lifetime">&#39;a</span>&gt;, <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;, Span)&gt;,
     ) -&gt; Vec&lt;<span class="lifetime">&#39;a</span>, Box&lt;<span class="lifetime">&#39;a</span>, TSInterfaceHeritage&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
         Vec::from_iter_in(
-            extends.into_iter().map(|(expression, type_parameters, node)| {
-                <span class="self">self</span>.alloc(TSInterfaceHeritage { node, expression, type_parameters })
+            extends.into_iter().map(|(expression, type_parameters, span)| {
+                <span class="self">self</span>.alloc(TSInterfaceHeritage { span, expression, type_parameters })
             }),
             <span class="self">self</span>.allocator,
         )
@@ -3022,22 +3022,22 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_interface_body(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         body: Vec&lt;<span class="lifetime">&#39;a</span>, TSSignature&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, TSInterfaceBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(TSInterfaceBody { node, body })
+        <span class="self">self</span>.alloc(TSInterfaceBody { span, body })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>ts_index_signature(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         parameters: Vec&lt;<span class="lifetime">&#39;a</span>, Box&lt;<span class="lifetime">&#39;a</span>, TSIndexSignatureName&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         type_annotation: TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; TSSignature&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSSignature::TSIndexSignature(<span class="self">self</span>.alloc(TSIndexSignature {
-            node,
+            span,
             parameters,
             type_annotation,
         }))
@@ -3047,7 +3047,7 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_property_signature(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         computed: bool,
         optional: bool,
         readonly: bool,
@@ -3055,7 +3055,7 @@
         type_annotation: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; TSSignature&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSSignature::TSPropertySignature(<span class="self">self</span>.alloc(TSPropertySignature {
-            node,
+            span,
             computed,
             optional,
             readonly,
@@ -3068,13 +3068,13 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_call_signature_declaration(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; TSSignature&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSSignature::TSCallSignatureDeclaration(<span class="self">self</span>.alloc(TSCallSignatureDeclaration {
-            node,
+            span,
             params,
             return_type,
             type_parameters,
@@ -3085,13 +3085,13 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_construct_signature_declaration(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; TSSignature&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSSignature::TSConstructSignatureDeclaration(<span class="self">self</span>.alloc(TSConstructSignatureDeclaration {
-            node,
+            span,
             params,
             return_type,
             type_parameters,
@@ -3102,7 +3102,7 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_method_signature(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         key: PropertyKey&lt;<span class="lifetime">&#39;a</span>&gt;,
         computed: bool,
         optional: bool,
@@ -3112,7 +3112,7 @@
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; TSSignature&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSSignature::TSMethodSignature(<span class="self">self</span>.alloc(TSMethodSignature {
-            node,
+            span,
             key,
             computed,
             optional,
@@ -3127,38 +3127,38 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_module_block(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         body: Vec&lt;<span class="lifetime">&#39;a</span>, Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, TSModuleBlock&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(TSModuleBlock { node, body })
+        <span class="self">self</span>.alloc(TSModuleBlock { span, body })
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>ts_type_arguments(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         params: Vec&lt;<span class="lifetime">&#39;a</span>, TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(TSTypeParameterInstantiation { node, params })
+        <span class="self">self</span>.alloc(TSTypeParameterInstantiation { span, params })
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_non_null_expression(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Expression::TSNonNullExpression(<span class="self">self</span>.alloc(TSNonNullExpression { node, expression }))
+    </span><span class="kw">pub fn </span>ts_non_null_expression(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
+        Expression::TSNonNullExpression(<span class="self">self</span>.alloc(TSNonNullExpression { span, expression }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>ts_type_assertion(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
         expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         Expression::TSTypeAssertion(<span class="self">self</span>.alloc(TSTypeAssertion {
-            node,
+            span,
             type_annotation,
             expression,
         }))
@@ -3168,14 +3168,14 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_import_equals_declaration(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         id: BindingIdentifier,
         module_reference: TSModuleReference&lt;<span class="lifetime">&#39;a</span>&gt;,
         is_export: bool,
         import_kind: ImportOrExportKind,
     ) -&gt; Declaration&lt;<span class="lifetime">&#39;a</span>&gt; {
         Declaration::TSImportEqualsDeclaration(<span class="self">self</span>.alloc(TSImportEqualsDeclaration {
-            node,
+            span,
             id,
             module_reference: <span class="self">self</span>.alloc(module_reference),
             is_export,
@@ -3187,7 +3187,7 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_interface_declaration(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         id: BindingIdentifier,
         body: Box&lt;<span class="lifetime">&#39;a</span>, TSInterfaceBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
@@ -3195,7 +3195,7 @@
         declare: bool,
     ) -&gt; Declaration&lt;<span class="lifetime">&#39;a</span>&gt; {
         Declaration::TSInterfaceDeclaration(<span class="self">self</span>.alloc(TSInterfaceDeclaration {
-            node,
+            span,
             id,
             body,
             type_parameters,
@@ -3208,14 +3208,14 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_type_alias_declaration(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         id: BindingIdentifier,
         type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         declare: bool,
     ) -&gt; Declaration&lt;<span class="lifetime">&#39;a</span>&gt; {
         Declaration::TSTypeAliasDeclaration(<span class="self">self</span>.alloc(TSTypeAliasDeclaration {
-            node,
+            span,
             id,
             type_annotation,
             type_parameters,
@@ -3227,14 +3227,14 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_enum_declaration(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         id: BindingIdentifier,
         members: Vec&lt;<span class="lifetime">&#39;a</span>, TSEnumMember&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         declare: bool,
         r#const: bool,
     ) -&gt; Declaration&lt;<span class="lifetime">&#39;a</span>&gt; {
         Declaration::TSEnumDeclaration(<span class="self">self</span>.alloc(TSEnumDeclaration {
-            node,
+            span,
             id,
             members,
             declare,
@@ -3244,122 +3244,122 @@
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>decorator(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node, expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Decorator&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Decorator { node, expression }
+    </span><span class="kw">pub fn </span>decorator(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Decorator&lt;<span class="lifetime">&#39;a</span>&gt; {
+        Decorator { span, expression }
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_void_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSVoidKeyword(<span class="self">self</span>.alloc(TSVoidKeyword { node }))
+    </span><span class="kw">pub fn </span>ts_void_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSVoidKeyword(<span class="self">self</span>.alloc(TSVoidKeyword { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_this_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSThisKeyword(<span class="self">self</span>.alloc(TSThisKeyword { node }))
+    </span><span class="kw">pub fn </span>ts_this_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSThisKeyword(<span class="self">self</span>.alloc(TSThisKeyword { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_any_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSAnyKeyword(<span class="self">self</span>.alloc(TSAnyKeyword { node }))
+    </span><span class="kw">pub fn </span>ts_any_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSAnyKeyword(<span class="self">self</span>.alloc(TSAnyKeyword { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_unknown_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSUnknownKeyword(<span class="self">self</span>.alloc(TSUnknownKeyword { node }))
+    </span><span class="kw">pub fn </span>ts_unknown_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSUnknownKeyword(<span class="self">self</span>.alloc(TSUnknownKeyword { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_number_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSNumberKeyword(<span class="self">self</span>.alloc(TSNumberKeyword { node }))
+    </span><span class="kw">pub fn </span>ts_number_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSNumberKeyword(<span class="self">self</span>.alloc(TSNumberKeyword { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_boolean_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSBooleanKeyword(<span class="self">self</span>.alloc(TSBooleanKeyword { node }))
+    </span><span class="kw">pub fn </span>ts_boolean_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSBooleanKeyword(<span class="self">self</span>.alloc(TSBooleanKeyword { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_object_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSObjectKeyword(<span class="self">self</span>.alloc(TSObjectKeyword { node }))
+    </span><span class="kw">pub fn </span>ts_object_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSObjectKeyword(<span class="self">self</span>.alloc(TSObjectKeyword { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_string_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSStringKeyword(<span class="self">self</span>.alloc(TSStringKeyword { node }))
+    </span><span class="kw">pub fn </span>ts_string_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSStringKeyword(<span class="self">self</span>.alloc(TSStringKeyword { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_bigint_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSBigIntKeyword(<span class="self">self</span>.alloc(TSBigIntKeyword { node }))
+    </span><span class="kw">pub fn </span>ts_bigint_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSBigIntKeyword(<span class="self">self</span>.alloc(TSBigIntKeyword { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_symbol_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSSymbolKeyword(<span class="self">self</span>.alloc(TSSymbolKeyword { node }))
+    </span><span class="kw">pub fn </span>ts_symbol_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSSymbolKeyword(<span class="self">self</span>.alloc(TSSymbolKeyword { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_null_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSNullKeyword(<span class="self">self</span>.alloc(TSNullKeyword { node }))
+    </span><span class="kw">pub fn </span>ts_null_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSNullKeyword(<span class="self">self</span>.alloc(TSNullKeyword { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_undefined_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSUndefinedKeyword(<span class="self">self</span>.alloc(TSUndefinedKeyword { node }))
+    </span><span class="kw">pub fn </span>ts_undefined_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSUndefinedKeyword(<span class="self">self</span>.alloc(TSUndefinedKeyword { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>ts_never_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSNeverKeyword(<span class="self">self</span>.alloc(TSNeverKeyword { node }))
+    </span><span class="kw">pub fn </span>ts_never_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::TSNeverKeyword(<span class="self">self</span>.alloc(TSNeverKeyword { span }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>ts_template_literal_type(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         quasis: Vec&lt;<span class="lifetime">&#39;a</span>, TemplateElement&gt;,
         types: Vec&lt;<span class="lifetime">&#39;a</span>, TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSTemplateLiteralType(<span class="self">self</span>.alloc(TSTemplateLiteralType { node, quasis, types }))
+        TSType::TSTemplateLiteralType(<span class="self">self</span>.alloc(TSTemplateLiteralType { span, quasis, types }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>ts_type_query_type(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         expr_name: TSTypeName&lt;<span class="lifetime">&#39;a</span>&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSTypeQuery(<span class="self">self</span>.alloc(TSTypeQuery { node, expr_name, type_parameters }))
+        TSType::TSTypeQuery(<span class="self">self</span>.alloc(TSTypeQuery { span, expr_name, type_parameters }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>ts_conditional_type(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         check_type: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
         extends_type: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
         true_type: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
         false_type: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSType::TSConditionalType(<span class="self">self</span>.alloc(TSConditionalType {
-            node,
+            span,
             check_type,
             extends_type,
             true_type,
@@ -3371,7 +3371,7 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_mapped_type(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         type_parameter: Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameter&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         name_type: <span class="prelude-ty">Option</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -3379,7 +3379,7 @@
         readonly: TSMappedTypeModifierOperator,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSType::TSMappedType(<span class="self">self</span>.alloc(TSMappedType {
-            node,
+            span,
             type_parameter,
             name_type,
             type_annotation,
@@ -3392,14 +3392,14 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_import_type(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         is_type_of: bool,
         parameter: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
         qualifier: <span class="prelude-ty">Option</span>&lt;TSTypeName&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSType::TSImportType(<span class="self">self</span>.alloc(TSImportType {
-            node,
+            span,
             is_type_of,
             parameter,
             qualifier,
@@ -3411,14 +3411,14 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_constructor_type(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         r#abstract: bool,
         params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         return_type: TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSType::TSConstructorType(<span class="self">self</span>.alloc(TSConstructorType {
-            node,
+            span,
             r#abstract,
             params,
             return_type,
@@ -3430,13 +3430,13 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_function_type(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         return_type: TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSType::TSFunctionType(<span class="self">self</span>.alloc(TSFunctionType {
-            node,
+            span,
             params,
             return_type,
             type_parameters,
@@ -3447,23 +3447,23 @@
     #[inline]
     </span><span class="kw">pub fn </span>ts_infer_type(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         type_parameter: Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameter&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::TSInferType(<span class="self">self</span>.alloc(TSInferType { node, type_parameter }))
+        TSType::TSInferType(<span class="self">self</span>.alloc(TSInferType { span, type_parameter }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
     </span><span class="kw">pub fn </span>ts_type_predicate(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         parameter_name: TSTypePredicateName,
         asserts: bool,
         type_annotation: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSType::TSTypePredicate(<span class="self">self</span>.alloc(TSTypePredicate {
-            node,
+            span,
             parameter_name,
             asserts,
             type_annotation,
@@ -3475,17 +3475,17 @@
     #[inline]
     </span><span class="kw">pub fn </span>js_doc_nullable_type(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
         postfix: bool,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::JSDocNullableType(<span class="self">self</span>.alloc(JSDocNullableType { node, type_annotation, postfix }))
+        TSType::JSDocNullableType(<span class="self">self</span>.alloc(JSDocNullableType { span, type_annotation, postfix }))
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>js_doc_unknown_type(<span class="kw-2">&amp;</span><span class="self">self</span>, node: Node) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSType::JSDocUnknownType(<span class="self">self</span>.alloc(JSDocUnknownType { node }))
+    </span><span class="kw">pub fn </span>js_doc_unknown_type(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TSType::JSDocUnknownType(<span class="self">self</span>.alloc(JSDocUnknownType { span }))
     }
 }
 </code></pre></div>

@@ -261,7 +261,7 @@
 <a href="#261" id="261">261</a>
 <a href="#262" id="262">262</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
-<span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Node};
+<span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Span};
 <span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
 
 <span class="kw">use </span><span class="kw">super</span>::list::ObjectExpressionProperties;
@@ -276,7 +276,7 @@
     ///     { `PropertyDefinitionList`[?Yield, ?Await] }
     ///     { `PropertyDefinitionList`[?Yield, ?Await] , }
     </span><span class="kw">pub fn </span>parse_object_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
 
         <span class="kw">let </span>has_in = <span class="self">self</span>.ctx.has_in();
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_in(<span class="bool-val">true</span>);
@@ -284,7 +284,7 @@
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_in(has_in);
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.object_expression(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             object_expression_properties.elements,
             object_expression_properties.trailing_comma,
         ))
@@ -321,17 +321,17 @@
                 <span class="self">self</span>.parse_property_definition_shorthand()
             }
             <span class="kw">_ </span>=&gt; {
-                <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+                <span class="kw">let </span>span = <span class="self">self</span>.start_span();
                 <span class="kw">let </span>(key, computed) = <span class="self">self</span>.parse_property_name()<span class="question-mark">?</span>;
 
                 <span class="kw">if </span><span class="self">self</span>.at(Kind::Colon) {
-                    <span class="kw">return </span><span class="self">self</span>.parse_property_definition_assignment(node, key, computed);
+                    <span class="kw">return </span><span class="self">self</span>.parse_property_definition_assignment(span, key, computed);
                 }
 
                 <span class="kw">if </span><span class="macro">matches!</span>(<span class="self">self</span>.cur_kind(), Kind::LParen | Kind::LAngle | Kind::ShiftLeft) {
                     <span class="kw">let </span>method = <span class="self">self</span>.parse_method(<span class="bool-val">false</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.property(
-                        <span class="self">self</span>.end_node(node),
+                        <span class="self">self</span>.end_span(span),
                         PropertyKind::Init,
                         key,
                         PropertyValue::Expression(<span class="self">self</span>.ast.function_expression(method)),
@@ -349,17 +349,17 @@
     <span class="doccomment">/// `PropertyDefinition`[Yield, Await] :
     ///   ... `AssignmentExpression`[+In, ?Yield, ?Await]
     </span><span class="kw">pub fn </span>parse_spread_element(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, SpreadElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// advance `...`
         </span><span class="kw">let </span>argument = <span class="self">self</span>.parse_assignment_expression_base()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.spread_element(<span class="self">self</span>.end_node(node), argument))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.spread_element(<span class="self">self</span>.end_span(span), argument))
     }
 
     <span class="doccomment">/// `PropertyDefinition`[Yield, Await] :
     ///   `IdentifierReference`[?Yield, ?Await]
     ///   `CoverInitializedName`[?Yield, ?Await]
     </span><span class="kw">fn </span>parse_property_definition_shorthand(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, Property&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>identifier = <span class="self">self</span>.parse_identifier_reference()<span class="question-mark">?</span>;
         <span class="comment">// CoverInitializedName ({ foo = bar })
         </span><span class="kw">let </span>value = <span class="kw">if </span><span class="self">self</span>.eat(Kind::Eq) {
@@ -370,7 +370,7 @@
                 ),
             );
             <span class="self">self</span>.ast.assignment_expression(
-                <span class="self">self</span>.end_node(node),
+                <span class="self">self</span>.end_span(span),
                 AssignmentOperator::Assign,
                 left,
                 right,
@@ -380,10 +380,10 @@
             </span>Expression::Identifier(<span class="self">self</span>.ast.alloc(identifier.clone()))
         };
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.property(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             PropertyKind::Init,
             PropertyKey::Identifier(
-                <span class="self">self</span>.ast.alloc(IdentifierName { node: identifier.node, name: identifier.name }),
+                <span class="self">self</span>.ast.alloc(IdentifierName { span: identifier.span, name: identifier.name }),
             ),
             PropertyValue::Expression(value),
             <span class="comment">/* method */ </span><span class="bool-val">false</span>,
@@ -396,14 +396,14 @@
     ///   `PropertyName`[?Yield, ?Await] : `AssignmentExpression`[+In, ?Yield, ?Await]
     </span><span class="kw">fn </span>parse_property_definition_assignment(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         key: PropertyKey&lt;<span class="lifetime">&#39;a</span>&gt;,
         computed: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, Property&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
         <span class="self">self</span>.bump_any(); <span class="comment">// bump `:`
         </span><span class="kw">let </span>value = <span class="self">self</span>.parse_assignment_expression_base()<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.property(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             PropertyKind::Init,
             key,
             PropertyValue::Expression(value),
@@ -452,14 +452,14 @@
     <span class="doccomment">/// `PropertyDefinition`[Yield, Await] :
     ///   `MethodDefinition`[?Yield, ?Await]
     </span><span class="kw">fn </span>parse_property_definition_method(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, Property&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>r#async = <span class="self">self</span>.eat(Kind::Async);
         <span class="kw">let </span>generator = <span class="self">self</span>.eat(Kind::Star);
         <span class="kw">let </span>(key, computed) = <span class="self">self</span>.parse_property_name()<span class="question-mark">?</span>;
         <span class="kw">let </span>method = <span class="self">self</span>.parse_method(r#async, generator)<span class="question-mark">?</span>;
         <span class="kw">let </span>value = PropertyValue::Expression(<span class="self">self</span>.ast.function_expression(method));
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.property(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             PropertyKind::Init,
             key,
             value,
@@ -472,18 +472,18 @@
     <span class="doccomment">/// `MethodDefinition`[Yield, Await] :
     ///   get `ClassElementName`[?Yield, ?Await] ( ) { `FunctionBody`[~Yield, ~Await] }
     </span><span class="kw">fn </span>parse_method_getter(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, Property&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.expect(Kind::Get)<span class="question-mark">?</span>;
         <span class="kw">let </span>(key, computed) = <span class="self">self</span>.parse_property_name()<span class="question-mark">?</span>;
         <span class="kw">let </span>method = <span class="self">self</span>.parse_method(<span class="bool-val">false</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>!method.params.is_empty() {
-            <span class="self">self</span>.error(Diagnostic::GetterParameters(method.params.node));
+            <span class="self">self</span>.error(Diagnostic::GetterParameters(method.params.span));
         }
 
         <span class="kw">let </span>value = PropertyValue::Expression(<span class="self">self</span>.ast.function_expression(method));
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.property(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             PropertyKind::Get,
             key,
             value,
@@ -496,23 +496,23 @@
     <span class="doccomment">/// `MethodDefinition`[Yield, Await] :
     /// set `ClassElementName`[?Yield, ?Await] ( `PropertySetParameterList` ) { `FunctionBody`[~Yield, ~Await] }
     </span><span class="kw">fn </span>parse_method_setter(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, Property&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.expect(Kind::Set)<span class="question-mark">?</span>;
         <span class="kw">let </span>(key, computed) = <span class="self">self</span>.parse_property_name()<span class="question-mark">?</span>;
         <span class="kw">let </span>method = <span class="self">self</span>.parse_method(<span class="bool-val">false</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>method.params.items.len() != <span class="number">1 </span>{
-            <span class="self">self</span>.error(Diagnostic::SetterParameters(method.params.node));
+            <span class="self">self</span>.error(Diagnostic::SetterParameters(method.params.span));
         }
 
         <span class="kw">if </span>method.params.items.len() == <span class="number">1 </span>{
             <span class="kw">if let </span>BindingPatternKind::RestElement(elem) = <span class="kw-2">&amp;</span>method.params.items[<span class="number">0</span>].pattern.kind {
-                <span class="self">self</span>.error(Diagnostic::SetterParametersRestPattern(elem.node));
+                <span class="self">self</span>.error(Diagnostic::SetterParametersRestPattern(elem.span));
             }
         }
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.property(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             PropertyKind::Set,
             key,
             PropertyValue::Expression(<span class="self">self</span>.ast.function_expression(method)),

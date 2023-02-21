@@ -292,7 +292,7 @@
 </pre><pre class="rust"><code><span class="doccomment">//! [Syntax-Directed Operations](https://tc39.es/ecma262/#sec-syntax-directed-operations)
 
 </span><span class="attr">#[allow(clippy::wildcard_imports)]
-</span><span class="kw">use crate</span>::{ast::<span class="kw-2">*</span>, Node};
+</span><span class="kw">use crate</span>::{ast::<span class="kw-2">*</span>, Span};
 
 <span class="doccomment">/// [`BoundName`](https://tc39.es/ecma262/#sec-static-semantics-boundnames)
 </span><span class="kw">pub trait </span>BoundName {
@@ -466,11 +466,11 @@
 
 <span class="doccomment">/// [`PropName`](https://tc39.es/ecma262/#sec-static-semantics-propname)
 </span><span class="kw">pub trait </span>PropName {
-    <span class="kw">fn </span>prop_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, Node)&gt;;
+    <span class="kw">fn </span>prop_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, Span)&gt;;
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PropName <span class="kw">for </span>ObjectProperty&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>prop_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, Node)&gt; {
+    <span class="kw">fn </span>prop_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, Span)&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             ObjectProperty::Property(prop) =&gt; prop.prop_name(),
             ObjectProperty::SpreadProperty(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
@@ -479,7 +479,7 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PropName <span class="kw">for </span>Property&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>prop_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, Node)&gt; {
+    <span class="kw">fn </span>prop_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, Span)&gt; {
         <span class="kw">if </span><span class="self">self</span>.kind != PropertyKind::Init || <span class="self">self</span>.method || <span class="self">self</span>.shorthand || <span class="self">self</span>.computed {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
@@ -488,13 +488,13 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PropName <span class="kw">for </span>PropertyKey&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>prop_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, Node)&gt; {
+    <span class="kw">fn </span>prop_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, Span)&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            PropertyKey::Identifier(ident) =&gt; <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span>ident.name, ident.node)),
+            PropertyKey::Identifier(ident) =&gt; <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span>ident.name, ident.span)),
             PropertyKey::PrivateIdentifier(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
             PropertyKey::Expression(expr) =&gt; <span class="kw">match </span><span class="kw-2">&amp;</span>expr {
-                Expression::Identifier(ident) =&gt; <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span>ident.name, ident.node)),
-                Expression::StringLiteral(lit) =&gt; <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span>lit.value, lit.node)),
+                Expression::Identifier(ident) =&gt; <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span>ident.name, ident.span)),
+                Expression::StringLiteral(lit) =&gt; <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span>lit.value, lit.span)),
                 <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
             },
         }
@@ -502,7 +502,7 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PropName <span class="kw">for </span>ClassElement&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>prop_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, Node)&gt; {
+    <span class="kw">fn </span>prop_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, Span)&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             ClassElement::MethodDefinition(def) =&gt; def.prop_name(),
             ClassElement::TSAbstractMethodDefinition(def) =&gt; def.method_definition.prop_name(),
@@ -514,7 +514,7 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PropName <span class="kw">for </span>MethodDefinition&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>prop_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, Node)&gt; {
+    <span class="kw">fn </span>prop_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, Span)&gt; {
         <span class="kw">if </span><span class="self">self</span>.computed {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
@@ -523,7 +523,7 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PropName <span class="kw">for </span>PropertyDefinition&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>prop_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, Node)&gt; {
+    <span class="kw">fn </span>prop_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, Span)&gt; {
         <span class="kw">if </span><span class="self">self</span>.computed {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }

@@ -875,7 +875,7 @@
 <span class="kw">use </span>serde::Serialize;
 
 <span class="attr">#[allow(clippy::wildcard_imports)]
-</span><span class="kw">use crate</span>::{ast::<span class="kw-2">*</span>, Atom, Node};
+</span><span class="kw">use crate</span>::{ast::<span class="kw-2">*</span>, Atom, Span};
 
 <span class="attr">#[allow(clippy::trivially_copy_pass_by_ref)]
 #[must_use]
@@ -889,7 +889,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSEnumDeclaration&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>id: BindingIdentifier,
     <span class="kw">pub </span>members: Vec&lt;<span class="lifetime">&#39;a</span>, TSEnumMember&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;is_false&quot;</span>)]
@@ -902,7 +902,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSEnumMember&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>id: TSEnumMemberName&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>initializer: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
@@ -923,7 +923,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
@@ -931,7 +931,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSLiteralType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>literal: TSLiteral&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
@@ -1003,7 +1003,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSConditionalType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>check_type: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>extends_type: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>true_type: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -1016,7 +1016,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSUnionType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>types: Vec&lt;<span class="lifetime">&#39;a</span>, TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
@@ -1026,7 +1026,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSIntersectionType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>types: Vec&lt;<span class="lifetime">&#39;a</span>, TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
@@ -1036,7 +1036,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename = <span class="string">&quot;TSTypeOperator&quot;</span>)]
 </span><span class="kw">pub struct </span>TSTypeOperatorType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>operator: TSTypeOperator,
     <span class="kw">pub </span>type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
@@ -1070,7 +1070,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSArrayType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>element_type: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
@@ -1080,7 +1080,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSIndexedAccessType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>object_type: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>index_type: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
@@ -1091,7 +1091,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSTupleType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>element_types: Vec&lt;<span class="lifetime">&#39;a</span>, TSTupleElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
@@ -1099,7 +1099,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSNamedTupleMember&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>element_type: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>label: IdentifierName,
     <span class="kw">pub </span>optional: bool,
@@ -1109,7 +1109,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSOptionalType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
@@ -1117,7 +1117,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSRestType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
@@ -1134,91 +1134,91 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSAnyKeyword {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Eq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSStringKeyword {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Eq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSBooleanKeyword {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Eq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSNumberKeyword {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Eq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSNeverKeyword {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Eq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSUnknownKeyword {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Eq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSNullKeyword {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Eq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSUndefinedKeyword {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Eq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSVoidKeyword {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Eq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSSymbolKeyword {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Eq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSThisKeyword {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Eq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSObjectKeyword {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Eq, Hash)]
 #[serde(tag = <span class="string">&quot;type&quot;</span>)]
 </span><span class="kw">pub struct </span>TSBigIntKeyword {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
 }
 
 <span class="doccomment">/// type C = A;
@@ -1228,7 +1228,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSTypeReference&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>type_name: TSTypeName&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
@@ -1275,7 +1275,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSQualifiedName&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>left: TSTypeName&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>right: IdentifierName,
 }
@@ -1284,7 +1284,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>params: Vec&lt;<span class="lifetime">&#39;a</span>, TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
@@ -1292,7 +1292,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSTypeParameter&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>name: BindingIdentifier,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>constraint: <span class="prelude-ty">Option</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
@@ -1308,7 +1308,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>params: Vec&lt;<span class="lifetime">&#39;a</span>, Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameter&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
 }
 
@@ -1316,7 +1316,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSTypeAliasDeclaration&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>id: BindingIdentifier,
     <span class="kw">pub </span>type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
@@ -1351,7 +1351,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSClassImplements&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>expression: TSTypeName&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
@@ -1363,7 +1363,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSInterfaceDeclaration&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>id: BindingIdentifier,
     <span class="kw">pub </span>body: Box&lt;<span class="lifetime">&#39;a</span>, TSInterfaceBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
@@ -1378,7 +1378,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSInterfaceBody&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>body: Vec&lt;<span class="lifetime">&#39;a</span>, TSSignature&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
@@ -1386,7 +1386,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSPropertySignature&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>computed: bool,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;is_false&quot;</span>)]
     </span><span class="kw">pub </span>optional: bool,
@@ -1411,7 +1411,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSIndexSignature&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>parameters: Vec&lt;<span class="lifetime">&#39;a</span>, Box&lt;<span class="lifetime">&#39;a</span>, TSIndexSignatureName&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     <span class="kw">pub </span>type_annotation: TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
@@ -1420,7 +1420,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSCallSignatureDeclaration&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
@@ -1440,7 +1440,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSMethodSignature&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>key: PropertyKey&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>computed: bool,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;is_false&quot;</span>)]
@@ -1457,7 +1457,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSConstructSignatureDeclaration&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
@@ -1469,7 +1469,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>, rename = <span class="string">&quot;Identifier&quot;</span>)]
 </span><span class="kw">pub struct </span>TSIndexSignatureName&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>name: Atom,
     <span class="kw">pub </span>type_annotation: TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
@@ -1478,7 +1478,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSInterfaceHeritage&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
@@ -1488,7 +1488,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSTypePredicate&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>parameter_name: TSTypePredicateName,
     <span class="kw">pub </span>asserts: bool,
     <span class="kw">pub </span>type_annotation: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
@@ -1505,7 +1505,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSModuleDeclaration&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>id: TSModuleDeclarationName,
     <span class="kw">pub </span>body: TSModuleDeclarationBody&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>declare: bool,
@@ -1539,7 +1539,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSModuleBlock&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>body: Vec&lt;<span class="lifetime">&#39;a</span>, Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
@@ -1547,7 +1547,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSTypeLiteral&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>members: Vec&lt;<span class="lifetime">&#39;a</span>, TSSignature&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
@@ -1555,7 +1555,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSInferType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>type_parameter: Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameter&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
@@ -1563,7 +1563,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSTypeQuery&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>expr_name: TSTypeName&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
@@ -1573,7 +1573,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSImportType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>is_type_of: bool,
     <span class="kw">pub </span>parameter: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>qualifier: <span class="prelude-ty">Option</span>&lt;TSTypeName&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
@@ -1584,7 +1584,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSFunctionType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>return_type: TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
@@ -1595,7 +1595,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSConstructorType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>r#abstract: bool,
     <span class="kw">pub </span>params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>return_type: TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -1607,7 +1607,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSMappedType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>type_parameter: Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameter&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>name_type: <span class="prelude-ty">Option</span>&lt;TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -1632,7 +1632,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSTemplateLiteralType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>quasis: Vec&lt;<span class="lifetime">&#39;a</span>, TemplateElement&gt;,
     <span class="kw">pub </span>types: Vec&lt;<span class="lifetime">&#39;a</span>, TSType&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
@@ -1641,7 +1641,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSAsExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
@@ -1650,7 +1650,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSTypeAssertion&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
@@ -1659,7 +1659,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSImportEqualsDeclaration&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>id: BindingIdentifier,
     <span class="kw">pub </span>module_reference: Box&lt;<span class="lifetime">&#39;a</span>, TSModuleReference&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>is_export: bool,
@@ -1677,7 +1677,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSExternalModuleReference {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>expression: StringLiteral,
 }
 
@@ -1685,7 +1685,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSNonNullExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
@@ -1693,7 +1693,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>Decorator&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
@@ -1701,7 +1701,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSExportAssignment&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
@@ -1709,7 +1709,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSNamespaceExportDeclaration {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>id: IdentifierName,
 }
 
@@ -1717,7 +1717,7 @@
 #[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>TSInstantiationExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
-    </span><span class="kw">pub </span>node: Node,
+    </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>type_parameters: Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }

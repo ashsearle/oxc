@@ -74,16 +74,16 @@
 <span class="kw">pub mod </span>ast_builder;
 <span class="kw">pub mod </span>ast_kind;
 <span class="kw">pub mod </span>context;
-<span class="kw">pub mod </span>node;
 <span class="kw">pub mod </span>source_type;
+<span class="kw">pub mod </span>span;
 <span class="kw">pub mod </span>syntax_directed_operations;
 <span class="kw">pub mod </span>visit;
 
 <span class="kw">pub use </span>num_bigint::BigUint;
 
 <span class="kw">pub use </span><span class="kw">crate</span>::ast_builder::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::node::<span class="kw-2">*</span>;
 <span class="kw">pub use </span><span class="kw">crate</span>::source_type::<span class="kw-2">*</span>;
+<span class="kw">pub use </span><span class="kw">crate</span>::span::<span class="kw-2">*</span>;
 
 <span class="kw">pub type </span>Atom = compact_str::CompactString;
 

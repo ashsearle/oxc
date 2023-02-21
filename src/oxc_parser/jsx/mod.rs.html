@@ -366,7 +366,7 @@
 </span><span class="attr">#![allow(clippy::missing_errors_doc)]
 
 </span><span class="kw">use </span>oxc_allocator::{Box, Vec};
-<span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Node};
+<span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Span};
 <span class="kw">use </span>oxc_diagnostics::Result;
 
 <span class="kw">use </span><span class="kw">crate</span>::lexer::Kind;
@@ -385,27 +385,27 @@
     <span class="doccomment">/// `JSXFragment` :
     ///   &lt; &gt; `JSXChildren_opt` &lt; / &gt;
     </span><span class="kw">fn </span>parse_jsx_fragment(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, JSXFragment&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
-        <span class="kw">let </span>opening_fragment = <span class="self">self</span>.parse_jsx_opening_fragment(node)<span class="question-mark">?</span>;
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
+        <span class="kw">let </span>opening_fragment = <span class="self">self</span>.parse_jsx_opening_fragment(span)<span class="question-mark">?</span>;
         <span class="kw">let </span>children = <span class="self">self</span>.parse_jsx_children()<span class="question-mark">?</span>;
         <span class="kw">let </span>closing_fragment = <span class="self">self</span>.parse_jsx_closing_fragment()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_fragment(<span class="self">self</span>.end_node(node), opening_fragment, closing_fragment, children))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_fragment(<span class="self">self</span>.end_span(span), opening_fragment, closing_fragment, children))
     }
 
     <span class="doccomment">/// &lt;&gt;
-    </span><span class="kw">fn </span>parse_jsx_opening_fragment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node) -&gt; <span class="prelude-ty">Result</span>&lt;JSXOpeningFragment&gt; {
+    </span><span class="kw">fn </span>parse_jsx_opening_fragment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;JSXOpeningFragment&gt; {
         <span class="self">self</span>.expect(Kind::LAngle)<span class="question-mark">?</span>;
         <span class="self">self</span>.expect_jsx_child(Kind::RAngle)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_opening_fragment(<span class="self">self</span>.end_node(node)))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_opening_fragment(<span class="self">self</span>.end_span(span)))
     }
 
     <span class="doccomment">/// &lt;/&gt;
     </span><span class="kw">fn </span>parse_jsx_closing_fragment(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;JSXClosingFragment&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.expect(Kind::LAngle)<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(Kind::Slash)<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(Kind::RAngle)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_closing_fragment(<span class="self">self</span>.end_node(node)))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_closing_fragment(<span class="self">self</span>.end_span(span)))
     }
 
     <span class="doccomment">/// `JSXElement` :
@@ -415,8 +415,8 @@
     ///     used for telling `JSXClosingElement` to parse the next jsx child or not
     ///     true when inside jsx element, false when at top level expression
     </span><span class="kw">fn </span>parse_jsx_element(<span class="kw-2">&amp;mut </span><span class="self">self</span>, in_jsx_child: bool) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, JSXElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
-        <span class="kw">let </span>opening_element = <span class="self">self</span>.parse_jsx_opening_element(node, in_jsx_child)<span class="question-mark">?</span>;
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
+        <span class="kw">let </span>opening_element = <span class="self">self</span>.parse_jsx_opening_element(span, in_jsx_child)<span class="question-mark">?</span>;
         <span class="kw">let </span>children = <span class="kw">if </span>opening_element.self_closing {
             <span class="self">self</span>.ast.new_vec()
         } <span class="kw">else </span>{
@@ -425,14 +425,14 @@
         <span class="kw">let </span>closing_element = (!opening_element.self_closing)
             .then(|| <span class="self">self</span>.parse_jsx_closing_element(in_jsx_child))
             .transpose()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_element(<span class="self">self</span>.end_node(node), opening_element, closing_element, children))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_element(<span class="self">self</span>.end_span(span), opening_element, closing_element, children))
     }
 
     <span class="doccomment">/// `JSXOpeningElement` :
     /// &lt; `JSXElementName` `JSXAttributes_opt` &gt;
     </span><span class="kw">fn </span>parse_jsx_opening_element(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         in_jsx_child: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, JSXOpeningElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
         <span class="self">self</span>.expect(Kind::LAngle)<span class="question-mark">?</span>;
@@ -455,7 +455,7 @@
             <span class="self">self</span>.expect(Kind::RAngle)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_opening_element(
-            <span class="self">self</span>.end_node(node),
+            <span class="self">self</span>.end_span(span),
             self_closing,
             name,
             attributes,
@@ -467,7 +467,7 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         in_jsx_child: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, JSXClosingElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.expect(Kind::LAngle)<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(Kind::Slash)<span class="question-mark">?</span>;
         <span class="kw">let </span>name = <span class="self">self</span>.parse_jsx_element_name()<span class="question-mark">?</span>;
@@ -476,7 +476,7 @@
         } <span class="kw">else </span>{
             <span class="self">self</span>.expect(Kind::RAngle)<span class="question-mark">?</span>;
         }
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_closing_element(<span class="self">self</span>.end_node(node), name))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_closing_element(<span class="self">self</span>.end_span(span), name))
     }
 
     <span class="doccomment">/// `JSXElementName` :
@@ -484,14 +484,14 @@
     ///   `JSXNamespacedName`
     ///   `JSXMemberExpression`
     </span><span class="kw">fn </span>parse_jsx_element_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;JSXElementName&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>identifier = <span class="self">self</span>.parse_jsx_identifier()<span class="question-mark">?</span>;
 
         <span class="comment">// &lt;namespace:property /&gt;
         </span><span class="kw">if </span><span class="self">self</span>.eat(Kind::Colon) {
             <span class="kw">let </span>property = <span class="self">self</span>.parse_jsx_identifier()<span class="question-mark">?</span>;
             <span class="kw">return </span><span class="prelude-val">Ok</span>(JSXElementName::NamespacedName(<span class="self">self</span>.ast.jsx_namespaced_name(
-                <span class="self">self</span>.end_node(node),
+                <span class="self">self</span>.end_span(span),
                 identifier,
                 property,
             )));
@@ -500,7 +500,7 @@
         <span class="comment">// &lt;member.foo.bar /&gt;
         </span><span class="kw">if </span><span class="self">self</span>.at(Kind::Dot) {
             <span class="kw">return </span><span class="self">self
-                </span>.parse_jsx_member_expression(node, identifier)
+                </span>.parse_jsx_member_expression(span, identifier)
                 .map(JSXElementName::MemberExpression);
         }
 
@@ -512,27 +512,27 @@
     /// `JSXMemberExpression` . `JSXIdentifier`
     </span><span class="kw">fn </span>parse_jsx_member_expression(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         object: JSXIdentifier,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, JSXMemberExpression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>node = node;
+        <span class="kw">let </span><span class="kw-2">mut </span>span = span;
         <span class="kw">let </span><span class="kw-2">mut </span>object = JSXMemberExpressionObject::Identifier(object);
         <span class="kw">let </span><span class="kw-2">mut </span>property = <span class="prelude-val">None</span>;
 
         <span class="kw">while </span><span class="self">self</span>.eat(Kind::Dot) &amp;&amp; !<span class="self">self</span>.at(Kind::Eof) {
             <span class="comment">// &lt;foo.bar.baz&gt;
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(prop) = property {
-                <span class="kw">let </span>obj = <span class="self">self</span>.ast.jsx_member_expression(node, object, prop);
+                <span class="kw">let </span>obj = <span class="self">self</span>.ast.jsx_member_expression(span, object, prop);
                 object = JSXMemberExpressionObject::MemberExpression(obj);
             }
 
             <span class="comment">// &lt;foo.bar&gt;
             </span>property = <span class="prelude-val">Some</span>(<span class="self">self</span>.parse_jsx_identifier()<span class="question-mark">?</span>);
-            node = <span class="self">self</span>.end_node(node);
+            span = <span class="self">self</span>.end_span(span);
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(property) = property {
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_member_expression(<span class="self">self</span>.end_node(node), object, property));
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_member_expression(<span class="self">self</span>.end_span(span), object, property));
         }
 
         <span class="self">self</span>.unexpected()
@@ -589,13 +589,13 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         in_jsx_child: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;JSXExpressionContainer&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// bump `{`
         </span><span class="kw">let </span>expr = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             <span class="comment">// {} empty
             </span>Kind::RCurly =&gt; {
-                <span class="kw">let </span>node = <span class="self">self</span>.start_node();
-                JSXExpression::EmptyExpression(<span class="self">self</span>.ast.jsx_empty_expression(<span class="self">self</span>.end_node(node)))
+                <span class="kw">let </span>span = <span class="self">self</span>.start_span();
+                JSXExpression::EmptyExpression(<span class="self">self</span>.ast.jsx_empty_expression(<span class="self">self</span>.end_span(span)))
             }
             <span class="comment">// {expr}
             </span><span class="kw">_ </span>=&gt; <span class="self">self</span>.parse_jsx_assignment_expression().map(JSXExpression::Expression)<span class="question-mark">?</span>,
@@ -605,7 +605,7 @@
         } <span class="kw">else </span>{
             <span class="self">self</span>.expect(Kind::RCurly)<span class="question-mark">?</span>;
         }
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_expression_container(<span class="self">self</span>.end_node(node), expr))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_expression_container(<span class="self">self</span>.end_span(span), expr))
     }
 
     <span class="kw">fn </span>parse_jsx_assignment_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -621,12 +621,12 @@
     <span class="doccomment">/// `JSXChildExpression` :
     ///   { ... `AssignmentExpression` }
     </span><span class="kw">fn </span>parse_jsx_spread_child(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;JSXSpreadChild&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// bump `{`
         </span><span class="self">self</span>.expect(Kind::Dot3)<span class="question-mark">?</span>;
         <span class="kw">let </span>expr = <span class="self">self</span>.parse_jsx_assignment_expression()<span class="question-mark">?</span>;
         <span class="self">self</span>.expect_jsx_child(Kind::RCurly)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_spread_child(<span class="self">self</span>.end_node(node), expr))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_spread_child(<span class="self">self</span>.end_span(span), expr))
     }
 
     <span class="doccomment">/// `JSXAttributes` :
@@ -649,7 +649,7 @@
     <span class="doccomment">/// `JSXAttribute` :
     ///   `JSXAttributeName` `JSXAttributeInitializer_opt`
     </span><span class="kw">fn </span>parse_jsx_attribute(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, JSXAttribute&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>name = <span class="self">self</span>.parse_jsx_attribute_name()<span class="question-mark">?</span>;
         <span class="kw">let </span>value = <span class="kw">if </span><span class="self">self</span>.at(Kind::Eq) {
             <span class="self">self</span>.expect_jsx_attribute_value(Kind::Eq)<span class="question-mark">?</span>;
@@ -657,31 +657,31 @@
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>};
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_attribute(<span class="self">self</span>.end_node(node), name, value))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_attribute(<span class="self">self</span>.end_span(span), name, value))
     }
 
     <span class="doccomment">/// `JSXSpreadAttribute` :
     ///   { ... `AssignmentExpression` }
     </span><span class="kw">fn </span>parse_jsx_spread_attribute(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, JSXSpreadAttribute&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// bump `{`
         </span><span class="self">self</span>.expect(Kind::Dot3)<span class="question-mark">?</span>;
         <span class="kw">let </span>argument = <span class="self">self</span>.parse_jsx_assignment_expression()<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(Kind::RCurly)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_spread_attribute(<span class="self">self</span>.end_node(node), argument))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_spread_attribute(<span class="self">self</span>.end_span(span), argument))
     }
 
     <span class="doccomment">/// `JSXAttributeName` :
     ///   `JSXIdentifier`
     ///   `JSXNamespacedName`
     </span><span class="kw">fn </span>parse_jsx_attribute_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;JSXAttributeName&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>identifier = <span class="self">self</span>.parse_jsx_identifier()<span class="question-mark">?</span>;
 
         <span class="kw">if </span><span class="self">self</span>.eat(Kind::Colon) {
             <span class="kw">let </span>property = <span class="self">self</span>.parse_jsx_identifier()<span class="question-mark">?</span>;
             <span class="kw">return </span><span class="prelude-val">Ok</span>(JSXAttributeName::NamespacedName(<span class="self">self</span>.ast.jsx_namespaced_name(
-                <span class="self">self</span>.end_node(node),
+                <span class="self">self</span>.end_span(span),
                 identifier,
                 property,
             )));
@@ -706,7 +706,7 @@
     ///   `JSXIdentifier` `IdentifierPart`
     ///   `JSXIdentifier` [no `WhiteSpace` or Comment here] -
     </span><span class="kw">fn </span>parse_jsx_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;JSXIdentifier&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">if </span>!<span class="self">self</span>.at(Kind::Ident) &amp;&amp; !<span class="self">self</span>.cur_kind().is_all_keyword() {
             <span class="kw">return </span><span class="self">self</span>.unexpected();
         }
@@ -714,14 +714,14 @@
         </span><span class="self">self</span>.re_lex_jsx_identifier();
         <span class="kw">let </span>name = <span class="self">self</span>.cur_atom().unwrap().clone();
         <span class="self">self</span>.bump_any();
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_identifier(<span class="self">self</span>.end_node(node), name))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_identifier(<span class="self">self</span>.end_span(span), name))
     }
 
     <span class="kw">fn </span>parse_jsx_text(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; JSXText {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>value = <span class="self">self</span>.cur_atom().unwrap().clone();
         <span class="self">self</span>.bump_any();
-        <span class="self">self</span>.ast.jsx_text(<span class="self">self</span>.end_node(node), value)
+        <span class="self">self</span>.ast.jsx_text(<span class="self">self</span>.end_span(span), value)
     }
 }
 </code></pre></div>

@@ -103,7 +103,7 @@
 <a href="#103" id="103">103</a>
 <a href="#104" id="104">104</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
-<span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::StatementContext, GetNode};
+<span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::StatementContext, GetSpan};
 <span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
 
 <span class="kw">use </span><span class="kw">crate</span>::lexer::Kind;
@@ -129,18 +129,18 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Parser&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub fn </span>parse_let(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt_ctx: StatementContext) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>peeked = <span class="self">self</span>.peek_kind();
         <span class="comment">// let = foo, let instanceof x, let + 1
         </span><span class="kw">if </span>peeked.is_assignment_operator() || peeked.is_binary_operator() {
             <span class="kw">let </span>expr = <span class="self">self</span>.parse_assignment_expression_base()<span class="question-mark">?</span>;
-            <span class="self">self</span>.parse_expression_statement(node, expr)
+            <span class="self">self</span>.parse_expression_statement(span, expr)
         <span class="comment">// single statement let declaration: while (0) let
         </span>} <span class="kw">else if </span>(stmt_ctx.is_single_statement() &amp;&amp; peeked != Kind::LBrack)
             || peeked == Kind::Semicolon
         {
             <span class="kw">let </span>expr = <span class="self">self</span>.parse_identifier_expression()<span class="question-mark">?</span>;
-            <span class="self">self</span>.parse_expression_statement(node, expr)
+            <span class="self">self</span>.parse_expression_statement(span, expr)
         } <span class="kw">else </span>{
             <span class="self">self</span>.parse_variable_statement(stmt_ctx)
         }
@@ -150,7 +150,7 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         decl_ctx: VariableDeclarationContext,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, VariableDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>kind = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             Kind::Var =&gt; VariableDeclarationKind::Var,
             Kind::Const =&gt; VariableDeclarationKind::Const,
@@ -175,7 +175,7 @@
             <span class="self">self</span>.asi()<span class="question-mark">?</span>;
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.variable_declaration(<span class="self">self</span>.end_node(node), kind, declarations))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.variable_declaration(<span class="self">self</span>.end_span(span), kind, declarations))
     }
 
     <span class="kw">fn </span>parse_variable_declarator(
@@ -183,7 +183,7 @@
         decl_ctx: VariableDeclarationContext,
         kind: VariableDeclarationKind,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;VariableDeclarator&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
 
         <span class="kw">let </span>(id, definite) = <span class="self">self</span>.parse_binding_pattern()<span class="question-mark">?</span>;
 
@@ -196,14 +196,14 @@
             //   BindingPattern[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
             // the grammar forbids `let []`, `let {}`
             </span><span class="kw">if </span>!<span class="macro">matches!</span>(id.kind, BindingPatternKind::BindingIdentifier(<span class="kw">_</span>)) {
-                <span class="self">self</span>.error(Diagnostic::InvalidDestrucuringDeclaration(id.node()));
+                <span class="self">self</span>.error(Diagnostic::InvalidDestrucuringDeclaration(id.span()));
             } <span class="kw">else if </span>kind == VariableDeclarationKind::Const &amp;&amp; !<span class="self">self</span>.ctx.has_ambient() {
                 <span class="comment">// It is a Syntax Error if Initializer is not present and IsConstantDeclaration of the LexicalDeclaration containing this LexicalBinding is true.
-                </span><span class="self">self</span>.error(Diagnostic::MissinginitializerInConst(id.node()));
+                </span><span class="self">self</span>.error(Diagnostic::MissinginitializerInConst(id.span()));
             }
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.variable_declarator(<span class="self">self</span>.end_node(node), kind, id, init, definite))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.variable_declarator(<span class="self">self</span>.end_span(span), kind, id, init, definite))
     }
 }
 </code></pre></div>

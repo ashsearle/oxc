@@ -506,7 +506,7 @@
 <span class="kw">use </span>oxc_ast::{
     ast::<span class="kw-2">*</span>,
     context::{Context, StatementContext},
-    Node,
+    Span,
 };
 <span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
 
@@ -555,9 +555,9 @@
                         <span class="kw">if let </span>Statement::ExpressionStatement(expr) = <span class="kw-2">&amp;</span>stmt {
                             <span class="kw">if let </span>Expression::StringLiteral(string) = <span class="kw-2">&amp;</span>expr.expression {
                                 <span class="kw">let </span>src = <span class="kw-2">&amp;</span><span class="self">self</span>.source
-                                    [string.node.start <span class="kw">as </span>usize + <span class="number">1</span>..string.node.end <span class="kw">as </span>usize - <span class="number">1</span>];
+                                    [string.span.start <span class="kw">as </span>usize + <span class="number">1</span>..string.span.end <span class="kw">as </span>usize - <span class="number">1</span>];
                                 <span class="kw">let </span>directive =
-                                    <span class="self">self</span>.ast.directive(expr.node, (<span class="kw-2">*</span>string).clone(), src);
+                                    <span class="self">self</span>.ast.directive(expr.span, (<span class="kw-2">*</span>string).clone(), src);
                                 directives.push(directive);
                                 <span class="kw">continue</span>;
                             }
@@ -580,14 +580,14 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         stmt_ctx: StatementContext,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">if </span><span class="self">self</span>.ts_enabled() {
             <span class="kw">if </span><span class="self">self</span>.at(Kind::Type)
                 &amp;&amp; <span class="self">self</span>.peek_kind().is_identifier_name()
                 &amp;&amp; !<span class="self">self</span>.peek_token().is_on_new_line
             {
                 <span class="kw">return </span><span class="self">self
-                    </span>.parse_ts_type_alias_declaration(<span class="bool-val">false</span>, node)
+                    </span>.parse_ts_type_alias_declaration(<span class="bool-val">false</span>, span)
                     .map(Statement::Declaration);
             }
             <span class="kw">if </span><span class="self">self</span>.at(Kind::Abstract) &amp;&amp; !<span class="self">self</span>.peek_token().is_on_new_line {
@@ -611,11 +611,11 @@
             }
             <span class="kw">match </span><span class="self">self</span>.cur_kind() {
                 Kind::Const | Kind::Enum <span class="kw">if </span><span class="self">self</span>.is_at_enum_declaration() =&gt; {
-                    <span class="kw">return </span><span class="self">self</span>.parse_ts_enum_declaration(<span class="bool-val">false</span>, node).map(Statement::Declaration);
+                    <span class="kw">return </span><span class="self">self</span>.parse_ts_enum_declaration(<span class="bool-val">false</span>, span).map(Statement::Declaration);
                 }
                 Kind::Interface <span class="kw">if </span><span class="self">self</span>.is_at_interface_declaration() =&gt; {
                     <span class="kw">return </span><span class="self">self
-                        </span>.parse_ts_interface_declaration(<span class="bool-val">false</span>, node)
+                        </span>.parse_ts_interface_declaration(<span class="bool-val">false</span>, span)
                         .map(Statement::Declaration);
                 }
                 <span class="kw">_ </span>=&gt; (),
@@ -655,23 +655,23 @@
     }
 
     <span class="kw">fn </span>parse_expression_or_labeled_statment(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>expr = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
         <span class="kw">if let </span>Expression::Identifier(ident) = <span class="kw-2">&amp;</span>expr {
             <span class="comment">// Section 14.13 Labelled Statement
             // Avoids lookahead for a labeled statement, which is on a hot path
             </span><span class="kw">if </span><span class="self">self</span>.eat(Kind::Colon) {
-                <span class="kw">let </span>label = LabelIdentifier { node: ident.node, name: ident.name.clone() };
+                <span class="kw">let </span>label = LabelIdentifier { span: ident.span, name: ident.name.clone() };
                 <span class="kw">let </span>body = <span class="self">self</span>.parse_statement_list_item(StatementContext::Label)<span class="question-mark">?</span>;
-                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.labeled_statement(<span class="self">self</span>.end_node(node), label, body));
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.labeled_statement(<span class="self">self</span>.end_span(span), label, body));
             }
         }
-        <span class="self">self</span>.parse_expression_statement(node, expr)
+        <span class="self">self</span>.parse_expression_statement(span, expr)
     }
 
     <span class="doccomment">/// Section 14.2 Block Statement
     </span><span class="kw">pub fn </span>parse_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, BlockStatement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.expect(Kind::LCurly)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>body = <span class="self">self</span>.ast.new_vec();
         <span class="kw">while </span>!<span class="self">self</span>.at(Kind::RCurly) &amp;&amp; !<span class="self">self</span>.at(Kind::Eof) {
@@ -679,7 +679,7 @@
             body.push(stmt);
         }
         <span class="self">self</span>.expect(Kind::RCurly)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.block(<span class="self">self</span>.end_node(node), body))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.block(<span class="self">self</span>.end_span(span), body))
     }
 
     <span class="kw">pub fn </span>parse_block_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -697,7 +697,7 @@
         ))<span class="question-mark">?</span>;
 
         <span class="kw">if </span>stmt_ctx.is_single_statement() &amp;&amp; decl.kind.is_lexical() {
-            <span class="self">self</span>.error(Diagnostic::LexicalDeclarationSingleStatement(decl.node));
+            <span class="self">self</span>.error(Diagnostic::LexicalDeclarationSingleStatement(decl.span));
         }
 
         <span class="prelude-val">Ok</span>(Statement::Declaration(Declaration::VariableDeclaration(decl)))
@@ -705,24 +705,24 @@
 
     <span class="doccomment">/// Section 14.4 Empty Statement
     </span><span class="kw">fn </span>parse_empty_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Statement&lt;<span class="lifetime">&#39;a</span>&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// bump `;`
-        </span><span class="self">self</span>.ast.empty_statement(<span class="self">self</span>.end_node(node))
+        </span><span class="self">self</span>.ast.empty_statement(<span class="self">self</span>.end_span(span))
     }
 
     <span class="doccomment">/// Section 14.5 Expression Statement
     </span><span class="kw">pub fn </span>parse_expression_statement(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         expression: Expression&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.asi()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.expression_statement(<span class="self">self</span>.end_node(node), expression))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.expression_statement(<span class="self">self</span>.end_span(span), expression))
     }
 
     <span class="doccomment">/// Section 14.6 If Statement
     </span><span class="kw">fn </span>parse_if_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// bump `if`
         </span><span class="kw">let </span>test = <span class="self">self</span>.parse_paren_expression()<span class="question-mark">?</span>;
         <span class="kw">let </span>consequent = <span class="self">self</span>.parse_statement_list_item(StatementContext::If)<span class="question-mark">?</span>;
@@ -730,32 +730,32 @@
             </span>.eat(Kind::Else)
             .then(|| <span class="self">self</span>.parse_statement_list_item(StatementContext::If))
             .transpose()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.if_statement(<span class="self">self</span>.end_node(node), test, consequent, alternate))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.if_statement(<span class="self">self</span>.end_span(span), test, consequent, alternate))
     }
 
     <span class="doccomment">/// Section 14.7.2 Do-While Statement
     </span><span class="kw">fn </span>parse_do_while_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// advance `do`
         </span><span class="kw">let </span>body = <span class="self">self</span>.parse_statement_list_item(StatementContext::Do)<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(Kind::While)<span class="question-mark">?</span>;
         <span class="kw">let </span>test = <span class="self">self</span>.parse_paren_expression()<span class="question-mark">?</span>;
         <span class="self">self</span>.bump(Kind::Semicolon);
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.do_while_statement(<span class="self">self</span>.end_node(node), body, test))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.do_while_statement(<span class="self">self</span>.end_span(span), body, test))
     }
 
     <span class="doccomment">/// Section 14.7.3 While Statement
     </span><span class="kw">fn </span>parse_while_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// bump `while`
         </span><span class="kw">let </span>test = <span class="self">self</span>.parse_paren_expression()<span class="question-mark">?</span>;
         <span class="kw">let </span>body = <span class="self">self</span>.parse_statement_list_item(StatementContext::While)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.while_statement(<span class="self">self</span>.end_node(node), test, body))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.while_statement(<span class="self">self</span>.end_span(span), test, body))
     }
 
     <span class="doccomment">/// Section 14.7.4 For Statement
     </span><span class="kw">fn </span>parse_for_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// bump `for`
 
         // [+Await]
@@ -765,7 +765,7 @@
 
         <span class="comment">// for (;..
         </span><span class="kw">if </span><span class="self">self</span>.at(Kind::Semicolon) {
-            <span class="kw">return </span><span class="self">self</span>.parse_for_loop(node, <span class="prelude-val">None</span>, r#await);
+            <span class="kw">return </span><span class="self">self</span>.parse_for_loop(span, <span class="prelude-val">None</span>, r#await);
         }
 
         <span class="comment">// for (let | for (const | for (var
@@ -785,43 +785,43 @@
             <span class="comment">// for (.. a in) for (.. a of)
             </span><span class="kw">if </span><span class="macro">matches!</span>(kind, Kind::In | Kind::Of) {
                 <span class="kw">let </span>init = ForStatementLeft::VariableDeclaration(init_declaration);
-                <span class="kw">return </span><span class="self">self</span>.parse_for_in_or_of_loop(node, r#await, init);
+                <span class="kw">return </span><span class="self">self</span>.parse_for_in_or_of_loop(span, r#await, init);
             }
 
             <span class="kw">let </span>init = <span class="prelude-val">Some</span>(ForStatementInit::VariableDeclaration(init_declaration));
-            <span class="kw">return </span><span class="self">self</span>.parse_for_loop(node, init, r#await);
+            <span class="kw">return </span><span class="self">self</span>.parse_for_loop(span, init, r#await);
         }
 
         <span class="kw">let </span>is_let_of = <span class="self">self</span>.at(Kind::Let) &amp;&amp; <span class="self">self</span>.peek_at(Kind::Of);
         <span class="kw">let </span>is_async_of =
             <span class="self">self</span>.at(Kind::Async) &amp;&amp; !<span class="self">self</span>.cur_token().escaped &amp;&amp; <span class="self">self</span>.peek_at(Kind::Of);
-        <span class="kw">let </span>expression_node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>expression_span = <span class="self">self</span>.start_span();
 
         <span class="kw">let </span>init_expression = <span class="self">self</span>.without_context(Context::In, Parser::parse_expression)<span class="question-mark">?</span>;
 
         <span class="comment">// for (a.b in ...), for ([a] in ..), for ({a} in ..)
         </span><span class="kw">if </span><span class="self">self</span>.at(Kind::In) || <span class="self">self</span>.at(Kind::Of) {
             <span class="kw">let </span>target = AssignmentTarget::cover(init_expression, <span class="self">self</span>)
-                .map_err(|<span class="kw">_</span>| Diagnostic::UnexpectedToken(<span class="self">self</span>.end_node(expression_node)))<span class="question-mark">?</span>;
+                .map_err(|<span class="kw">_</span>| Diagnostic::UnexpectedToken(<span class="self">self</span>.end_span(expression_span)))<span class="question-mark">?</span>;
             <span class="kw">let </span>for_stmt_left = ForStatementLeft::AssignmentTarget(target);
 
             <span class="kw">if </span>!r#await &amp;&amp; is_async_of {
-                <span class="self">self</span>.error(Diagnostic::ForLoopAsyncOf(<span class="self">self</span>.end_node(expression_node)));
+                <span class="self">self</span>.error(Diagnostic::ForLoopAsyncOf(<span class="self">self</span>.end_span(expression_span)));
             }
 
             <span class="kw">if </span>is_let_of {
-                <span class="self">self</span>.error(Diagnostic::UnexpectedKeyword(<span class="string">&quot;let&quot;</span>, <span class="self">self</span>.end_node(expression_node)));
+                <span class="self">self</span>.error(Diagnostic::UnexpectedKeyword(<span class="string">&quot;let&quot;</span>, <span class="self">self</span>.end_span(expression_span)));
             }
 
-            <span class="kw">return </span><span class="self">self</span>.parse_for_in_or_of_loop(node, r#await, for_stmt_left);
+            <span class="kw">return </span><span class="self">self</span>.parse_for_in_or_of_loop(span, r#await, for_stmt_left);
         }
 
-        <span class="self">self</span>.parse_for_loop(node, <span class="prelude-val">Some</span>(ForStatementInit::Expression(init_expression)), r#await)
+        <span class="self">self</span>.parse_for_loop(span, <span class="prelude-val">Some</span>(ForStatementInit::Expression(init_expression)), r#await)
     }
 
     <span class="kw">fn </span>parse_for_loop(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         init: <span class="prelude-ty">Option</span>&lt;ForStatementInit&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         r#await: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -832,17 +832,17 @@
         <span class="self">self</span>.expect(Kind::RParen)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>r#await {
-            <span class="self">self</span>.error(Diagnostic::ForAwait(<span class="self">self</span>.end_node(node)));
+            <span class="self">self</span>.error(Diagnostic::ForAwait(<span class="self">self</span>.end_span(span)));
         }
 
         <span class="kw">let </span>body = <span class="self">self</span>.parse_statement_list_item(StatementContext::For)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.for_statement(<span class="self">self</span>.end_node(node), init, test, update, body))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.for_statement(<span class="self">self</span>.end_span(span), init, test, update, body))
     }
 
     <span class="kw">fn </span>parse_for_in_or_of_loop(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         r#await: bool,
         left: ForStatementLeft&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -856,32 +856,32 @@
         <span class="self">self</span>.expect(Kind::RParen)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>r#await &amp;&amp; is_for_in {
-            <span class="self">self</span>.error(Diagnostic::ForAwait(<span class="self">self</span>.end_node(node)));
+            <span class="self">self</span>.error(Diagnostic::ForAwait(<span class="self">self</span>.end_span(span)));
         }
 
         <span class="kw">let </span>body = <span class="self">self</span>.parse_statement_list_item(StatementContext::For)<span class="question-mark">?</span>;
-        <span class="kw">let </span>node = <span class="self">self</span>.end_node(node);
+        <span class="kw">let </span>span = <span class="self">self</span>.end_span(span);
 
         <span class="kw">if </span>is_for_in {
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.for_in_statement(node, left, right, body))
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.for_in_statement(span, left, right, body))
         } <span class="kw">else </span>{
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.for_of_statement(node, r#await, left, right, body))
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.for_of_statement(span, r#await, left, right, body))
         }
     }
 
     <span class="doccomment">/// Section 14.8 Continue Statement
     /// Section 14.9 Break Statement
     </span><span class="kw">fn </span>parse_break_or_continue_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>kind = <span class="self">self</span>.cur_kind();
         <span class="self">self</span>.bump_any(); <span class="comment">// bump `break` or `continue`
         </span><span class="kw">let </span>label =
             <span class="kw">if </span><span class="self">self</span>.can_insert_semicolon() { <span class="prelude-val">None </span>} <span class="kw">else </span>{ <span class="prelude-val">Some</span>(<span class="self">self</span>.parse_label_identifier()<span class="question-mark">?</span>) };
         <span class="self">self</span>.asi()<span class="question-mark">?</span>;
-        <span class="kw">let </span>end_node = <span class="self">self</span>.end_node(node);
+        <span class="kw">let </span>end_span = <span class="self">self</span>.end_span(span);
         <span class="kw">match </span>kind {
-            Kind::Break =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.break_statement(end_node, label)),
-            Kind::Continue =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.continue_statement(end_node, label)),
+            Kind::Break =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.break_statement(end_span, label)),
+            Kind::Continue =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.continue_statement(end_span, label)),
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
@@ -891,7 +891,7 @@
     ///   return ;
     ///   return [no `LineTerminator` here] Expression[+In, ?Yield, ?Await] ;
     </span><span class="kw">fn </span>parse_return_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// advance `return`
         </span><span class="kw">let </span>argument = <span class="kw">if </span><span class="self">self</span>.eat(Kind::Semicolon) || <span class="self">self</span>.can_insert_semicolon() {
             <span class="prelude-val">None
@@ -900,22 +900,22 @@
             <span class="self">self</span>.asi()<span class="question-mark">?</span>;
             <span class="prelude-val">Some</span>(expr)
         };
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.return_statement(<span class="self">self</span>.end_node(node), argument))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.return_statement(<span class="self">self</span>.end_span(span), argument))
     }
 
     <span class="doccomment">/// Section 14.11 With Statement
     </span><span class="kw">fn </span>parse_with_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// bump `with`
         </span><span class="kw">let </span>object = <span class="self">self</span>.parse_paren_expression()<span class="question-mark">?</span>;
         <span class="kw">let </span>body = <span class="self">self</span>.parse_statement_list_item(StatementContext::With)<span class="question-mark">?</span>;
-        <span class="kw">let </span>node = <span class="self">self</span>.end_node(node);
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.with_statement(node, object, body))
+        <span class="kw">let </span>span = <span class="self">self</span>.end_span(span);
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.with_statement(span, object, body))
     }
 
     <span class="doccomment">/// Section 14.12 Switch Statement
     </span><span class="kw">fn </span>parse_switch_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// advance `switch`
         </span><span class="kw">let </span>discriminant = <span class="self">self</span>.parse_paren_expression()<span class="question-mark">?</span>;
         <span class="kw">let </span>cases = {
@@ -923,11 +923,11 @@
             switch_cases.parse(<span class="self">self</span>)<span class="question-mark">?</span>;
             switch_cases.elements
         };
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.switch_statement(<span class="self">self</span>.end_node(node), discriminant, cases))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.switch_statement(<span class="self">self</span>.end_span(span), discriminant, cases))
     }
 
     <span class="kw">pub fn </span>parse_switch_case(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SwitchCase&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>test = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             Kind::Default =&gt; {
                 <span class="self">self</span>.bump_any();
@@ -946,28 +946,28 @@
             <span class="kw">let </span>stmt = <span class="self">self</span>.parse_statement_list_item(StatementContext::StatementList)<span class="question-mark">?</span>;
             consequent.push(stmt);
         }
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.switch_case(<span class="self">self</span>.end_node(node), test, consequent))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.switch_case(<span class="self">self</span>.end_span(span), test, consequent))
     }
 
     <span class="doccomment">/// Section 14.14 Throw Statement
     </span><span class="kw">fn </span>parse_throw_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// advance `throw`
         </span><span class="kw">if </span><span class="self">self</span>.cur_token().is_on_new_line {
             <span class="self">self</span>.error(Diagnostic::IllegalNewline(
                 <span class="string">&quot;throw&quot;</span>,
-                <span class="self">self</span>.end_node(node),
-                <span class="self">self</span>.cur_token().node(),
+                <span class="self">self</span>.end_span(span),
+                <span class="self">self</span>.cur_token().span(),
             ));
         }
         <span class="kw">let </span>argument = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
         <span class="self">self</span>.asi()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.throw_statement(<span class="self">self</span>.end_node(node), argument))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.throw_statement(<span class="self">self</span>.end_span(span), argument))
     }
 
     <span class="doccomment">/// Section 14.15 Try Statement
     </span><span class="kw">fn </span>parse_try_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// bump `try`
 
         </span><span class="kw">let </span>block = <span class="self">self</span>.parse_block()<span class="question-mark">?</span>;
@@ -976,16 +976,16 @@
 
         <span class="kw">let </span>finalizer = <span class="self">self</span>.eat(Kind::Finally).then(|| <span class="self">self</span>.parse_block()).transpose()<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>range = Node::new(<span class="self">self</span>.prev_token_end, <span class="self">self</span>.prev_token_end + <span class="number">1</span>);
+        <span class="kw">let </span>range = Span::new(<span class="self">self</span>.prev_token_end, <span class="self">self</span>.prev_token_end + <span class="number">1</span>);
         <span class="kw">if </span>handler.is_none() &amp;&amp; finalizer.is_none() {
             <span class="self">self</span>.error(Diagnostic::ExpectCatchFinally(range));
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.try_statement(<span class="self">self</span>.end_node(node), block, handler, finalizer))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.try_statement(<span class="self">self</span>.end_span(span), block, handler, finalizer))
     }
 
     <span class="kw">fn </span>parse_catch_clause(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, CatchClause&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// advance `catch`
         </span><span class="kw">let </span>param = <span class="kw">if </span><span class="self">self</span>.eat(Kind::LParen) {
             <span class="kw">let </span>pattern = <span class="self">self</span>.parse_binding_pattern()<span class="question-mark">?</span>.<span class="number">0</span>;
@@ -995,15 +995,15 @@
             <span class="prelude-val">None
         </span>};
         <span class="kw">let </span>body = <span class="self">self</span>.parse_block()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.catch_clause(<span class="self">self</span>.end_node(node), param, body))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.catch_clause(<span class="self">self</span>.end_span(span), param, body))
     }
 
     <span class="doccomment">/// Section 14.16 Debugger Statement
     </span><span class="kw">fn </span>parse_debugger_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any();
         <span class="self">self</span>.asi()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.debugger_statement(<span class="self">self</span>.end_node(node)))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.debugger_statement(<span class="self">self</span>.end_span(span)))
     }
 }
 </code></pre></div>

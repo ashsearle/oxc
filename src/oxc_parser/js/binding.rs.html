@@ -133,7 +133,7 @@
 <a href="#133" id="133">133</a>
 <a href="#134" id="134">134</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
-<span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Node};
+<span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Span};
 <span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
 
 <span class="kw">use </span><span class="kw">super</span>::list::{ArrayPatternList, ObjectPatternProperties};
@@ -170,50 +170,50 @@
 
     <span class="doccomment">/// Section 14.3.3 Object Binding Pattern
     </span><span class="kw">fn </span>parse_object_binding_pattern(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;BindingPatternKind&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>properties = ObjectPatternProperties::parse(<span class="self">self</span>)<span class="question-mark">?</span>.elements;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.object_pattern(<span class="self">self</span>.end_node(node), properties))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.object_pattern(<span class="self">self</span>.end_span(span), properties))
     }
 
     <span class="doccomment">/// Section 14.3.3 Array Binding Pattern
     </span><span class="kw">fn </span>parse_array_binding_pattern(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;BindingPatternKind&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>elements = ArrayPatternList::parse(<span class="self">self</span>)<span class="question-mark">?</span>.elements;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.array_pattern(<span class="self">self</span>.end_node(node), elements))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.array_pattern(<span class="self">self</span>.end_span(span), elements))
     }
 
     <span class="doccomment">/// Section 14.3.3 Binding Rest Property
     </span><span class="kw">pub fn </span>parse_rest_element(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, RestElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// advance `...`
         </span><span class="kw">let </span>argument = <span class="self">self</span>.parse_binding_element()<span class="question-mark">?</span>;
-        <span class="kw">let </span>node = <span class="self">self</span>.end_node(node);
+        <span class="kw">let </span>span = <span class="self">self</span>.end_span(span);
 
         <span class="kw">if </span><span class="self">self</span>.at(Kind::Comma) {
             <span class="kw">let </span>error = <span class="kw">if </span><span class="self">self</span>.peek_at(Kind::RBrack) {
-                Diagnostic::RestElementTraillingComma(<span class="self">self</span>.cur_token().node())
+                Diagnostic::RestElementTraillingComma(<span class="self">self</span>.cur_token().span())
             } <span class="kw">else </span>{
-                Diagnostic::RestElement(node)
+                Diagnostic::RestElement(span)
             };
             <span class="self">self</span>.error(error);
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.rest_element(node, argument))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.rest_element(span, argument))
     }
 
     <span class="doccomment">/// `BindingElement`
     ///     `SingleNameBinding`
     ///     `BindingPattern` Initializer
     </span><span class="kw">pub fn </span>parse_binding_element(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>pattern = <span class="self">self</span>.parse_binding_pattern()<span class="question-mark">?</span>.<span class="number">0</span>;
-        <span class="self">self</span>.parse_initializer(node, pattern)
+        <span class="self">self</span>.parse_initializer(span, pattern)
     }
 
     <span class="comment">// object pattern property only has kind: init and method: false
     // https://github.com/oxc_ast/oxc_ast/blob/master/es2015.md#objectpattern
     </span><span class="kw">pub fn </span>parse_object_pattern_property(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Property&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>node = <span class="self">self</span>.start_node();
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
 
         <span class="kw">let </span><span class="kw-2">mut </span>shorthand = <span class="bool-val">false</span>;
         <span class="kw">let </span>is_binding_identifier = <span class="self">self</span>.cur_kind().is_binding_identifier();
@@ -226,10 +226,10 @@
             </span><span class="kw">if let </span>PropertyKey::Identifier(ident) = <span class="kw-2">&amp;</span>key {
                 shorthand = <span class="bool-val">true</span>;
                 <span class="kw">let </span>binding_identifier =
-                    BindingIdentifier { node: ident.node, name: ident.name.clone() };
+                    BindingIdentifier { span: ident.span, name: ident.name.clone() };
                 <span class="kw">let </span>identifier = <span class="self">self</span>.ast.binding_identifier(binding_identifier);
                 <span class="kw">let </span>left = <span class="self">self</span>.ast.binding_pattern(identifier, <span class="prelude-val">None</span>, <span class="bool-val">false</span>);
-                PropertyValue::Pattern(<span class="self">self</span>.parse_initializer(node, left)<span class="question-mark">?</span>)
+                PropertyValue::Pattern(<span class="self">self</span>.parse_initializer(span, left)<span class="question-mark">?</span>)
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="self">self</span>.unexpected();
             }
@@ -241,7 +241,7 @@
         };
 
         <span class="prelude-val">Ok</span>(Property {
-            node: <span class="self">self</span>.end_node(node),
+            span: <span class="self">self</span>.end_span(span),
             key,
             value,
             kind: PropertyKind::Init,
@@ -255,12 +255,12 @@
     ///   = `AssignmentExpression`[?In, ?Yield, ?Await]
     </span><span class="kw">fn </span>parse_initializer(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        node: Node,
+        span: Span,
         left: BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.eat(Kind::Eq) {
             <span class="kw">let </span>expr = <span class="self">self</span>.parse_assignment_expression_base()<span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.assignment_pattern(<span class="self">self</span>.end_node(node), left, expr))
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.assignment_pattern(<span class="self">self</span>.end_span(span), left, expr))
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(left)
         }

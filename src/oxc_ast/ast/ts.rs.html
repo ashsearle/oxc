@@ -1421,7 +1421,7 @@
 </span><span class="kw">pub struct </span>TSCallSignatureDeclaration&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
     </span><span class="kw">pub </span>node: Node,
-    <span class="kw">pub </span>params: FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;,
+    <span class="kw">pub </span>params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
@@ -1446,7 +1446,7 @@
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;is_false&quot;</span>)]
     </span><span class="kw">pub </span>optional: bool,
     <span class="kw">pub </span>kind: TSMethodSignatureKind,
-    <span class="kw">pub </span>params: FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;,
+    <span class="kw">pub </span>params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
@@ -1458,7 +1458,7 @@
 </span><span class="kw">pub struct </span>TSConstructSignatureDeclaration&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
     </span><span class="kw">pub </span>node: Node,
-    <span class="kw">pub </span>params: FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;,
+    <span class="kw">pub </span>params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
@@ -1585,7 +1585,7 @@
 </span><span class="kw">pub struct </span>TSFunctionType&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
     </span><span class="kw">pub </span>node: Node,
-    <span class="kw">pub </span>params: FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;,
+    <span class="kw">pub </span>params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>return_type: TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
@@ -1597,7 +1597,7 @@
     <span class="attr">#[serde(flatten)]
     </span><span class="kw">pub </span>node: Node,
     <span class="kw">pub </span>r#abstract: bool,
-    <span class="kw">pub </span>params: FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;,
+    <span class="kw">pub </span>params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="kw">pub </span>return_type: TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,

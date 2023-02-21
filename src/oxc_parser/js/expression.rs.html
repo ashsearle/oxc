@@ -1468,8 +1468,8 @@
         in_optional_chain: <span class="kw-2">&amp;mut </span>bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span>node = <span class="self">self</span>.start_node();
-        <span class="kw">let </span>lhs = <span class="self">self</span>.parse_primary_expression()<span class="question-mark">?</span>;
-        <span class="self">self</span>.parse_member_expression_rhs(node, lhs, in_optional_chain)
+        <span class="self">self</span>.parse_primary_expression()
+            .and_then(|lhs| <span class="self">self</span>.parse_member_expression_rhs(node, lhs, in_optional_chain))
     }
 
     <span class="doccomment">/// Section 13.3 Super Call

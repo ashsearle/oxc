@@ -1997,8 +1997,8 @@
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Hash)]
 #[serde(untagged)]
 </span><span class="kw">pub enum </span>PropertyKey&lt;<span class="lifetime">&#39;a</span>&gt; {
-    Identifier(IdentifierName),
-    PrivateIdentifier(PrivateIdentifier),
+    Identifier(Box&lt;<span class="lifetime">&#39;a</span>, IdentifierName&gt;),
+    PrivateIdentifier(Box&lt;<span class="lifetime">&#39;a</span>, PrivateIdentifier&gt;),
     Expression(Expression&lt;<span class="lifetime">&#39;a</span>&gt;),
 }
 
@@ -2930,7 +2930,7 @@
     <span class="kw">pub </span>expression: bool,
     <span class="kw">pub </span>generator: bool,
     <span class="kw">pub </span>r#async: bool,
-    <span class="kw">pub </span>params: FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;,
+    <span class="kw">pub </span>params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>body: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, FunctionBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     <span class="kw">pub </span>declare: bool,
@@ -3034,7 +3034,7 @@
     <span class="kw">pub </span>expression: bool,
     <span class="kw">pub </span>generator: bool,
     <span class="kw">pub </span>r#async: bool,
-    <span class="kw">pub </span>params: FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;, <span class="comment">// UniqueFormalParameters in spec
+    <span class="kw">pub </span>params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, <span class="comment">// UniqueFormalParameters in spec
     </span><span class="kw">pub </span>body: Box&lt;<span class="lifetime">&#39;a</span>, FunctionBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 
     <span class="kw">pub </span>type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,

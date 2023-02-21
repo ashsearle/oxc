@@ -771,7 +771,7 @@
         <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             Kind::PrivateIdentifier =&gt; {
                 <span class="kw">let </span>private_ident = <span class="self">self</span>.parse_private_identifier();
-                <span class="prelude-val">Ok</span>((PropertyKey::PrivateIdentifier(private_ident), <span class="bool-val">false</span>))
+                <span class="prelude-val">Ok</span>((PropertyKey::PrivateIdentifier(<span class="self">self</span>.ast.alloc(private_ident)), <span class="bool-val">false</span>))
             }
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.parse_property_name(),
         }

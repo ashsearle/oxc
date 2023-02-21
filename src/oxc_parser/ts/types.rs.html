@@ -1686,7 +1686,7 @@
     }
 
     <span class="kw">pub fn </span>is_at_named_tuple_element(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">let </span>offset = usize::from(<span class="self">self</span>.at(Kind::Dot3));
+        <span class="kw">let </span>offset = u8::from(<span class="self">self</span>.at(Kind::Dot3));
         <span class="kw">let </span>has_colon = <span class="self">self</span>.nth_at(offset + <span class="number">1</span>, Kind::Colon);
         <span class="kw">let </span>has_question_colon =
             <span class="self">self</span>.nth_at(offset + <span class="number">1</span>, Kind::Question) &amp;&amp; <span class="self">self</span>.nth_at(offset + <span class="number">2</span>, Kind::Colon);

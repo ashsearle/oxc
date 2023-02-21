@@ -288,7 +288,7 @@
         <span class="kw">let </span>(directives, statements) =
             <span class="self">self</span>.parse_directives_and_statements(<span class="comment">/* is_top_level */ </span><span class="bool-val">true</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>node = Node::new(<span class="number">0</span>, <span class="self">self</span>.source.len(), <span class="self">self</span>.ctx);
+        <span class="kw">let </span>node = Node::new(<span class="number">0</span>, <span class="self">self</span>.source.len());
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.program(node, directives, statements, <span class="self">self</span>.source_type))
     }
 

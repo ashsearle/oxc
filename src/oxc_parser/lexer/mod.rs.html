@@ -1444,6 +1444,7 @@
 <a href="#1444" id="1444">1444</a>
 <a href="#1445" id="1445">1445</a>
 <a href="#1446" id="1446">1446</a>
+<a href="#1447" id="1447">1447</a>
 </pre><pre class="rust"><code><span class="doccomment">//! An Ecma-262 Lexer / Tokenizer
 //! Prior Arts:
 //!     * [jsparagus](https://github.com/mozilla-spidermonkey/jsparagus/blob/master/crates/parser/src)
@@ -1530,7 +1531,7 @@
             source_type,
             current,
             errors,
-            lookahead: VecDeque::new(),
+            lookahead: VecDeque::with_capacity(<span class="number">4</span>),
             context: LexerContext::Regular,
         }
     }
@@ -1560,7 +1561,8 @@
     }
 
     <span class="doccomment">/// Find the nth lookahead token lazily
-    </span><span class="kw">pub fn </span>lookahead(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: usize) -&gt; <span class="kw-2">&amp;</span>Token {
+    </span><span class="kw">pub fn </span>lookahead(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: u8) -&gt; <span class="kw-2">&amp;</span>Token {
+        <span class="kw">let </span>n = n <span class="kw">as </span>usize;
         <span class="macro">debug_assert!</span>(n &gt; <span class="number">0</span>);
 
         <span class="kw">if </span><span class="self">self</span>.lookahead.len() &gt; n - <span class="number">1 </span>{
@@ -1944,7 +1946,7 @@
     </span><span class="kw">fn </span>skip_multi_line_comment(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Kind {
         <span class="kw">let </span>remaining = <span class="self">self</span>.remaining().as_bytes();
         <span class="kw">let </span>newline = <span class="self">self</span>.current.token.is_on_new_line;
-        <span class="kw">let </span>state = SkipMultilineComment::new(newline, remaining).simd(remaining);
+        <span class="kw">let </span>state = SkipMultilineComment::new(newline, remaining).simd();
 
         <span class="comment">// SAFETY: offset is computed to the boundary
         </span><span class="self">self</span>.current.chars =

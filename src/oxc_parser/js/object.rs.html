@@ -258,6 +258,8 @@
 <a href="#258" id="258">258</a>
 <a href="#259" id="259">259</a>
 <a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Node};
 <span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
@@ -380,10 +382,9 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.property(
             <span class="self">self</span>.end_node(node),
             PropertyKind::Init,
-            PropertyKey::Identifier(IdentifierName {
-                node: identifier.node,
-                name: identifier.name,
-            }),
+            PropertyKey::Identifier(
+                <span class="self">self</span>.ast.alloc(IdentifierName { node: identifier.node, name: identifier.name }),
+            ),
             PropertyValue::Expression(value),
             <span class="comment">/* method */ </span><span class="bool-val">false</span>,
             <span class="comment">/* shorthand */ </span><span class="bool-val">true</span>,
@@ -427,7 +428,10 @@
                 computed = <span class="bool-val">true</span>;
                 <span class="self">self</span>.parse_computed_property_name().map(PropertyKey::Expression)<span class="question-mark">?
             </span>}
-            <span class="kw">_ </span>=&gt; PropertyKey::Identifier(<span class="self">self</span>.parse_identifier_name()<span class="question-mark">?</span>),
+            <span class="kw">_ </span>=&gt; {
+                <span class="kw">let </span>ident = <span class="self">self</span>.parse_identifier_name()<span class="question-mark">?</span>;
+                PropertyKey::Identifier(<span class="self">self</span>.ast.alloc(ident))
+            }
         };
         <span class="prelude-val">Ok</span>((key, computed))
     }

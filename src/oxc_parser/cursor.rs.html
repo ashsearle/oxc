@@ -328,7 +328,7 @@
     <span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>start_node(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Node {
         <span class="kw">let </span>token = <span class="self">self</span>.cur_token();
-        Node::new(token.start, <span class="number">0</span>, <span class="self">self</span>.ctx)
+        Node::new(token.start, <span class="number">0</span>)
     }
 
     <span class="attr">#[must_use]
@@ -381,7 +381,7 @@
     }
 
     <span class="doccomment">/// Peek nth token
-    </span><span class="kw">pub fn </span>nth(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: usize) -&gt; <span class="kw-2">&amp;</span>Token {
+    </span><span class="kw">pub fn </span>nth(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: u8) -&gt; <span class="kw-2">&amp;</span>Token {
         <span class="kw">if </span>n == <span class="number">0 </span>{
             <span class="kw">return </span><span class="self">self</span>.cur_token();
         }
@@ -389,12 +389,12 @@
     }
 
     <span class="doccomment">/// Peek at nth kind
-    </span><span class="kw">pub fn </span>nth_at(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: usize, kind: Kind) -&gt; bool {
+    </span><span class="kw">pub fn </span>nth_at(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: u8, kind: Kind) -&gt; bool {
         <span class="self">self</span>.nth(n).kind == kind
     }
 
     <span class="doccomment">/// Peek nth kind
-    </span><span class="kw">pub fn </span>nth_kind(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: usize) -&gt; Kind {
+    </span><span class="kw">pub fn </span>nth_kind(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: u8) -&gt; Kind {
         <span class="self">self</span>.nth(n).kind
     }
 

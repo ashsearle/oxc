@@ -695,7 +695,7 @@
         <span class="self">self</span>.nth_at(offset + <span class="number">2</span>, Kind::Colon)
     }
 
-    <span class="kw">pub fn </span>is_nth_at_modifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: usize, is_constructor_parameter: bool) -&gt; bool {
+    <span class="kw">pub fn </span>is_nth_at_modifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: u8, is_constructor_parameter: bool) -&gt; bool {
         <span class="kw">let </span>nth = <span class="self">self</span>.nth(n);
         <span class="kw">if </span>!(<span class="macro">matches!</span>(
             nth.kind,
@@ -811,7 +811,7 @@
             .map(|decl| Statement::Declaration(Declaration::TSModuleDeclaration(decl)))
     }
 
-    <span class="kw">pub fn </span>is_nth_at_ts_namespace_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: usize) -&gt; bool {
+    <span class="kw">pub fn </span>is_nth_at_ts_namespace_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: u8) -&gt; bool {
         <span class="kw">if </span><span class="self">self</span>.nth(n + <span class="number">1</span>).is_on_new_line {
             <span class="kw">return </span><span class="bool-val">false</span>;
         }

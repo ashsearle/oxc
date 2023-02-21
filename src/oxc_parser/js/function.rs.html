@@ -504,7 +504,7 @@
 
 <span class="kw">type </span>ArrowFunctionHead&lt;<span class="lifetime">&#39;a</span>&gt; = (
     <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-    FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;,
+    Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     bool,
     Node,
@@ -573,7 +573,7 @@
     <span class="kw">pub fn </span>parse_formal_parameters(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         params_kind: FormalParameterKind,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
         <span class="kw">let </span>node = <span class="self">self</span>.start_node();
         <span class="kw">let </span>elements = FormalParameterList::parse(<span class="self">self</span>)<span class="question-mark">?</span>.elements;
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.formal_parameters(<span class="self">self</span>.end_node(node), params_kind, elements))
@@ -597,7 +597,7 @@
 
         <span class="kw">let </span>return_type = <span class="self">self</span>.parse_ts_return_type_annotation()<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>body = <span class="self">self</span>.at(Kind::LCurly).then(|| <span class="self">self</span>.parse_function_body()).transpose()<span class="question-mark">?</span>;
+        <span class="kw">let </span>body = <span class="kw">if </span><span class="self">self</span>.at(Kind::LCurly) { <span class="prelude-val">Some</span>(<span class="self">self</span>.parse_function_body()<span class="question-mark">?</span>) } <span class="kw">else </span>{ <span class="prelude-val">None </span>};
 
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_await(has_await).and_yield(has_yield);
 
@@ -819,7 +819,7 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         r#async: bool,
     ) -&gt; IsParenthesizedArrowFunction {
-        <span class="kw">let </span>offset = usize::from(r#async);
+        <span class="kw">let </span>offset = u8::from(r#async);
 
         <span class="kw">match </span><span class="self">self</span>.nth_kind(offset) {
             Kind::LParen =&gt; <span class="kw">match </span><span class="self">self</span>.nth_kind(offset + <span class="number">1</span>) {
@@ -939,7 +939,7 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         node: Node,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-        params: FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;,
+        params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         r#async: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {

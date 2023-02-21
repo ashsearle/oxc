@@ -610,7 +610,7 @@
 
 </span><span class="kw">use </span>std::{cell::RefCell, ops::Deref, rc::Rc};
 
-<span class="kw">use </span>oxc_ast::{Atom, Span};
+<span class="kw">use </span>oxc_ast::{Atom, Node};
 <span class="kw">use </span>thiserror::Error;
 
 <span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = std::result::Result&lt;T, Diagnostic&gt;;
@@ -638,120 +638,120 @@
 </span><span class="kw">pub enum </span>Diagnostic {
     <span class="attr">#[error(<span class="string">&quot;This file panicked&quot;</span>)]
     #[diagnostic()]
-    </span>Panic(<span class="attr">#[label(<span class="string">&quot;&quot;</span>)] </span>Span),
+    </span>Panic(<span class="attr">#[label(<span class="string">&quot;&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Flow is not supported&quot;</span>)]
     #[diagnostic()]
-    </span>Flow(<span class="attr">#[label(<span class="string">&quot;&quot;</span>)] </span>Span),
+    </span>Flow(<span class="attr">#[label(<span class="string">&quot;&quot;</span>)] </span>Node),
 
     <span class="comment">/* Lexer */
     </span><span class="attr">#[error(<span class="string">&quot;Syntax Error&quot;</span>)]
     #[diagnostic()]
-    </span>UnexpectedToken(<span class="attr">#[label(<span class="string">&quot;Unexpected Token&quot;</span>)] </span>Span),
+    </span>UnexpectedToken(<span class="attr">#[label(<span class="string">&quot;Unexpected Token&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Syntax Error&quot;</span>)]
     #[diagnostic()]
-    </span>ExpectToken(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;Expect `{0}` here, but found `{1}`&quot;</span>)] </span>Span),
+    </span>ExpectToken(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;Expect `{0}` here, but found `{1}`&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Invalid escape sequence&quot;</span>)]
-    </span>InvalidEscapeSequence(<span class="attr">#[label(<span class="string">&quot;Invalid escape sequence&quot;</span>)] </span>Span),
+    </span>InvalidEscapeSequence(<span class="attr">#[label(<span class="string">&quot;Invalid escape sequence&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Invalid escape sequence&quot;</span>)]
-    </span>NonOctalDecimalEscapeSequence(<span class="attr">#[label(<span class="string">&quot;\\8 and \\9 are not allowed in strict mode&quot;</span>)] </span>Span),
+    </span>NonOctalDecimalEscapeSequence(<span class="attr">#[label(<span class="string">&quot;\\8 and \\9 are not allowed in strict mode&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Invalid Unicode escape sequence&quot;</span>)]
-    </span>UnicodeEscapeSequence(<span class="attr">#[label(<span class="string">&quot;Invalid Unicode escape sequence&quot;</span>)] </span>Span),
+    </span>UnicodeEscapeSequence(<span class="attr">#[label(<span class="string">&quot;Invalid Unicode escape sequence&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Invalid Character `{0}`&quot;</span>)]
-    </span>InvalidCharacter(char, <span class="attr">#[label(<span class="string">&quot;Invalid Character `{0}`&quot;</span>)] </span>Span),
+    </span>InvalidCharacter(char, <span class="attr">#[label(<span class="string">&quot;Invalid Character `{0}`&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Invalid characters after number&quot;</span>)]
-    </span>InvalidNumberEnd(<span class="attr">#[label(<span class="string">&quot;Invalid characters after number&quot;</span>)] </span>Span),
+    </span>InvalidNumberEnd(<span class="attr">#[label(<span class="string">&quot;Invalid characters after number&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Unterminated multiLine comment&quot;</span>)]
-    </span>UnterminatedMultiLineComment(<span class="attr">#[label(<span class="string">&quot;Unterminated multiLine comment&quot;</span>)] </span>Span),
+    </span>UnterminatedMultiLineComment(<span class="attr">#[label(<span class="string">&quot;Unterminated multiLine comment&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Unterminated string&quot;</span>)]
-    </span>UnterminatedString(<span class="attr">#[label(<span class="string">&quot;Unterminated string&quot;</span>)] </span>Span),
+    </span>UnterminatedString(<span class="attr">#[label(<span class="string">&quot;Unterminated string&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Unexpected flag {0} in regular expression literal&quot;</span>)]
-    </span>RegExpFlag(char, <span class="attr">#[label(<span class="string">&quot;Unexpected flag {0} in regular expression literal&quot;</span>)] </span>Span),
+    </span>RegExpFlag(char, <span class="attr">#[label(<span class="string">&quot;Unexpected flag {0} in regular expression literal&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Flag {0} is mentioned twice in regular expression literal&quot;</span>)]
     </span>RegExpFlagTwice(
         char,
-        <span class="attr">#[label(<span class="string">&quot;Flag {0} is mentioned twice in regular expression literal&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;Flag {0} is mentioned twice in regular expression literal&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;The &#39;u&#39; and &#39;v&#39; regular expression flags cannot be enabled at the same time&quot;</span>)]
     </span>RegExpFlagUAndV(
         <span class="attr">#[label(<span class="string">&quot;The &#39;u&#39; and &#39;v&#39; regular expression flags cannot be enabled at the same time&quot;</span>)]
-        </span>Span,
+        </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Unexpected end of file&quot;</span>)]
-    </span>UnexpectedEnd(<span class="attr">#[label(<span class="string">&quot;Unexpected end of file&quot;</span>)] </span>Span),
+    </span>UnexpectedEnd(<span class="attr">#[label(<span class="string">&quot;Unexpected end of file&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Unterminated regular expression&quot;</span>)]
-    </span>UnterminatedRegExp(<span class="attr">#[label(<span class="string">&quot;Unterminated regular expression&quot;</span>)] </span>Span),
+    </span>UnterminatedRegExp(<span class="attr">#[label(<span class="string">&quot;Unterminated regular expression&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Invalid Number&quot;</span>)]
-    </span>InvalidNumber(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;{0}&quot;</span>)] </span>Span),
+    </span>InvalidNumber(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;{0}&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Keywords cannot contain escape characters&quot;</span>)]
     #[diagnostic()]
-    </span>EscapedKeyword(<span class="attr">#[label(<span class="string">&quot;keyword cannot contain escape characters&quot;</span>)] </span>Span),
+    </span>EscapedKeyword(<span class="attr">#[label(<span class="string">&quot;keyword cannot contain escape characters&quot;</span>)] </span>Node),
     <span class="comment">/* Syntax Errors */
     </span><span class="attr">#[error(<span class="string">&quot;Automatic Semicolon Insertion&quot;</span>)]
     #[diagnostic(help(<span class="string">&quot;Try insert a semicolon here&quot;</span>))]
     </span>AutoSemicolonInsertion(
         <span class="attr">#[label(<span class="string">&quot;Expected a semicolon or an implicit semicolon after a statement, but found none&quot;</span>)]
-        </span>Span,
+        </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Octal literals are not allowed in strict mode&quot;</span>)]
     #[diagnostic(help(<span class="string">&quot;for octal literals use the &#39;0o&#39; prefix instead&quot;</span>))]
     </span>LegacyOctal(
-        <span class="attr">#[label(<span class="string">&quot;&#39;0&#39;-prefixed octal literals and octal escape sequences are deprecated&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;&#39;0&#39;-prefixed octal literals and octal escape sequences are deprecated&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Decimals with leading zeros are not allowed in strict mode&quot;</span>)]
     #[diagnostic(help(<span class="string">&quot;remove the leading zero&quot;</span>))]
-    </span>LeadingZeroDecimal(<span class="attr">#[label(<span class="string">&quot;Decimals with leading zeros are not allowed in strict mode&quot;</span>)] </span>Span),
+    </span>LeadingZeroDecimal(<span class="attr">#[label(<span class="string">&quot;Decimals with leading zeros are not allowed in strict mode&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Line terminator not permitted before arrow&quot;</span>)]
     #[diagnostic()]
-    </span>LineterminatorBeforeArrow(<span class="attr">#[label(<span class="string">&quot;Line terminator not permitted before arrow&quot;</span>)] </span>Span),
+    </span>LineterminatorBeforeArrow(<span class="attr">#[label(<span class="string">&quot;Line terminator not permitted before arrow&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Unexpected new.target expression&quot;</span>)]
     #[diagnostic(help(
         <span class="string">&quot;new.target is only allowed in constructors and functions invoked using thew `new` operator&quot;
     </span>))]
-    </span>NewTarget(<span class="attr">#[label(<span class="string">&quot;new.target expression is not allowed here&quot;</span>)] </span>Span),
+    </span>NewTarget(<span class="attr">#[label(<span class="string">&quot;new.target expression is not allowed here&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;The only valid meta property for new is new.target&quot;</span>)]
     #[diagnostic()]
-    </span>NewTargetProperty(<span class="attr">#[label(<span class="string">&quot;The only valid meta property for new is new.target&quot;</span>)] </span>Span),
+    </span>NewTargetProperty(<span class="attr">#[label(<span class="string">&quot;The only valid meta property for new is new.target&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Unexpected import.meta expression&quot;</span>)]
     #[diagnostic(help(<span class="string">&quot;import.meta is only allowed in module code&quot;</span>))]
-    </span>ImportMeta(<span class="attr">#[label(<span class="string">&quot;import.meta expression is not allowed here&quot;</span>)] </span>Span),
+    </span>ImportMeta(<span class="attr">#[label(<span class="string">&quot;import.meta expression is not allowed here&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;The only valid meta property for import is import.meta&quot;</span>)]
     #[diagnostic()]
-    </span>ImportMetaProperty(<span class="attr">#[label(<span class="string">&quot;The only valid meta property for import is import.meta&quot;</span>)] </span>Span),
+    </span>ImportMetaProperty(<span class="attr">#[label(<span class="string">&quot;The only valid meta property for import is import.meta&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Illegal break statement&quot;</span>)]
     #[diagnostic(help(
         <span class="string">&quot;A `break` statement can only be used within an enclosing iteration or switch statement.&quot;
     </span>))]
-    </span>InvalidBreak(<span class="attr">#[label(<span class="string">&quot;break statement is not allowed here&quot;</span>)] </span>Span),
+    </span>InvalidBreak(<span class="attr">#[label(<span class="string">&quot;break statement is not allowed here&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Illegal continue statement: no surrounding iteration statement&quot;</span>)]
     #[diagnostic(help(
         <span class="string">&quot;A `continue` statement can only be used within an enclosing `for`, `while` or `do while` &quot;
     </span>))]
-    </span>InvalidContinue(<span class="attr">#[label(<span class="string">&quot;continue statement is not allowed here&quot;</span>)] </span>Span),
+    </span>InvalidContinue(<span class="attr">#[label(<span class="string">&quot;continue statement is not allowed here&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(
         <span class="string">&quot;A `{0}` statement can only jump to a label of an enclosing `for`, `while` or `do while` statement.&quot;
@@ -759,349 +759,349 @@
     #[diagnostic()]
     </span>InvalidLabelNonIteration(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
-        <span class="attr">#[label(<span class="string">&quot;This is an non-iteration statement&quot;</span>)] </span>Span,
-        <span class="attr">#[label(<span class="string">&quot;for this label&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;This is an non-iteration statement&quot;</span>)] </span>Node,
+        <span class="attr">#[label(<span class="string">&quot;for this label&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Use of undefined label&quot;</span>)]
     #[diagnostic()]
-    </span>InvalidLabelTarget(<span class="attr">#[label(<span class="string">&quot;This label is used, but not defined&quot;</span>)] </span>Span),
+    </span>InvalidLabelTarget(<span class="attr">#[label(<span class="string">&quot;This label is used, but not defined&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Jump target cannot cross function boundary.&quot;</span>)]
     #[diagnostic()]
-    </span>InvalidLabelJumpTarget(<span class="attr">#[label(<span class="string">&quot;Jump target cannot cross function boundary.&quot;</span>)] </span>Span),
+    </span>InvalidLabelJumpTarget(<span class="attr">#[label(<span class="string">&quot;Jump target cannot cross function boundary.&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Unexpected &#39;{0}&#39; strict mode&quot;</span>)]
     #[diagnostic()]
-    </span>UnexpectedIdentifierAssign(Atom, <span class="attr">#[label(<span class="string">&quot;Cannot assign to &#39;{0}&#39; in strict mode&quot;</span>)] </span>Span),
+    </span>UnexpectedIdentifierAssign(Atom, <span class="attr">#[label(<span class="string">&quot;Cannot assign to &#39;{0}&#39; in strict mode&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Invalid left-hand side in assignment&quot;</span>)]
     #[diagnostic()]
-    </span>UnexpectedLhsAssign(<span class="attr">#[label(<span class="string">&quot;Invalid left-hand side in assignment&quot;</span>)] </span>Span),
+    </span>UnexpectedLhsAssign(<span class="attr">#[label(<span class="string">&quot;Invalid left-hand side in assignment&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;The keyword &#39;{0}&#39; is reserved&quot;</span>)]
     #[diagnostic()]
-    </span>ReservedKeyword(Atom, <span class="attr">#[label(<span class="string">&quot;{0} is reserved&quot;</span>)] </span>Span),
+    </span>ReservedKeyword(Atom, <span class="attr">#[label(<span class="string">&quot;{0} is reserved&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Identifier `{0}` has already been declared&quot;</span>)]
     #[diagnostic()]
     </span>Redeclaration(
         Atom,
-        <span class="attr">#[label(<span class="string">&quot;`{0}` has already been declared here&quot;</span>)] </span>Span,
-        <span class="attr">#[label(<span class="string">&quot;It can not be redeclared here&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;`{0}` has already been declared here&quot;</span>)] </span>Node,
+        <span class="attr">#[label(<span class="string">&quot;It can not be redeclared here&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;{0} is disallowed as a lexically bound name&quot;</span>)]
     #[diagnostic()]
-    </span>DisallowedLexicalName(Atom, <span class="attr">#[label(<span class="string">&quot;{0} is disallowed as a lexically bound name&quot;</span>)] </span>Span),
+    </span>DisallowedLexicalName(Atom, <span class="attr">#[label(<span class="string">&quot;{0} is disallowed as a lexically bound name&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;`let` cannot be declared as a variable name inside of a `{0}` declaration&quot;</span>)]
     #[diagnostic()]
-    </span>InvalidLetDeclaration(String, <span class="attr">#[label(<span class="string">&quot;Rename the let identifier here&quot;</span>)] </span>Span),
+    </span>InvalidLetDeclaration(String, <span class="attr">#[label(<span class="string">&quot;Rename the let identifier here&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Missing initializer in destructuring declaration&quot;</span>)]
     #[diagnostic()]
     </span>InvalidDestrucuringDeclaration(
-        <span class="attr">#[label(<span class="string">&quot;Missing initializer in destructuring declaration&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;Missing initializer in destructuring declaration&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Missing initializer in const declaration&quot;</span>)]
     #[diagnostic()]
-    </span>MissinginitializerInConst(<span class="attr">#[label(<span class="string">&quot;const declaration need an initializer&quot;</span>)] </span>Span),
+    </span>MissinginitializerInConst(<span class="attr">#[label(<span class="string">&quot;const declaration need an initializer&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Functions cannot be labelled&quot;</span>)]
     #[diagnostic(help(<span class="string">&quot;This is not allowed in strict mode starting with ECMAScript 2015.&quot;</span>))]
-    </span>FunctionsCannotBeLabelled(<span class="attr">#[label(<span class="string">&quot;Functions cannot be labelled&quot;</span>)] </span>Span),
+    </span>FunctionsCannotBeLabelled(<span class="attr">#[label(<span class="string">&quot;Functions cannot be labelled&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Cannot use {0} outside a method&quot;</span>)]
-    </span>MethodCode(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;Cannot use {0} outside a method&quot;</span>)] </span>Span),
+    </span>MethodCode(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;Cannot use {0} outside a method&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Cannot use {0} outside a module&quot;</span>)]
     #[diagnostic()]
-    </span>ModuleCode(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;Cannot use {0} outside a module&quot;</span>)] </span>Span),
+    </span>ModuleCode(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;Cannot use {0} outside a module&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Lexical declaration cannot appear in a single-statement context&quot;</span>)]
     #[diagnostic(help(<span class="string">&quot;Wrap this declaration in a block statement&quot;</span>))]
-    </span>LexicalDeclarationSingleStatement(<span class="attr">#[label(<span class="string">&quot;Lexical declaration is not allowed here&quot;</span>)] </span>Span),
+    </span>LexicalDeclarationSingleStatement(<span class="attr">#[label(<span class="string">&quot;Lexical declaration is not allowed here&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Invalid function declaration&quot;</span>)]
     #[diagnostic(help(
         <span class="string">&quot;In strict mode code, functions can only be declared at top level or inside a block&quot;
     </span>))]
-    </span>FunctionDeclarationStrict(<span class="attr">#[label(<span class="string">&quot;function declaration is not allowed here&quot;</span>)] </span>Span),
+    </span>FunctionDeclarationStrict(<span class="attr">#[label(<span class="string">&quot;function declaration is not allowed here&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Async functions can only be declared at the top level or inside a block&quot;</span>)]
     #[diagnostic()]
     </span>AsyncFunctionDeclaration(
-        <span class="attr">#[label(<span class="string">&quot;Async functions can only be declared at the top level or inside a block&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;Async functions can only be declared at the top level or inside a block&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Generators can only be declared at the top level or inside a block&quot;</span>)]
     #[diagnostic()]
     </span>GeneratorFunctionDeclaration(
-        <span class="attr">#[label(<span class="string">&quot;Generators can only be declared at the top level or inside a block&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;Generators can only be declared at the top level or inside a block&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Invalid function declaration&quot;</span>)]
     #[diagnostic(help(
         <span class="string">&quot;In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement&quot;
     </span>))]
-    </span>FunctionDeclarationNonStrict(<span class="attr">#[label(<span class="string">&quot;function declaration is not allowed here&quot;</span>)] </span>Span),
+    </span>FunctionDeclarationNonStrict(<span class="attr">#[label(<span class="string">&quot;function declaration is not allowed here&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;`await` is only allowed within async functions and at the top levels of modules&quot;</span>)]
     #[diagnostic()]
     </span>AwaitExpression(
         <span class="attr">#[label(<span class="string">&quot;`await` is only allowed within async functions and at the top levels of modules&quot;</span>)]
-        </span>Span,
+        </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;A &#39;yield&#39; expression is only allowed in a generator body.&quot;</span>)]
     #[diagnostic()]
-    </span>YieldExpression(<span class="attr">#[label(<span class="string">&quot;A &#39;yield&#39; expression is only allowed in a generator body.&quot;</span>)] </span>Span),
+    </span>YieldExpression(<span class="attr">#[label(<span class="string">&quot;A &#39;yield&#39; expression is only allowed in a generator body.&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Invalid class declaration&quot;</span>)]
     #[diagnostic()]
-    </span>ClassDeclaration(<span class="attr">#[label(<span class="string">&quot;Classes can only be declared at top level or inside a block&quot;</span>)] </span>Span),
+    </span>ClassDeclaration(<span class="attr">#[label(<span class="string">&quot;Classes can only be declared at top level or inside a block&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Rest element must be last element&quot;</span>)]
     #[diagnostic()]
-    </span>RestElement(<span class="attr">#[label(<span class="string">&quot;Rest element must be last element&quot;</span>)] </span>Span),
+    </span>RestElement(<span class="attr">#[label(<span class="string">&quot;Rest element must be last element&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Spread must be last element&quot;</span>)]
     #[diagnostic()]
-    </span>SpreadLastElement(<span class="attr">#[label(<span class="string">&quot;Spread must be last element&quot;</span>)] </span>Span),
+    </span>SpreadLastElement(<span class="attr">#[label(<span class="string">&quot;Spread must be last element&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Unexpected trailing comma after rest element&quot;</span>)]
     #[diagnostic()]
-    </span>RestElementTraillingComma(<span class="attr">#[label(<span class="string">&quot;Unexpected trailing comma after rest element&quot;</span>)] </span>Span),
+    </span>RestElementTraillingComma(<span class="attr">#[label(<span class="string">&quot;Unexpected trailing comma after rest element&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Invalid rest argument&quot;</span>)]
     #[diagnostic(help(<span class="string">&quot;Expected identifier in rest argument&quot;</span>))]
-    </span>InvalidRestArgument(<span class="attr">#[label(<span class="string">&quot;Invalid rest argument&quot;</span>)] </span>Span),
+    </span>InvalidRestArgument(<span class="attr">#[label(<span class="string">&quot;Invalid rest argument&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Invalid parenthesized parameter&quot;</span>)]
     #[diagnostic(help(<span class="string">&quot;remove the parentheses&quot;</span>))]
-    </span>InvalidParenthesizedParameter(<span class="attr">#[label(<span class="string">&quot;Invliad parenthesized parameter&quot;</span>)] </span>Span),
+    </span>InvalidParenthesizedParameter(<span class="attr">#[label(<span class="string">&quot;Invliad parenthesized parameter&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Invalid parenthesized pattern&quot;</span>)]
     #[diagnostic()]
-    </span>InvalidParenthesizedPattern(<span class="attr">#[label(<span class="string">&quot;Invliad parenthesized pattern&quot;</span>)] </span>Span),
+    </span>InvalidParenthesizedPattern(<span class="attr">#[label(<span class="string">&quot;Invliad parenthesized pattern&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Invalid assignment&quot;</span>)]
     #[diagnostic()]
-    </span>InvalidAssignment(<span class="attr">#[label(<span class="string">&quot;Cannot assign to this expression&quot;</span>)] </span>Span),
+    </span>InvalidAssignment(<span class="attr">#[label(<span class="string">&quot;Cannot assign to this expression&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Optional chaining cannot appear in the callee of new expressions&quot;</span>)]
     #[diagnostic()]
     </span>NewOptionalChain(
-        <span class="attr">#[label(<span class="string">&quot;Optional chaining cannot appear in the callee of new expressions&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;Optional chaining cannot appear in the callee of new expressions&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;The left-hand side of a `for...of` statement may not be `async`&quot;</span>)]
     #[diagnostic()]
     </span>ForLoopAsyncOf(
-        <span class="attr">#[label(<span class="string">&quot;The left-hand side of a `for...of` statement may not be `async`&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;The left-hand side of a `for...of` statement may not be `async`&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;await can only be used in conjunction with `for...of` statements&quot;</span>)]
     #[diagnostic()]
-    </span>ForAwait(<span class="attr">#[label(<span class="string">&quot;await can only be used in conjunction with `for...of` statements&quot;</span>)] </span>Span),
+    </span>ForAwait(<span class="attr">#[label(<span class="string">&quot;await can only be used in conjunction with `for...of` statements&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Cannot use new with dynamic import&quot;</span>)]
     #[diagnostic()]
-    </span>NewDynamicImport(<span class="attr">#[label(<span class="string">&quot;Cannot use new with dynamic import&quot;</span>)] </span>Span),
+    </span>NewDynamicImport(<span class="attr">#[label(<span class="string">&quot;Cannot use new with dynamic import&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;&#39;{0}&#39; declaration can only be used at the top level of a module&quot;</span>)]
     #[diagnostic()]
-    </span>TopLevel(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;&#39;{0}&#39; declaration can only appear at the top level&quot;</span>)] </span>Span),
+    </span>TopLevel(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;&#39;{0}&#39; declaration can only appear at the top level&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Duplicated export &#39;{0}&#39;&quot;</span>)]
     #[diagnostic()]
     </span>DuplicateExport(
         Atom,
-        <span class="attr">#[label(<span class="string">&quot;Export has already been declared here&quot;</span>)] </span>Span,
-        <span class="attr">#[label(<span class="string">&quot;It cannot be redeclared here&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;Export has already been declared here&quot;</span>)] </span>Node,
+        <span class="attr">#[label(<span class="string">&quot;It cannot be redeclared here&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Unexpected private field&quot;</span>)]
     #[diagnostic(help(
         <span class="string">&quot;Private names are only allowed in property accesses (`obj.#field`) or in `in` expressions (`#field in obj`).&quot;
     </span>))]
-    </span>UnexpectedPrivateIdentifier(<span class="attr">#[label(<span class="string">&quot;Unexpected private field&quot;</span>)] </span>Span),
+    </span>UnexpectedPrivateIdentifier(<span class="attr">#[label(<span class="string">&quot;Unexpected private field&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Classes can&#39;t have an element named &#39;#constructor&#39;&quot;</span>)]
     #[diagnostic()]
-    </span>PrivateNameConstructor(<span class="attr">#[label(<span class="string">&quot;Classes can&#39;t have an element named &#39;#constructor&#39;&quot;</span>)] </span>Span),
+    </span>PrivateNameConstructor(<span class="attr">#[label(<span class="string">&quot;Classes can&#39;t have an element named &#39;#constructor&#39;&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Private field &#39;{0}&#39; must be declared in an enclosing class&quot;</span>)]
     #[diagnostic()]
     </span>PrivateFieldUndeclared(
         Atom,
-        <span class="attr">#[label(<span class="string">&quot;Private field &#39;{0}&#39; must be declared in an enclosing class&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;Private field &#39;{0}&#39; must be declared in an enclosing class&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Unexpected private identifier&quot;</span>)]
     #[diagnostic()]
     </span>PrivateNotInClass(
         Atom,
-        <span class="attr">#[label(<span class="string">&quot;Private identifier &#39;#{0}&#39; is not allowed outside class bodies&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;Private identifier &#39;#{0}&#39; is not allowed outside class bodies&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Classes may not have a static property named prototype&quot;</span>)]
     #[diagnostic()]
-    </span>StaticPrototype(<span class="attr">#[label(<span class="string">&quot;Classes may not have a static property named prototype&quot;</span>)] </span>Span),
+    </span>StaticPrototype(<span class="attr">#[label(<span class="string">&quot;Classes may not have a static property named prototype&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Constructor can&#39;t have get/set modifier&quot;</span>)]
     #[diagnostic()]
-    </span>ConstructorGetterSetter(<span class="attr">#[label(<span class="string">&quot;Constructor can&#39;t have get/set modifier&quot;</span>)] </span>Span),
+    </span>ConstructorGetterSetter(<span class="attr">#[label(<span class="string">&quot;Constructor can&#39;t have get/set modifier&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Constructor can&#39;t be an async method&quot;</span>)]
     #[diagnostic()]
-    </span>ConstructorAsync(<span class="attr">#[label(<span class="string">&quot;Constructor can&#39;t be an async method&quot;</span>)] </span>Span),
+    </span>ConstructorAsync(<span class="attr">#[label(<span class="string">&quot;Constructor can&#39;t be an async method&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Cannot use `{0}` as an identifier in an async context&quot;</span>)]
     #[diagnostic()]
-    </span>IdentifierAsync(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;{0} cannot be used here&quot;</span>)] </span>Span),
+    </span>IdentifierAsync(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;{0} cannot be used here&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Cannot use `{0}` as an identifier in a generator context&quot;</span>)]
     #[diagnostic()]
-    </span>IdentifierGenerator(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;{0} cannot be used here&quot;</span>)] </span>Span),
+    </span>IdentifierGenerator(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;{0} cannot be used here&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Constructor can&#39;t be a generator&quot;</span>)]
     #[diagnostic()]
-    </span>ConstructorGenerator(<span class="attr">#[label(<span class="string">&quot;Constructor can&#39;t be a generator&quot;</span>)] </span>Span),
+    </span>ConstructorGenerator(<span class="attr">#[label(<span class="string">&quot;Constructor can&#39;t be a generator&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Classes can&#39;t have a field named &#39;constructor&#39;&quot;</span>)]
     #[diagnostic()]
-    </span>FieldConstructor(<span class="attr">#[label(<span class="string">&quot;Classes can&#39;t have a field named &#39;constructor&#39;&quot;</span>)] </span>Span),
+    </span>FieldConstructor(<span class="attr">#[label(<span class="string">&quot;Classes can&#39;t have a field named &#39;constructor&#39;&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Multiple constructor implementations are not allowed.&quot;</span>)]
     #[diagnostic()]
     </span>DuplicateConstructor(
-        <span class="attr">#[label(<span class="string">&quot;constructor has already been declared here&quot;</span>)] </span>Span,
-        <span class="attr">#[label(<span class="string">&quot;it cannot be redeclared here&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;constructor has already been declared here&quot;</span>)] </span>Node,
+        <span class="attr">#[label(<span class="string">&quot;it cannot be redeclared here&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;An export name cannot include a unicode lone surrogate&quot;</span>)]
     #[diagnostic()]
-    </span>ExportLoneSurrogate(<span class="attr">#[label(<span class="string">&quot;An export name cannot include a unicode lone surrogate&quot;</span>)] </span>Span),
+    </span>ExportLoneSurrogate(<span class="attr">#[label(<span class="string">&quot;An export name cannot include a unicode lone surrogate&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;A string literal cannot be used as an exported binding without `from`&quot;</span>)]
     #[diagnostic(help(<span class="string">&quot;Did you mean `export {{ &#39;{0}&#39; as &#39;{1}&#39; }} from &#39;some-module&#39;`?&quot;</span>))]
     </span>ExportNamedString(
         Atom,
         Atom,
-        <span class="attr">#[label(<span class="string">&quot;A string literal cannot be used as an exported binding without `from`&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;A string literal cannot be used as an exported binding without `from`&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Bad escape sequence in untagged template literal&quot;</span>)]
     #[diagnostic()]
-    </span>TemplateLiteral(<span class="attr">#[label(<span class="string">&quot;Bad escape sequence in untagged template literal&quot;</span>)] </span>Span),
+    </span>TemplateLiteral(<span class="attr">#[label(<span class="string">&quot;Bad escape sequence in untagged template literal&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Delete of an unqualified identifier in strict mode.&quot;</span>)]
     #[diagnostic()]
-    </span>DeleteOfUnqualified(<span class="attr">#[label(<span class="string">&quot;Delete of an unqualified identifier in strict mode&quot;</span>)] </span>Span),
+    </span>DeleteOfUnqualified(<span class="attr">#[label(<span class="string">&quot;Delete of an unqualified identifier in strict mode&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;&#39;with&#39; statements are not allowed&quot;</span>)]
     #[diagnostic()]
-    </span>WithStatement(<span class="attr">#[label(<span class="string">&quot;&#39;with&#39; statements are not allowed&quot;</span>)] </span>Span),
+    </span>WithStatement(<span class="attr">#[label(<span class="string">&quot;&#39;with&#39; statements are not allowed&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Private fields can not be deleted&quot;</span>)]
     #[diagnostic()]
-    </span>DeletePrivateField(<span class="attr">#[label(<span class="string">&quot;Private fields can not be deleted&quot;</span>)] </span>Span),
+    </span>DeletePrivateField(<span class="attr">#[label(<span class="string">&quot;Private fields can not be deleted&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Empty parenthesized expression&quot;</span>)]
     #[diagnostic()]
-    </span>EmptyParenthesizedExpression(<span class="attr">#[label(<span class="string">&quot;Expected an expression here&quot;</span>)] </span>Span),
+    </span>EmptyParenthesizedExpression(<span class="attr">#[label(<span class="string">&quot;Expected an expression here&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Undefined export&quot;</span>)]
     #[diagnostic()]
-    </span>UndefinedExport(Atom, <span class="attr">#[label(<span class="string">&quot;Export &#39;{0}&#39; is not defined&quot;</span>)] </span>Span),
+    </span>UndefinedExport(Atom, <span class="attr">#[label(<span class="string">&quot;Export &#39;{0}&#39; is not defined&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Logical expressions and coalesce expressions cannot be mixed&quot;</span>)]
     #[diagnostic(help(<span class="string">&quot;Wrap either expression by parentheses&quot;</span>))]
-    </span>MixedCoalesce(<span class="attr">#[label(<span class="string">&quot;Logical expressions and coalesce expressions cannot be mixed&quot;</span>)] </span>Span),
+    </span>MixedCoalesce(<span class="attr">#[label(<span class="string">&quot;Logical expressions and coalesce expressions cannot be mixed&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;&#39;Unexpected `{0}`&quot;</span>)]
     #[diagnostic()]
-    </span>UnexpectedKeyword(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;&#39;{0}&#39; keyword is unexpected here&quot;</span>)] </span>Span),
+    </span>UnexpectedKeyword(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;&#39;{0}&#39; keyword is unexpected here&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;{0} loop variable declaration may not have an initializer&quot;</span>)]
     #[diagnostic()]
     </span>UnexpectedInitializerInForLoopHead(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
-        <span class="attr">#[label(<span class="string">&quot;{0} loop variable declaration may not have an initializer&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;{0} loop variable declaration may not have an initializer&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Only a single declaration is allowed in a `for...{0}` statement&quot;</span>)]
     #[diagnostic()]
     </span>MultipleDeclarationInForLoopHead(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
-        <span class="attr">#[label(<span class="string">&quot;Only a single declaration is allowed in a `for...{0}` statement&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;Only a single declaration is allowed in a `for...{0}` statement&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Illegal newline after {0}&quot;</span>)]
     #[diagnostic()]
     </span>IllegalNewline(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
-        <span class="attr">#[label(<span class="string">&quot;{0} starts here&quot;</span>)] </span>Span,
-        <span class="attr">#[label(<span class="string">&quot;A newline is not expected here&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;{0} starts here&quot;</span>)] </span>Node,
+        <span class="attr">#[label(<span class="string">&quot;A newline is not expected here&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Duplicate parameter name not allowed in this context&quot;</span>)]
     #[diagnostic()]
-    </span>DuplicateParameter(<span class="attr">#[label(<span class="string">&quot;Duplicate parameter name not allowed in this context&quot;</span>)] </span>Span),
+    </span>DuplicateParameter(<span class="attr">#[label(<span class="string">&quot;Duplicate parameter name not allowed in this context&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Illegal &#39;use strict&#39; directive in function with non-simple parameter list&quot;</span>)]
     #[diagnostic()]
     </span>IllegalUseStrict(
-        <span class="attr">#[label(<span class="string">&quot;Illegal &#39;use strict&#39; directive in function with non-simple parameter list&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;Illegal &#39;use strict&#39; directive in function with non-simple parameter list&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;&#39;arguments&#39; is not allowed in {0}&quot;</span>)]
     #[diagnostic()]
-    </span>UnexpectedArguments(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;&#39;arguments&#39; is not allowed in {0}&quot;</span>)] </span>Span),
+    </span>UnexpectedArguments(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;&#39;arguments&#39; is not allowed in {0}&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Unexpected {0} expression&quot;</span>)]
     #[diagnostic()]
-    </span>UnexpectedExpression(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;Unexpected {0} expression&quot;</span>)] </span>Span),
+    </span>UnexpectedExpression(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;Unexpected {0} expression&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Unexpected exponentiation expression&quot;</span>)]
     #[diagnostic(help(<span class="string">&quot;Wrap {0} expression in parentheses to enforce operator precedence&quot;</span>))]
-    </span>UnexpectedExponential(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;Unexpected exponentiation expression&quot;</span>)] </span>Span),
+    </span>UnexpectedExponential(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;Unexpected exponentiation expression&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Tagged template expressions are not permitted in an optional chain&quot;</span>)]
     #[diagnostic()]
     </span>OptionalChainTaggedTemplate(
-        <span class="attr">#[label(<span class="string">&quot;Tagged template expressions are not permitted in an optional chain&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;Tagged template expressions are not permitted in an optional chain&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;A &#39;get&#39; accessor must not have any formal parameters.&quot;</span>)]
     #[diagnostic()]
-    </span>GetterParameters(<span class="attr">#[label(<span class="string">&quot;A &#39;get&#39; accessor must not have any formal parameters.&quot;</span>)] </span>Span),
+    </span>GetterParameters(<span class="attr">#[label(<span class="string">&quot;A &#39;get&#39; accessor must not have any formal parameters.&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;A &#39;set&#39; accessor must have exactly one parameter.&quot;</span>)]
     #[diagnostic()]
-    </span>SetterParameters(<span class="attr">#[label(<span class="string">&quot;A &#39;set&#39; accessor must have exactly one parameter.&quot;</span>)] </span>Span),
+    </span>SetterParameters(<span class="attr">#[label(<span class="string">&quot;A &#39;set&#39; accessor must have exactly one parameter.&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;A &#39;set&#39; accessor function argument must not be a rest parameter&quot;</span>)]
     #[diagnostic()]
     </span>SetterParametersRestPattern(
-        <span class="attr">#[label(<span class="string">&quot;A &#39;set&#39; accessor function argument must not be a rest parameter&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;A &#39;set&#39; accessor function argument must not be a rest parameter&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;{0} expression not allowed in formal parameter&quot;</span>)]
     #[diagnostic()]
     </span>AwaitOrYieldInParameter(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
-        <span class="attr">#[label(<span class="string">&quot;{0} expression not allowed in formal parameter&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;{0} expression not allowed in formal parameter&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Invalid assignment in object literal&quot;</span>)]
     #[diagnostic(help(
         <span class="string">&quot;Did you mean to use a &#39;:&#39;? An &#39;=&#39; can only follow a property name when the containing object literal is part of a destructuring pattern.&quot;
     </span>))]
-    </span>CoverInitializedNameError(<span class="attr">#[label(<span class="string">&quot;Assignment is not allowed here&quot;</span>)] </span>Span),
+    </span>CoverInitializedNameError(<span class="attr">#[label(<span class="string">&quot;Assignment is not allowed here&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Super calls are not permitted outside constructors or in nested functions inside constructors.
 &quot;</span>)]
@@ -1110,7 +1110,7 @@
         <span class="attr">#[label(
             <span class="string">&quot;Super calls are not permitted outside constructors or in nested functions inside constructors.&quot;
         </span>)]
-        </span>Span,
+        </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;&#39;super&#39; can only be referenced in members of derived classes or object literal expressions.
@@ -1119,100 +1119,100 @@
     </span>UnexpectedSuperReference(
         <span class="attr">#[label(<span class="string">&quot;&#39;super&#39; can only be referenced in members of derived classes or object literal expressions.
 &quot;</span>)]
-        </span>Span,
+        </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;&#39;super&#39; can only be used with function calls or in property accesses&quot;</span>)]
     #[diagnostic(help(<span class="string">&quot;replace with `super()` or `super.prop` or `super[prop]`&quot;</span>))]
     </span>UnexpectedSuper(
-        <span class="attr">#[label(<span class="string">&quot;&#39;super&#39; can only be used with function calls or in property accesses &quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;&#39;super&#39; can only be used with function calls or in property accesses &quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;&#39;super&#39; can only be referenced in a derived class.&quot;</span>)]
     #[diagnostic(help(<span class="string">&quot;either remove this super, or extend the class&quot;</span>))]
     </span>SuperWithoutDerivedClass(
-        <span class="attr">#[label(<span class="string">&quot;&#39;super&#39; can only be referenced in a derived class.&quot;</span>)] </span>Span,
-        <span class="attr">#[label(<span class="string">&quot;class does not have `extends`&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;&#39;super&#39; can only be referenced in a derived class.&quot;</span>)] </span>Node,
+        <span class="attr">#[label(<span class="string">&quot;class does not have `extends`&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;Private fields cannot be accessed on super&quot;</span>)]
     #[diagnostic()]
-    </span>SuperPrivate(<span class="attr">#[label(<span class="string">&quot;Private fields cannot be accessed on super&quot;</span>)] </span>Span),
+    </span>SuperPrivate(<span class="attr">#[label(<span class="string">&quot;Private fields cannot be accessed on super&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Expected function name&quot;</span>)]
     #[diagnostic(help(<span class="string">&quot;Function name is required in function declaration or named export&quot;</span>))]
-    </span>ExpectFunctionName(<span class="attr">#[label(<span class="string">&quot;Function name is required here&quot;</span>)] </span>Span),
+    </span>ExpectFunctionName(<span class="attr">#[label(<span class="string">&quot;Function name is required here&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Missing catch or finally clause&quot;</span>)]
     #[diagnostic()]
-    </span>ExpectCatchFinally(<span class="attr">#[label(<span class="string">&quot;Expected `catch` or `finally` here&quot;</span>)] </span>Span),
+    </span>ExpectCatchFinally(<span class="attr">#[label(<span class="string">&quot;Expected `catch` or `finally` here&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;Cannot assign to &#39;{0}&#39; because it is a {1}&quot;</span>)]
     #[diagnostic()]
     </span>CannotAssignTo(
         Atom,
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
-        <span class="attr">#[label(<span class="string">&quot;Cannot assign to &#39;{0}&#39; because this is a {1}&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;Cannot assign to &#39;{0}&#39; because this is a {1}&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;A rest parameter cannot have an initializer&quot;</span>)]
     #[diagnostic()]
     </span>ARestParameterCannotHaveAnInitializer(
-        <span class="attr">#[label(<span class="string">&quot;A rest parameter cannot have an initializer&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;A rest parameter cannot have an initializer&quot;</span>)] </span>Node,
     ),
 
     <span class="comment">/* TypeScript */
     </span><span class="attr">#[error(<span class="string">&quot;TS1015: Parameter cannot have question mark and initializer&quot;</span>)]
     #[diagnostic()]
     </span>ParameterCannotHaveQuestionMarkAndInitializer(
-        <span class="attr">#[label(<span class="string">&quot;Parameter cannot have question mark and initializer&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;Parameter cannot have question mark and initializer&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;TS1047: A rest parameter cannot be optional&quot;</span>)]
     #[diagnostic()]
-    </span>ARestParameterCannotBeOptional(<span class="attr">#[label(<span class="string">&quot;A rest parameter cannot be optional&quot;</span>)] </span>Span),
+    </span>ARestParameterCannotBeOptional(<span class="attr">#[label(<span class="string">&quot;A rest parameter cannot be optional&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;TS1095: A &#39;set&#39; accessor cannot have a return type annotation&quot;</span>)]
     #[diagnostic()]
     </span>ASetAccessorCannotHaveAReturnTypeAnnotation(
-        <span class="attr">#[label(<span class="string">&quot;A &#39;set&#39; accessor cannot have a return type annotation&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;A &#39;set&#39; accessor cannot have a return type annotation&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;TS1098: Type parameter list cannot be empty&quot;</span>)]
     #[diagnostic()]
-    </span>TypeParameterListCannotBeEmpty(<span class="attr">#[label(<span class="string">&quot;Type parameter list cannot be empty&quot;</span>)] </span>Span),
+    </span>TypeParameterListCannotBeEmpty(<span class="attr">#[label(<span class="string">&quot;Type parameter list cannot be empty&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;TS1099: Type argument list cannot be empty&quot;</span>)]
     #[diagnostic()]
-    </span>TypeArgumentListCannotBeEmpty(<span class="attr">#[label(<span class="string">&quot;Type argument list cannot be empty&quot;</span>)] </span>Span),
+    </span>TypeArgumentListCannotBeEmpty(<span class="attr">#[label(<span class="string">&quot;Type argument list cannot be empty&quot;</span>)] </span>Node),
 
     <span class="attr">#[error(<span class="string">&quot;TS1108: A &#39;return&#39; statement can only be used within a function body&quot;</span>)]
     #[diagnostic()]
     </span>ReturnStatementOnlyInFunctionBody(
-        <span class="attr">#[label(<span class="string">&quot;A &#39;return&#39; statement can only be used within a function body.&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;A &#39;return&#39; statement can only be used within a function body.&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;TS1164: Computed property names are not allowed in enums&quot;</span>)]
     #[diagnostic()]
     </span>ComputedPropertyNamesAreNotAllowedInEnums(
-        <span class="attr">#[label(<span class="string">&quot;Computed property names are not allowed in enums&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;Computed property names are not allowed in enums&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;TS1313: The body of an &#39;if&#39; statement cannot be the empty statement&quot;</span>)]
     #[diagnostic()]
     </span>TheBodyOfAnIfStatementCannotBeTheEmptyStatement(
-        <span class="attr">#[label(<span class="string">&quot;The body of an &#39;if&#39; statement cannot be the empty statement&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;The body of an &#39;if&#39; statement cannot be the empty statement&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;TS1317: A parameter property cannot be declared using a rest parameter&quot;</span>)]
     #[diagnostic()]
     </span>AParameterPropertyCannotBeDeclaredUsingARestParameter(
-        <span class="attr">#[label(<span class="string">&quot;A parameter property cannot be declared using a rest parameter&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;A parameter property cannot be declared using a rest parameter&quot;</span>)] </span>Node,
     ),
 
     <span class="attr">#[error(<span class="string">&quot;TS2452: An enum member cannot have a numeric name&quot;</span>)]
     #[diagnostic()]
-    </span>AnEnumMemberCannotHaveANumericName(<span class="attr">#[label(<span class="string">&quot;An enum member cannot have a numeric name&quot;</span>)] </span>Span),
+    </span>AnEnumMemberCannotHaveANumericName(<span class="attr">#[label(<span class="string">&quot;An enum member cannot have a numeric name&quot;</span>)] </span>Node),
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oxc_diagnostics" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (c18a5e8a5 2023-01-25)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-a43118d2dfb2799d.js" data-settings-css="settings-7c23ac01f615ce90.css" ></div></body></html>

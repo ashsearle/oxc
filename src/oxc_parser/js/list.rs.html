@@ -544,7 +544,7 @@
                 <span class="kw">let </span>rest_element = p.parse_rest_element()<span class="question-mark">?</span>;
 
                 <span class="kw">if </span>!<span class="macro">matches!</span>(rest_element.argument.kind, BindingPatternKind::BindingIdentifier(<span class="kw">_</span>)) {
-                    p.error(Diagnostic::InvalidRestArgument(rest_element.node.range()));
+                    p.error(Diagnostic::InvalidRestArgument(rest_element.node));
                 }
 
                 ObjectPatternProperty::RestElement(rest_element)
@@ -770,7 +770,7 @@
         };
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(old_node) = <span class="self">self</span>.keys.get(<span class="kw-2">&amp;</span>key.as_atom()) {
-            p.error(Diagnostic::Redeclaration(key.as_atom(), old_node.range(), key.node().range()));
+            p.error(Diagnostic::Redeclaration(key.as_atom(), <span class="kw-2">*</span>old_node, key.node()));
         } <span class="kw">else </span>{
             <span class="self">self</span>.keys.insert(key.as_atom(), key.node());
         }
@@ -875,8 +875,8 @@
             {
                 p.error(Diagnostic::Redeclaration(
                     private_ident.name.clone(),
-                    existed.node.range(),
-                    private_ident.node.range(),
+                    existed.node,
+                    private_ident.node,
                 ));
             }
         }

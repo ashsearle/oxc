@@ -667,7 +667,7 @@
                     <span class="self">self</span>.error(Diagnostic::ExportNamedString(
                         literal.value.clone(),
                         specifier.local.name().clone(),
-                        literal.node.range(),
+                        literal.node,
                     ));
                 }
             }
@@ -796,7 +796,7 @@
                 <span class="comment">// ModuleExportName : StringLiteral
                 // It is a Syntax Error if IsStringWellFormedUnicode(the SV of StringLiteral) is false.
                 </span><span class="kw">if </span>!literal.is_string_well_formed_unicode() {
-                    <span class="self">self</span>.error(Diagnostic::ExportLoneSurrogate(literal.node.range()));
+                    <span class="self">self</span>.error(Diagnostic::ExportLoneSurrogate(literal.node));
                 };
                 <span class="prelude-val">Ok</span>(ModuleExportName::StringLiteral(literal))
             }

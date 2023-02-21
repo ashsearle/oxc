@@ -460,6 +460,9 @@
 <a href="#460" id="460">460</a>
 <a href="#461" id="461">461</a>
 <a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::{Box, Vec};
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::StatementContext, syntax_directed_operations::PropName, Node};
 <span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
@@ -480,7 +483,10 @@
         <span class="kw">let </span>decl = <span class="self">self</span>.parse_class_declaration(<span class="comment">/* declare */ </span><span class="bool-val">false</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>stmt_ctx.is_single_statement() {
-            <span class="self">self</span>.error(Diagnostic::ClassDeclaration(decl.node.start..decl.body.node.start));
+            <span class="self">self</span>.error(Diagnostic::ClassDeclaration(Node::new(
+                decl.node.start,
+                decl.body.node.start,
+            )));
         }
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.class_declaration(decl))
@@ -700,7 +706,7 @@
 
         <span class="kw">if let </span>PropertyKey::PrivateIdentifier(private_ident) = <span class="kw-2">&amp;</span>key {
             <span class="kw">if </span>private_ident.name == <span class="string">&quot;constructor&quot; </span>{
-                <span class="self">self</span>.error(Diagnostic::PrivateNameConstructor(private_ident.node.range()));
+                <span class="self">self</span>.error(Diagnostic::PrivateNameConstructor(private_ident.node));
             }
         }
 
@@ -726,17 +732,17 @@
             )<span class="question-mark">?</span>;
             <span class="kw">if let </span><span class="prelude-val">Some</span>((name, node)) = definition.prop_name() {
                 <span class="kw">if </span>r#static &amp;&amp; name == <span class="string">&quot;prototype&quot; </span>{
-                    <span class="self">self</span>.error(Diagnostic::StaticPrototype(node.range()));
+                    <span class="self">self</span>.error(Diagnostic::StaticPrototype(node));
                 }
                 <span class="kw">if </span>!r#static &amp;&amp; name == <span class="string">&quot;constructor&quot; </span>{
                     <span class="kw">if </span>kind == MethodDefinitionKind::Get || kind == MethodDefinitionKind::Set {
-                        <span class="self">self</span>.error(Diagnostic::ConstructorGetterSetter(node.range()));
+                        <span class="self">self</span>.error(Diagnostic::ConstructorGetterSetter(node));
                     }
                     <span class="kw">if </span>r#async {
-                        <span class="self">self</span>.error(Diagnostic::ConstructorAsync(node.range()));
+                        <span class="self">self</span>.error(Diagnostic::ConstructorAsync(node));
                     }
                     <span class="kw">if </span>generator {
-                        <span class="self">self</span>.error(Diagnostic::ConstructorGenerator(node.range()));
+                        <span class="self">self</span>.error(Diagnostic::ConstructorGenerator(node));
                     }
                 }
             }
@@ -757,10 +763,10 @@
             )<span class="question-mark">?</span>;
             <span class="kw">if let </span><span class="prelude-val">Some</span>((name, node)) = definition.prop_name() {
                 <span class="kw">if </span>name == <span class="string">&quot;constructor&quot; </span>{
-                    <span class="self">self</span>.error(Diagnostic::FieldConstructor(node.range()));
+                    <span class="self">self</span>.error(Diagnostic::FieldConstructor(node));
                 }
                 <span class="kw">if </span>r#static &amp;&amp; name == <span class="string">&quot;prototype&quot; </span>{
-                    <span class="self">self</span>.error(Diagnostic::StaticPrototype(node.range()));
+                    <span class="self">self</span>.error(Diagnostic::StaticPrototype(node));
                 }
             }
             <span class="prelude-val">Ok</span>(definition)
@@ -806,17 +812,17 @@
         <span class="kw">let </span>value = <span class="self">self</span>.parse_method(r#async, generator)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>kind == MethodDefinitionKind::Get &amp;&amp; !value.params.is_empty() {
-            <span class="self">self</span>.error(Diagnostic::GetterParameters(value.params.node.range()));
+            <span class="self">self</span>.error(Diagnostic::GetterParameters(value.params.node));
         }
 
         <span class="kw">if </span>kind == MethodDefinitionKind::Set {
             <span class="kw">if </span>value.params.items.len() != <span class="number">1 </span>{
-                <span class="self">self</span>.error(Diagnostic::SetterParameters(value.params.node.range()));
+                <span class="self">self</span>.error(Diagnostic::SetterParameters(value.params.node));
             }
 
             <span class="kw">if </span>value.params.items.len() == <span class="number">1 </span>{
                 <span class="kw">if let </span>BindingPatternKind::RestElement(elem) = <span class="kw-2">&amp;</span>value.params.items[<span class="number">0</span>].pattern.kind {
-                    <span class="self">self</span>.error(Diagnostic::SetterParametersRestPattern(elem.node.range()));
+                    <span class="self">self</span>.error(Diagnostic::SetterParametersRestPattern(elem.node));
                 }
             }
         }

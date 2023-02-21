@@ -1066,8 +1066,6 @@
 <a href="#1066" id="1066">1066</a>
 <a href="#1067" id="1067">1067</a>
 <a href="#1068" id="1068">1068</a>
-<a href="#1069" id="1069">1069</a>
-<a href="#1070" id="1070">1070</a>
 </pre><pre class="rust"><code><span class="kw">use </span>bitflags::bitflags;
 <span class="kw">use </span>oxc_allocator::{Box, Vec};
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::Context};
@@ -1947,7 +1945,7 @@
         <span class="self">self</span>.bump(Kind::Comma);
         <span class="self">self</span>.bump(Kind::Semicolon);
         <span class="kw">if </span>!params.is_empty() {
-            <span class="self">self</span>.error(Diagnostic::GetterParameters(params.node.range()));
+            <span class="self">self</span>.error(Diagnostic::GetterParameters(params.node));
         }
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_method_signature(
             <span class="self">self</span>.end_node(node),
@@ -1970,12 +1968,10 @@
         <span class="self">self</span>.bump(Kind::Comma);
         <span class="self">self</span>.bump(Kind::Semicolon);
         <span class="kw">if </span>params.items.len() != <span class="number">1 </span>{
-            <span class="self">self</span>.error(Diagnostic::SetterParameters(params.node.range()));
+            <span class="self">self</span>.error(Diagnostic::SetterParameters(params.node));
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(return_type) = return_type.as_ref() {
-            <span class="self">self</span>.error(Diagnostic::ASetAccessorCannotHaveAReturnTypeAnnotation(
-                return_type.node.range(),
-            ));
+            <span class="self">self</span>.error(Diagnostic::ASetAccessorCannotHaveAReturnTypeAnnotation(return_type.node));
         }
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_method_signature(
             <span class="self">self</span>.end_node(node),

@@ -191,9 +191,9 @@
 
         <span class="kw">if </span><span class="self">self</span>.at(Kind::Comma) {
             <span class="kw">let </span>error = <span class="kw">if </span><span class="self">self</span>.peek_at(Kind::RBrack) {
-                Diagnostic::RestElementTraillingComma(<span class="self">self</span>.cur_token().range())
+                Diagnostic::RestElementTraillingComma(<span class="self">self</span>.cur_token().node())
             } <span class="kw">else </span>{
-                Diagnostic::RestElement(node.range())
+                Diagnostic::RestElement(node)
             };
             <span class="self">self</span>.error(error);
         }

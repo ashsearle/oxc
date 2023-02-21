@@ -489,6 +489,8 @@
 <a href="#489" id="489">489</a>
 <a href="#490" id="490">490</a>
 <a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
 <span class="kw">use </span>oxc_ast::{
     ast::<span class="kw-2">*</span>,
@@ -646,13 +648,15 @@
         <span class="kw">let </span>decl = <span class="self">self</span>.parse_function_impl(func_kind)<span class="question-mark">?</span>;
         <span class="kw">if </span>stmt_ctx.is_single_statement() {
             <span class="kw">if </span>decl.r#async {
-                <span class="self">self</span>.error(Diagnostic::AsyncFunctionDeclaration(
-                    decl.node.start..decl.params.node.end,
-                ));
+                <span class="self">self</span>.error(Diagnostic::AsyncFunctionDeclaration(Node::new(
+                    decl.node.start,
+                    decl.params.node.end,
+                )));
             } <span class="kw">else if </span>decl.generator {
-                <span class="self">self</span>.error(Diagnostic::GeneratorFunctionDeclaration(
-                    decl.node.start..decl.params.node.end,
-                ));
+                <span class="self">self</span>.error(Diagnostic::GeneratorFunctionDeclaration(Node::new(
+                    decl.node.start,
+                    decl.params.node.end,
+                )));
             }
         }
 
@@ -809,7 +813,7 @@
         <span class="self">self</span>.ctx = ctx;
 
         <span class="kw">if </span>kind.is_id_required() &amp;&amp; id.is_none() {
-            <span class="self">self</span>.error(Diagnostic::ExpectFunctionName(<span class="self">self</span>.cur_token().range()));
+            <span class="self">self</span>.error(Diagnostic::ExpectFunctionName(<span class="self">self</span>.cur_token().node()));
         }
 
         id
@@ -922,7 +926,7 @@
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_await(has_await);
 
         <span class="kw">if </span><span class="self">self</span>.cur_token().is_on_new_line {
-            <span class="self">self</span>.error(Diagnostic::LineterminatorBeforeArrow(<span class="self">self</span>.cur_token().range()));
+            <span class="self">self</span>.error(Diagnostic::LineterminatorBeforeArrow(<span class="self">self</span>.cur_token().node()));
         }
 
         <span class="self">self</span>.expect(Kind::Arrow)<span class="question-mark">?</span>;

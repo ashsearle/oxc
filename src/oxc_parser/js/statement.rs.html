@@ -502,9 +502,6 @@
 <a href="#502" id="502">502</a>
 <a href="#503" id="503">503</a>
 <a href="#504" id="504">504</a>
-<a href="#505" id="505">505</a>
-<a href="#506" id="506">506</a>
-<a href="#507" id="507">507</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::{Box, Vec};
 <span class="kw">use </span>oxc_ast::{
     ast::<span class="kw-2">*</span>,
@@ -557,7 +554,8 @@
                     </span><span class="kw">if </span>expecting_diretives {
                         <span class="kw">if let </span>Statement::ExpressionStatement(expr) = <span class="kw-2">&amp;</span>stmt {
                             <span class="kw">if let </span>Expression::StringLiteral(string) = <span class="kw-2">&amp;</span>expr.expression {
-                                <span class="kw">let </span>src = <span class="kw-2">&amp;</span><span class="self">self</span>.source[string.node.start + <span class="number">1</span>..string.node.end - <span class="number">1</span>];
+                                <span class="kw">let </span>src = <span class="kw-2">&amp;</span><span class="self">self</span>.source
+                                    [string.node.start <span class="kw">as </span>usize + <span class="number">1</span>..string.node.end <span class="kw">as </span>usize - <span class="number">1</span>];
                                 <span class="kw">let </span>directive =
                                     <span class="self">self</span>.ast.directive(expr.node, (<span class="kw-2">*</span>string).clone(), src);
                                 directives.push(directive);
@@ -699,7 +697,7 @@
         ))<span class="question-mark">?</span>;
 
         <span class="kw">if </span>stmt_ctx.is_single_statement() &amp;&amp; decl.kind.is_lexical() {
-            <span class="self">self</span>.error(Diagnostic::LexicalDeclarationSingleStatement(decl.node.range()));
+            <span class="self">self</span>.error(Diagnostic::LexicalDeclarationSingleStatement(decl.node));
         }
 
         <span class="prelude-val">Ok</span>(Statement::Declaration(Declaration::VariableDeclaration(decl)))
@@ -804,18 +802,15 @@
         <span class="comment">// for (a.b in ...), for ([a] in ..), for ({a} in ..)
         </span><span class="kw">if </span><span class="self">self</span>.at(Kind::In) || <span class="self">self</span>.at(Kind::Of) {
             <span class="kw">let </span>target = AssignmentTarget::cover(init_expression, <span class="self">self</span>)
-                .map_err(|<span class="kw">_</span>| Diagnostic::UnexpectedToken(<span class="self">self</span>.end_node(expression_node).range()))<span class="question-mark">?</span>;
+                .map_err(|<span class="kw">_</span>| Diagnostic::UnexpectedToken(<span class="self">self</span>.end_node(expression_node)))<span class="question-mark">?</span>;
             <span class="kw">let </span>for_stmt_left = ForStatementLeft::AssignmentTarget(target);
 
             <span class="kw">if </span>!r#await &amp;&amp; is_async_of {
-                <span class="self">self</span>.error(Diagnostic::ForLoopAsyncOf(<span class="self">self</span>.end_node(expression_node).range()));
+                <span class="self">self</span>.error(Diagnostic::ForLoopAsyncOf(<span class="self">self</span>.end_node(expression_node)));
             }
 
             <span class="kw">if </span>is_let_of {
-                <span class="self">self</span>.error(Diagnostic::UnexpectedKeyword(
-                    <span class="string">&quot;let&quot;</span>,
-                    <span class="self">self</span>.end_node(expression_node).range(),
-                ));
+                <span class="self">self</span>.error(Diagnostic::UnexpectedKeyword(<span class="string">&quot;let&quot;</span>, <span class="self">self</span>.end_node(expression_node)));
             }
 
             <span class="kw">return </span><span class="self">self</span>.parse_for_in_or_of_loop(node, r#await, for_stmt_left);
@@ -837,7 +832,7 @@
         <span class="self">self</span>.expect(Kind::RParen)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>r#await {
-            <span class="self">self</span>.error(Diagnostic::ForAwait(<span class="self">self</span>.end_node(node).range()));
+            <span class="self">self</span>.error(Diagnostic::ForAwait(<span class="self">self</span>.end_node(node)));
         }
 
         <span class="kw">let </span>body = <span class="self">self</span>.parse_statement_list_item(StatementContext::For)<span class="question-mark">?</span>;
@@ -861,7 +856,7 @@
         <span class="self">self</span>.expect(Kind::RParen)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>r#await &amp;&amp; is_for_in {
-            <span class="self">self</span>.error(Diagnostic::ForAwait(<span class="self">self</span>.end_node(node).range()));
+            <span class="self">self</span>.error(Diagnostic::ForAwait(<span class="self">self</span>.end_node(node)));
         }
 
         <span class="kw">let </span>body = <span class="self">self</span>.parse_statement_list_item(StatementContext::For)<span class="question-mark">?</span>;
@@ -961,8 +956,8 @@
         </span><span class="kw">if </span><span class="self">self</span>.cur_token().is_on_new_line {
             <span class="self">self</span>.error(Diagnostic::IllegalNewline(
                 <span class="string">&quot;throw&quot;</span>,
-                <span class="self">self</span>.end_node(node).range(),
-                <span class="self">self</span>.cur_token().range(),
+                <span class="self">self</span>.end_node(node),
+                <span class="self">self</span>.cur_token().node(),
             ));
         }
         <span class="kw">let </span>argument = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
@@ -981,8 +976,7 @@
 
         <span class="kw">let </span>finalizer = <span class="self">self</span>.eat(Kind::Finally).then(|| <span class="self">self</span>.parse_block()).transpose()<span class="question-mark">?</span>;
 
-        <span class="attr">#[allow(clippy::range_plus_one)]
-        </span><span class="kw">let </span>range = <span class="self">self</span>.prev_token_end..<span class="self">self</span>.prev_token_end + <span class="number">1</span>;
+        <span class="kw">let </span>range = Node::new(<span class="self">self</span>.prev_token_end, <span class="self">self</span>.prev_token_end + <span class="number">1</span>);
         <span class="kw">if </span>handler.is_none() &amp;&amp; finalizer.is_none() {
             <span class="self">self</span>.error(Diagnostic::ExpectCatchFinally(range));
         }

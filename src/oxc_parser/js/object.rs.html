@@ -478,7 +478,7 @@
         <span class="kw">let </span>method = <span class="self">self</span>.parse_method(<span class="bool-val">false</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>!method.params.is_empty() {
-            <span class="self">self</span>.error(Diagnostic::GetterParameters(method.params.node.range()));
+            <span class="self">self</span>.error(Diagnostic::GetterParameters(method.params.node));
         }
 
         <span class="kw">let </span>value = PropertyValue::Expression(<span class="self">self</span>.ast.function_expression(method));
@@ -502,12 +502,12 @@
         <span class="kw">let </span>method = <span class="self">self</span>.parse_method(<span class="bool-val">false</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>method.params.items.len() != <span class="number">1 </span>{
-            <span class="self">self</span>.error(Diagnostic::SetterParameters(method.params.node.range()));
+            <span class="self">self</span>.error(Diagnostic::SetterParameters(method.params.node));
         }
 
         <span class="kw">if </span>method.params.items.len() == <span class="number">1 </span>{
             <span class="kw">if let </span>BindingPatternKind::RestElement(elem) = <span class="kw-2">&amp;</span>method.params.items[<span class="number">0</span>].pattern.kind {
-                <span class="self">self</span>.error(Diagnostic::SetterParametersRestPattern(elem.node.range()));
+                <span class="self">self</span>.error(Diagnostic::SetterParametersRestPattern(elem.node));
             }
         }
 

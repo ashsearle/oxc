@@ -225,7 +225,7 @@
                 <span class="kw">let </span>node = expr.node;
                 <span class="kw">match </span>expr.unbox().expression {
                     Expression::ObjectExpression(<span class="kw">_</span>) | Expression::ArrayExpression(<span class="kw">_</span>) =&gt; {
-                        <span class="prelude-val">Err</span>(Diagnostic::InvalidAssignment(node.range()))
+                        <span class="prelude-val">Err</span>(Diagnostic::InvalidAssignment(node))
                     }
                     expr =&gt; SimpleAssignmentTarget::cover(expr, p),
                 }
@@ -235,7 +235,7 @@
                 <span class="prelude-val">Ok</span>(SimpleAssignmentTarget::TSNonNullExpression(expr))
             }
             Expression::TSTypeAssertion(expr) =&gt; <span class="prelude-val">Ok</span>(SimpleAssignmentTarget::TSTypeAssertion(expr)),
-            expr =&gt; <span class="prelude-val">Err</span>(Diagnostic::InvalidAssignment(expr.node().range())),
+            expr =&gt; <span class="prelude-val">Err</span>(Diagnostic::InvalidAssignment(expr.node())),
         }
     }
 }
@@ -257,10 +257,10 @@
                         <span class="kw">if </span>i == len - <span class="number">1 </span>{
                             rest = <span class="prelude-val">Some</span>(AssignmentTarget::cover(elem.unbox().argument, p)<span class="question-mark">?</span>);
                             <span class="kw">if let </span><span class="prelude-val">Some</span>(node) = expr.trailing_comma {
-                                p.error(Diagnostic::RestElementTraillingComma(node.range()));
+                                p.error(Diagnostic::RestElementTraillingComma(node));
                             }
                         } <span class="kw">else </span>{
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::SpreadLastElement(elem.node.range()));
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::SpreadLastElement(elem.node));
                         }
                     }
                 }
@@ -315,7 +315,7 @@
                     <span class="kw">if </span>i == len - <span class="number">1 </span>{
                         rest = <span class="prelude-val">Some</span>(AssignmentTarget::cover(spread.unbox().argument, p)<span class="question-mark">?</span>);
                     } <span class="kw">else </span>{
-                        <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::SpreadLastElement(spread.node.range()));
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::SpreadLastElement(spread.node));
                     }
                 }
             }
@@ -346,7 +346,7 @@
             <span class="kw">let </span>binding = <span class="kw">match </span>property.value {
                 PropertyValue::Expression(expr) =&gt; AssignmentTargetMaybeDefault::cover(expr, p)<span class="question-mark">?</span>,
                 PropertyValue::Pattern(<span class="kw">_</span>) =&gt; {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::InvalidAssignment(property.value.node().range()));
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::InvalidAssignment(property.value.node()));
                 }
             };
             <span class="kw">let </span>target = AssignmentTargetPropertyProperty {

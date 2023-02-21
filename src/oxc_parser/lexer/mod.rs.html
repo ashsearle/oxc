@@ -1445,6 +1445,10 @@
 <a href="#1445" id="1445">1445</a>
 <a href="#1446" id="1446">1446</a>
 <a href="#1447" id="1447">1447</a>
+<a href="#1448" id="1448">1448</a>
+<a href="#1449" id="1449">1449</a>
+<a href="#1450" id="1450">1450</a>
+<a href="#1451" id="1451">1451</a>
 </pre><pre class="rust"><code><span class="doccomment">//! An Ecma-262 Lexer / Tokenizer
 //! Prior Arts:
 //!     * [jsparagus](https://github.com/mozilla-spidermonkey/jsparagus/blob/master/crates/parser/src)
@@ -1468,7 +1472,7 @@
 <span class="kw">pub use </span>kind::Kind;
 <span class="kw">use </span>number::{parse_big_int, parse_float, parse_int};
 <span class="kw">use </span>oxc_allocator::{Allocator, String};
-<span class="kw">use </span>oxc_ast::{Atom, SourceType, Span};
+<span class="kw">use </span>oxc_ast::{Atom, Node, SourceType};
 <span class="kw">use </span>oxc_diagnostics::{Diagnostic, Diagnostics};
 <span class="kw">use </span>simd::{SkipMultilineComment, SkipWhitespace};
 <span class="kw">use </span>string_builder::AutoCow;
@@ -1652,7 +1656,7 @@
     }
 
     <span class="doccomment">/// Expand the current token for `JSXIdentifier`
-    </span><span class="kw">pub fn </span>next_jsx_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, prev_len: usize) -&gt; Token {
+    </span><span class="kw">pub fn </span>next_jsx_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, prev_len: u32) -&gt; Token {
         <span class="kw">let </span>kind = <span class="self">self</span>.read_jsx_identifier(prev_len);
         <span class="self">self</span>.lookahead.clear();
         <span class="self">self</span>.finish_next(kind)
@@ -1666,7 +1670,7 @@
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         };
         <span class="self">self</span>.current.token.start = <span class="self">self</span>.offset() - offset;
-        <span class="self">self</span>.current.chars = <span class="self">self</span>.source[<span class="self">self</span>.current.token.start + <span class="number">1</span>..].chars();
+        <span class="self">self</span>.current.chars = <span class="self">self</span>.source[<span class="self">self</span>.current.token.start <span class="kw">as </span>usize + <span class="number">1</span>..].chars();
         <span class="kw">let </span>kind = Kind::LAngle;
         <span class="self">self</span>.lookahead.clear();
         <span class="self">self</span>.finish_next(kind)
@@ -1681,7 +1685,7 @@
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         };
         <span class="self">self</span>.current.token.start = <span class="self">self</span>.offset() - offset;
-        <span class="self">self</span>.current.chars = <span class="self">self</span>.source[<span class="self">self</span>.current.token.start + <span class="number">1</span>..].chars();
+        <span class="self">self</span>.current.chars = <span class="self">self</span>.source[<span class="self">self</span>.current.token.start <span class="kw">as </span>usize + <span class="number">1</span>..].chars();
         <span class="kw">let </span>kind = Kind::RAngle;
         <span class="self">self</span>.lookahead.clear();
         <span class="self">self</span>.finish_next(kind)
@@ -1694,13 +1698,14 @@
 
     <span class="doccomment">/// Get the length offset from the source, in UTF-8 bytes
     </span><span class="attr">#[inline]
-    </span><span class="kw">fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.source.len() - <span class="self">self</span>.current.chars.as_str().len()
+    #[allow(clippy::cast_possible_truncation)]
+    </span><span class="kw">fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        (<span class="self">self</span>.source.len() - <span class="self">self</span>.current.chars.as_str().len()) <span class="kw">as </span>u32
     }
 
     <span class="doccomment">/// Get the current unterminated token range
-    </span><span class="kw">fn </span>unterminated_range(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
-        <span class="self">self</span>.current.token.start..<span class="self">self</span>.offset()
+    </span><span class="kw">fn </span>unterminated_range(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Node {
+        Node::new(<span class="self">self</span>.current.token.start, <span class="self">self</span>.offset())
     }
 
     <span class="doccomment">/// Peek the next char without advancing the position
@@ -1726,9 +1731,9 @@
         matched
     }
 
-    <span class="kw">fn </span>current_offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; std::ops::Range&lt;usize&gt; {
+    <span class="kw">fn </span>current_offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Node {
         <span class="kw">let </span>offset = <span class="self">self</span>.offset();
-        offset..offset
+        Node::new(offset, offset)
     }
 
     <span class="doccomment">/// Return `IllegalCharacter` Error or `UnexpectedEnd` if EOF
@@ -1763,7 +1768,10 @@
         <span class="kw">match </span>value {
             <span class="prelude-val">Ok</span>(value) =&gt; <span class="self">self</span>.current.token.value = value,
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="self">self</span>.error(Diagnostic::InvalidNumber(err, <span class="self">self</span>.current.token.start..<span class="self">self</span>.offset()));
+                <span class="self">self</span>.error(Diagnostic::InvalidNumber(
+                    err,
+                    Node::new(<span class="self">self</span>.current.token.start, <span class="self">self</span>.offset()),
+                ));
                 <span class="self">self</span>.current.token.value = TokenValue::Number(std::f64::NAN);
             }
         };
@@ -2157,11 +2165,11 @@
                 <span class="self">self</span>.identifier_unicode_escape_sequence(<span class="kw-2">&amp;mut </span>builder, <span class="bool-val">true</span>);
             }
             <span class="prelude-val">Some</span>(c) =&gt; {
-                <span class="self">self</span>.error(Diagnostic::InvalidCharacter(c, start..<span class="self">self</span>.offset() - <span class="number">1</span>));
+                <span class="self">self</span>.error(Diagnostic::InvalidCharacter(c, Node::new(start, <span class="self">self</span>.offset() - <span class="number">1</span>)));
                 <span class="kw">return </span>Kind::Undetermined;
             }
             <span class="prelude-val">None </span>=&gt; {
-                <span class="self">self</span>.error(Diagnostic::UnexpectedEnd(start..<span class="self">self</span>.offset() - <span class="number">1</span>));
+                <span class="self">self</span>.error(Diagnostic::UnexpectedEnd(Node::new(start, <span class="self">self</span>.offset() - <span class="number">1</span>)));
                 <span class="kw">return </span>Kind::Undetermined;
             }
         }
@@ -2378,7 +2386,7 @@
                 <span class="kw">break</span>;
             }
         }
-        <span class="self">self</span>.error(Diagnostic::InvalidNumberEnd(offset..<span class="self">self</span>.offset()));
+        <span class="self">self</span>.error(Diagnostic::InvalidNumberEnd(Node::new(offset, <span class="self">self</span>.offset())));
         Kind::Undetermined
     }
 
@@ -2405,7 +2413,7 @@
                     <span class="kw">let </span><span class="kw-2">mut </span>is_valid_escape_sequence = <span class="bool-val">true</span>;
                     <span class="self">self</span>.read_string_escape_sequence(text, <span class="bool-val">false</span>, <span class="kw-2">&amp;mut </span>is_valid_escape_sequence);
                     <span class="kw">if </span>!is_valid_escape_sequence {
-                        <span class="kw">let </span>range = start..<span class="self">self</span>.offset();
+                        <span class="kw">let </span>range = Node::new(start, <span class="self">self</span>.offset());
                         <span class="self">self</span>.error(Diagnostic::InvalidEscapeSequence(range));
                     }
                 }
@@ -2527,8 +2535,8 @@
     ///   `IdentifierStart`
     ///   `JSXIdentifier` `IdentifierPart`
     ///   `JSXIdentifier` [no `WhiteSpace` or Comment here] -
-    </span><span class="kw">fn </span>read_jsx_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, prev_len: usize) -&gt; Kind {
-        <span class="kw">let </span>prev_str = <span class="kw-2">&amp;</span><span class="self">self</span>.source[prev_len..<span class="self">self</span>.offset()];
+    </span><span class="kw">fn </span>read_jsx_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, prev_len: u32) -&gt; Kind {
+        <span class="kw">let </span>prev_str = <span class="kw-2">&amp;</span><span class="self">self</span>.source[prev_len <span class="kw">as </span>usize..<span class="self">self</span>.offset() <span class="kw">as </span>usize];
 
         <span class="kw">let </span><span class="kw-2">mut </span>builder = AutoCow::new(<span class="self">self</span>);
         <span class="kw">loop </span>{
@@ -2632,7 +2640,7 @@
     ) {
         <span class="kw">let </span>start = <span class="self">self</span>.offset();
         <span class="kw">if </span><span class="self">self</span>.current.chars.next() != <span class="prelude-val">Some</span>(<span class="string">&#39;u&#39;</span>) {
-            <span class="kw">let </span>range = start..<span class="self">self</span>.offset();
+            <span class="kw">let </span>range = Node::new(start, <span class="self">self</span>.offset());
             <span class="self">self</span>.error(Diagnostic::UnicodeEscapeSequence(range));
             <span class="kw">return</span>;
         }
@@ -2643,7 +2651,7 @@
         };
 
         <span class="kw">let </span><span class="prelude-val">Some</span>(value) = value <span class="kw">else </span>{
-            <span class="kw">let </span>range = start..<span class="self">self</span>.offset();
+            <span class="kw">let </span>range = Node::new(start,<span class="self">self</span>.offset());
             <span class="self">self</span>.error(Diagnostic::UnicodeEscapeSequence(range));
             <span class="kw">return</span>;
         };
@@ -2651,7 +2659,7 @@
         <span class="comment">// For Identifiers, surrogate pair is an invalid grammar, e.g. `var \uD800\uDEA7`.
         </span><span class="kw">let </span>ch = <span class="kw">match </span>value {
             SurrogatePair::Astral(..) | SurrogatePair::HighLow(..) =&gt; {
-                <span class="kw">let </span>range = start..<span class="self">self</span>.offset();
+                <span class="kw">let </span>range = Node::new(start, <span class="self">self</span>.offset());
                 <span class="self">self</span>.error(Diagnostic::UnicodeEscapeSequence(range));
                 <span class="kw">return</span>;
             }
@@ -2659,7 +2667,7 @@
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(ch) = char::try_from(code_point) {
                     ch
                 } <span class="kw">else </span>{
-                    <span class="kw">let </span>range = start..<span class="self">self</span>.offset();
+                    <span class="kw">let </span>range = Node::new(start, <span class="self">self</span>.offset());
                     <span class="self">self</span>.error(Diagnostic::UnicodeEscapeSequence(range));
                     <span class="kw">return</span>;
                 }

@@ -1201,7 +1201,7 @@
             expressions.remove(<span class="number">0</span>)
         } <span class="kw">else </span>{
             <span class="kw">if </span>expressions.is_empty() {
-                <span class="self">self</span>.error(Diagnostic::EmptyParenthesizedExpression(list.node.range()));
+                <span class="self">self</span>.error(Diagnostic::EmptyParenthesizedExpression(list.node));
             }
             <span class="self">self</span>.ast.sequence_expression(list.node, expressions)
         };
@@ -1386,7 +1386,7 @@
         // It is a Syntax Error if any source text is matched by this production.
         // https://tc39.es/ecma262/#sec-left-hand-side-expressions-static-semantics-early-errors
         </span><span class="kw">if </span>in_optional_chain {
-            <span class="self">self</span>.error(Diagnostic::OptionalChainTaggedTemplate(quasi.node.range()));
+            <span class="self">self</span>.error(Diagnostic::OptionalChainTaggedTemplate(quasi.node));
         }
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.tagged_template_expression(node, lhs, quasi, type_parameters))
     }
@@ -1394,7 +1394,7 @@
     <span class="kw">pub fn </span>parse_template_element(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tagged: bool) -&gt; TemplateElement {
         <span class="kw">let </span>node = <span class="self">self</span>.start_node();
         <span class="kw">let </span>cur_kind = <span class="self">self</span>.cur_kind();
-        <span class="kw">let </span>end_offset = <span class="kw">match </span>cur_kind {
+        <span class="kw">let </span>end_offset: u32 = <span class="kw">match </span>cur_kind {
             Kind::TemplateHead | Kind::TemplateMiddle =&gt; <span class="number">2</span>,
             Kind::NoSubstitutionTemplate | Kind::TemplateTail =&gt; <span class="number">1</span>,
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -1403,7 +1403,7 @@
         <span class="comment">// cooked = None when template literal has invalid escape sequence
         </span><span class="kw">let </span>cooked = <span class="self">self</span>.cur_atom().map(Clone::clone);
 
-        <span class="kw">let </span>raw = <span class="kw-2">&amp;</span><span class="self">self</span>.cur_src()[<span class="number">1</span>..<span class="self">self</span>.cur_src().len() - end_offset];
+        <span class="kw">let </span>raw = <span class="kw-2">&amp;</span><span class="self">self</span>.cur_src()[<span class="number">1</span>..<span class="self">self</span>.cur_src().len() - end_offset <span class="kw">as </span>usize];
         <span class="kw">let </span>raw = Atom::from(<span class="kw">if </span>cooked.is_some() &amp;&amp; raw.contains(<span class="string">&#39;\r&#39;</span>) {
             <span class="self">self</span>.ast.new_str(raw.replace(<span class="string">&quot;\r\n&quot;</span>, <span class="string">&quot;\n&quot;</span>).replace(<span class="string">&#39;\r&#39;</span>, <span class="string">&quot;\n&quot;</span>).as_str())
         } <span class="kw">else </span>{
@@ -1417,7 +1417,7 @@
         node.end -= end_offset;
 
         <span class="kw">if </span>!tagged &amp;&amp; cooked.is_none() {
-            <span class="self">self</span>.error(Diagnostic::TemplateLiteral(node.range()));
+            <span class="self">self</span>.error(Diagnostic::TemplateLiteral(node));
         }
 
         <span class="kw">let </span>tail = <span class="macro">matches!</span>(cur_kind, Kind::TemplateTail | Kind::NoSubstitutionTemplate);
@@ -1485,7 +1485,7 @@
         // SuperCall:
         //     super ( Arguments )
         </span><span class="kw">if </span>!<span class="macro">matches!</span>(<span class="self">self</span>.cur_kind(), Kind::Dot | Kind::LBrack | Kind::LParen) {
-            <span class="self">self</span>.error(Diagnostic::UnexpectedSuper(node.range()));
+            <span class="self">self</span>.error(Diagnostic::UnexpectedSuper(node));
         }
 
         <span class="self">self</span>.ast.super_(node)
@@ -1615,13 +1615,13 @@
         };
 
         <span class="kw">if </span><span class="macro">matches!</span>(callee, Expression::ImportExpression(<span class="kw">_</span>)) {
-            <span class="self">self</span>.error(Diagnostic::NewDynamicImport(<span class="self">self</span>.end_node(rhs_node).range()));
+            <span class="self">self</span>.error(Diagnostic::NewDynamicImport(<span class="self">self</span>.end_node(rhs_node)));
         }
 
         <span class="kw">let </span>node = <span class="self">self</span>.end_node(node);
 
         <span class="kw">if </span>optional {
-            <span class="self">self</span>.error(Diagnostic::NewOptionalChain(node.range()));
+            <span class="self">self</span>.error(Diagnostic::NewOptionalChain(node));
         }
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.new_expression(node, callee, arguments, type_parameter))

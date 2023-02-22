@@ -310,6 +310,8 @@
 <a href="#310" id="310">310</a>
 <a href="#311" id="311">311</a>
 <a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Code related to navigating `Token`s from the lexer
 
 </span><span class="kw">use </span>oxc_ast::{context::Context, Atom, Span};
@@ -453,7 +455,7 @@
     </span><span class="kw">pub fn </span>asi(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.can_insert_semicolon() {
             <span class="kw">let </span>span = Span::new(<span class="self">self</span>.prev_token_end, <span class="self">self</span>.cur_token().start);
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::AutoSemicolonInsertion(span));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::AutoSemicolonInsertion(span).into());
         }
         <span class="kw">if </span><span class="self">self</span>.at(Kind::Semicolon) {
             <span class="self">self</span>.advance(Kind::Semicolon);
@@ -475,7 +477,9 @@
     </span><span class="kw">pub fn </span>expect(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.at(kind) {
             <span class="kw">let </span>range = <span class="self">self</span>.current_range();
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::ExpectToken(kind.to_str(), <span class="self">self</span>.cur_kind().to_str(), range));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(
+                Diagnostic::ExpectToken(kind.to_str(), <span class="self">self</span>.cur_kind().to_str(), range).into()
+            );
         }
         <span class="self">self</span>.advance(kind);
         <span class="prelude-val">Ok</span>(())

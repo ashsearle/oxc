@@ -1697,7 +1697,7 @@
 
     <span class="comment">// ---------- Private Methods ---------- //
     </span><span class="kw">fn </span>error(<span class="kw-2">&amp;mut </span><span class="self">self</span>, error: Diagnostic) {
-        <span class="self">self</span>.errors.borrow_mut().push(error);
+        <span class="self">self</span>.errors.borrow_mut().push(error.into());
     }
 
     <span class="doccomment">/// Get the length offset from the source, in UTF-8 bytes

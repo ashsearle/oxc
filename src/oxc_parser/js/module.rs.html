@@ -408,17 +408,13 @@
 <a href="#408" id="408">408</a>
 <a href="#409" id="409">409</a>
 <a href="#410" id="410">410</a>
-<a href="#411" id="411">411</a>
-<a href="#412" id="412">412</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::{Box, Vec};
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::Context, Span};
-<span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>oxc_diagnostics::Result;
 
 <span class="kw">use </span><span class="kw">super</span>::function::FunctionKind;
 <span class="kw">use </span><span class="kw">super</span>::list::{AssertEntries, ExportNamedSpecifiers};
-<span class="kw">use </span><span class="kw">crate</span>::lexer::Kind;
-<span class="kw">use </span><span class="kw">crate</span>::list::SeparatedList;
-<span class="kw">use </span><span class="kw">crate</span>::Parser;
+<span class="kw">use crate</span>::{diagnostics, lexer::Kind, list::SeparatedList, Parser};
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Parser&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// [Import Call](https://tc39.es/ecma262/#sec-import-calls)
@@ -664,7 +660,7 @@
         </span><span class="kw">if </span>source.is_none() {
             <span class="kw">for </span>specifier <span class="kw">in </span><span class="kw-2">&amp;</span>specifiers {
                 <span class="kw">if let </span>ModuleExportName::StringLiteral(literal) = <span class="kw-2">&amp;</span>specifier.local {
-                    <span class="self">self</span>.error(Diagnostic::ExportNamedString(
+                    <span class="self">self</span>.error(diagnostics::ExportNamedString(
                         literal.value.clone(),
                         specifier.local.name().clone(),
                         literal.span,
@@ -796,7 +792,7 @@
                 <span class="comment">// ModuleExportName : StringLiteral
                 // It is a Syntax Error if IsStringWellFormedUnicode(the SV of StringLiteral) is false.
                 </span><span class="kw">if </span>!literal.is_string_well_formed_unicode() {
-                    <span class="self">self</span>.error(Diagnostic::ExportLoneSurrogate(literal.span));
+                    <span class="self">self</span>.error(diagnostics::ExportLoneSurrogate(literal.span));
                 };
                 <span class="prelude-val">Ok</span>(ModuleExportName::StringLiteral(literal))
             }

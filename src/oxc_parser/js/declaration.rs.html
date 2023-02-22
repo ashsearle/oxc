@@ -101,13 +101,11 @@
 <a href="#101" id="101">101</a>
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::StatementContext, GetSpan};
-<span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>oxc_diagnostics::Result;
 
-<span class="kw">use </span><span class="kw">crate</span>::lexer::Kind;
-<span class="kw">use </span><span class="kw">crate</span>::Parser;
+<span class="kw">use crate</span>::{diagnostics, lexer::Kind, Parser};
 
 <span class="attr">#[derive(Clone, Debug, Copy, Eq, PartialEq)]
 </span><span class="kw">pub enum </span>VariableDeclarationParent {
@@ -196,10 +194,10 @@
             //   BindingPattern[?Yield, ?Await] Initializer[?In, ?Yield, ?Await]
             // the grammar forbids `let []`, `let {}`
             </span><span class="kw">if </span>!<span class="macro">matches!</span>(id.kind, BindingPatternKind::BindingIdentifier(<span class="kw">_</span>)) {
-                <span class="self">self</span>.error(Diagnostic::InvalidDestrucuringDeclaration(id.span()));
+                <span class="self">self</span>.error(diagnostics::InvalidDestrucuringDeclaration(id.span()));
             } <span class="kw">else if </span>kind == VariableDeclarationKind::Const &amp;&amp; !<span class="self">self</span>.ctx.has_ambient() {
                 <span class="comment">// It is a Syntax Error if Initializer is not present and IsConstantDeclaration of the LexicalDeclaration containing this LexicalBinding is true.
-                </span><span class="self">self</span>.error(Diagnostic::MissinginitializerInConst(id.span()));
+                </span><span class="self">self</span>.error(diagnostics::MissinginitializerInConst(id.span()));
             }
         }
 

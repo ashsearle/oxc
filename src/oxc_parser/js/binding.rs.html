@@ -129,17 +129,12 @@
 <a href="#129" id="129">129</a>
 <a href="#130" id="130">130</a>
 <a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Span};
-<span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>oxc_diagnostics::Result;
 
 <span class="kw">use </span><span class="kw">super</span>::list::{ArrayPatternList, ObjectPatternProperties};
-<span class="kw">use </span><span class="kw">crate</span>::lexer::Kind;
-<span class="kw">use </span><span class="kw">crate</span>::list::SeparatedList;
-<span class="kw">use </span><span class="kw">crate</span>::Parser;
+<span class="kw">use crate</span>::{diagnostics, lexer::Kind, list::SeparatedList, Parser};
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Parser&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Destructuring Binding Patterns
@@ -190,12 +185,11 @@
         <span class="kw">let </span>span = <span class="self">self</span>.end_span(span);
 
         <span class="kw">if </span><span class="self">self</span>.at(Kind::Comma) {
-            <span class="kw">let </span>error = <span class="kw">if </span><span class="self">self</span>.peek_at(Kind::RBrack) {
-                Diagnostic::RestElementTraillingComma(<span class="self">self</span>.cur_token().span())
+            <span class="kw">if </span><span class="self">self</span>.peek_at(Kind::RBrack) {
+                <span class="self">self</span>.error(diagnostics::RestElementTraillingComma(<span class="self">self</span>.cur_token().span()));
             } <span class="kw">else </span>{
-                Diagnostic::RestElement(span)
-            };
-            <span class="self">self</span>.error(error);
+                <span class="self">self</span>.error(diagnostics::RestElement(span));
+            }
         }
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.rest_element(span, argument))

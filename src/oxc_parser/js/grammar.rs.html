@@ -181,9 +181,9 @@
 </pre><pre class="rust"><code><span class="doccomment">//! Cover Grammar for Destructuring Assignment
 
 </span><span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, GetSpan};
-<span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>oxc_diagnostics::Result;
 
-<span class="kw">use </span><span class="kw">crate</span>::Parser;
+<span class="kw">use crate</span>::{diagnostics, Parser};
 
 <span class="kw">pub trait </span>CoverGrammar&lt;<span class="lifetime">&#39;a</span>, T&gt;: Sized {
     <span class="kw">fn </span>cover(value: T, p: <span class="kw-2">&amp;mut </span>Parser&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt;;
@@ -225,7 +225,7 @@
                 <span class="kw">let </span>span = expr.span;
                 <span class="kw">match </span>expr.unbox().expression {
                     Expression::ObjectExpression(<span class="kw">_</span>) | Expression::ArrayExpression(<span class="kw">_</span>) =&gt; {
-                        <span class="prelude-val">Err</span>(Diagnostic::InvalidAssignment(span).into())
+                        <span class="prelude-val">Err</span>(diagnostics::InvalidAssignment(span).into())
                     }
                     expr =&gt; SimpleAssignmentTarget::cover(expr, p),
                 }
@@ -235,7 +235,7 @@
                 <span class="prelude-val">Ok</span>(SimpleAssignmentTarget::TSNonNullExpression(expr))
             }
             Expression::TSTypeAssertion(expr) =&gt; <span class="prelude-val">Ok</span>(SimpleAssignmentTarget::TSTypeAssertion(expr)),
-            expr =&gt; <span class="prelude-val">Err</span>(Diagnostic::InvalidAssignment(expr.span()).into()),
+            expr =&gt; <span class="prelude-val">Err</span>(diagnostics::InvalidAssignment(expr.span()).into()),
         }
     }
 }
@@ -257,10 +257,10 @@
                         <span class="kw">if </span>i == len - <span class="number">1 </span>{
                             rest = <span class="prelude-val">Some</span>(AssignmentTarget::cover(elem.unbox().argument, p)<span class="question-mark">?</span>);
                             <span class="kw">if let </span><span class="prelude-val">Some</span>(span) = expr.trailing_comma {
-                                p.error(Diagnostic::RestElementTraillingComma(span));
+                                p.error(diagnostics::RestElementTraillingComma(span));
                             }
                         } <span class="kw">else </span>{
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::SpreadLastElement(elem.span).into());
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(diagnostics::SpreadLastElement(elem.span).into());
                         }
                     }
                 }
@@ -315,7 +315,7 @@
                     <span class="kw">if </span>i == len - <span class="number">1 </span>{
                         rest = <span class="prelude-val">Some</span>(AssignmentTarget::cover(spread.unbox().argument, p)<span class="question-mark">?</span>);
                     } <span class="kw">else </span>{
-                        <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::SpreadLastElement(spread.span).into());
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(diagnostics::SpreadLastElement(spread.span).into());
                     }
                 }
             }
@@ -346,7 +346,7 @@
             <span class="kw">let </span>binding = <span class="kw">match </span>property.value {
                 PropertyValue::Expression(expr) =&gt; AssignmentTargetMaybeDefault::cover(expr, p)<span class="question-mark">?</span>,
                 PropertyValue::Pattern(<span class="kw">_</span>) =&gt; {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::InvalidAssignment(property.value.span()).into());
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(diagnostics::InvalidAssignment(property.value.span()).into());
                 }
             };
             <span class="kw">let </span>target = AssignmentTargetPropertyProperty {

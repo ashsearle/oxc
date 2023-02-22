@@ -1008,9 +1008,12 @@
 <a href="#1008" id="1008">1008</a>
 <a href="#1009" id="1009">1009</a>
 <a href="#1010" id="1010">1010</a>
+<a href="#1011" id="1011">1011</a>
+<a href="#1012" id="1012">1012</a>
+<a href="#1013" id="1013">1013</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Atom, Span};
-<span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>oxc_diagnostics::Result;
 
 <span class="kw">use </span><span class="kw">super</span>::function::IsParenthesizedArrowFunction;
 <span class="kw">use </span><span class="kw">super</span>::grammar::CoverGrammar;
@@ -1019,9 +1022,12 @@
     map_assignment_operator, map_binary_operator, map_logical_operator, map_unary_operator,
     map_update_operator, BindingPower,
 };
-<span class="kw">use </span><span class="kw">crate</span>::lexer::{Kind, TokenValue};
-<span class="kw">use </span><span class="kw">crate</span>::list::SeparatedList;
-<span class="kw">use </span><span class="kw">crate</span>::Parser;
+<span class="kw">use crate</span>::{
+    diagnostics,
+    lexer::{Kind, TokenValue},
+    list::SeparatedList,
+    Parser,
+};
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Parser&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub fn </span>parse_paren_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -1201,7 +1207,7 @@
             expressions.remove(<span class="number">0</span>)
         } <span class="kw">else </span>{
             <span class="kw">if </span>expressions.is_empty() {
-                <span class="self">self</span>.error(Diagnostic::EmptyParenthesizedExpression(list.span));
+                <span class="self">self</span>.error(diagnostics::EmptyParenthesizedExpression(list.span));
             }
             <span class="self">self</span>.ast.sequence_expression(list.span, expressions)
         };
@@ -1386,7 +1392,7 @@
         // It is a Syntax Error if any source text is matched by this production.
         // https://tc39.es/ecma262/#sec-left-hand-side-expressions-static-semantics-early-errors
         </span><span class="kw">if </span>in_optional_chain {
-            <span class="self">self</span>.error(Diagnostic::OptionalChainTaggedTemplate(quasi.span));
+            <span class="self">self</span>.error(diagnostics::OptionalChainTaggedTemplate(quasi.span));
         }
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.tagged_template_expression(span, lhs, quasi, type_parameters))
     }
@@ -1417,7 +1423,7 @@
         span.end -= end_offset;
 
         <span class="kw">if </span>!tagged &amp;&amp; cooked.is_none() {
-            <span class="self">self</span>.error(Diagnostic::TemplateLiteral(span));
+            <span class="self">self</span>.error(diagnostics::TemplateLiteral(span));
         }
 
         <span class="kw">let </span>tail = <span class="macro">matches!</span>(cur_kind, Kind::TemplateTail | Kind::NoSubstitutionTemplate);
@@ -1485,7 +1491,7 @@
         // SuperCall:
         //     super ( Arguments )
         </span><span class="kw">if </span>!<span class="macro">matches!</span>(<span class="self">self</span>.cur_kind(), Kind::Dot | Kind::LBrack | Kind::LParen) {
-            <span class="self">self</span>.error(Diagnostic::UnexpectedSuper(span));
+            <span class="self">self</span>.error(diagnostics::UnexpectedSuper(span));
         }
 
         <span class="self">self</span>.ast.super_(span)
@@ -1615,13 +1621,13 @@
         };
 
         <span class="kw">if </span><span class="macro">matches!</span>(callee, Expression::ImportExpression(<span class="kw">_</span>)) {
-            <span class="self">self</span>.error(Diagnostic::NewDynamicImport(<span class="self">self</span>.end_span(rhs_span)));
+            <span class="self">self</span>.error(diagnostics::NewDynamicImport(<span class="self">self</span>.end_span(rhs_span)));
         }
 
         <span class="kw">let </span>span = <span class="self">self</span>.end_span(span);
 
         <span class="kw">if </span>optional {
-            <span class="self">self</span>.error(Diagnostic::NewOptionalChain(span));
+            <span class="self">self</span>.error(diagnostics::NewOptionalChain(span));
         }
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.new_expression(span, callee, arguments, type_parameter))

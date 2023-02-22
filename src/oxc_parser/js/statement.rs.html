@@ -508,14 +508,14 @@
     context::{Context, StatementContext},
     Span,
 };
-<span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>oxc_diagnostics::Result;
 
-<span class="kw">use </span><span class="kw">super</span>::declaration::{VariableDeclarationContext, VariableDeclarationParent};
-<span class="kw">use </span><span class="kw">super</span>::grammar::CoverGrammar;
-<span class="kw">use </span><span class="kw">super</span>::list::SwitchCases;
-<span class="kw">use </span><span class="kw">crate</span>::lexer::Kind;
-<span class="kw">use </span><span class="kw">crate</span>::list::NormalList;
-<span class="kw">use </span><span class="kw">crate</span>::Parser;
+<span class="kw">use super</span>::{
+    declaration::{VariableDeclarationContext, VariableDeclarationParent},
+    grammar::CoverGrammar,
+    list::SwitchCases,
+};
+<span class="kw">use crate</span>::{diagnostics, lexer::Kind, list::NormalList, Parser};
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Parser&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// `https://tc39.es/ecma262/#prod-StatementList`
@@ -697,7 +697,7 @@
         ))<span class="question-mark">?</span>;
 
         <span class="kw">if </span>stmt_ctx.is_single_statement() &amp;&amp; decl.kind.is_lexical() {
-            <span class="self">self</span>.error(Diagnostic::LexicalDeclarationSingleStatement(decl.span));
+            <span class="self">self</span>.error(diagnostics::LexicalDeclarationSingleStatement(decl.span));
         }
 
         <span class="prelude-val">Ok</span>(Statement::Declaration(Declaration::VariableDeclaration(decl)))
@@ -802,15 +802,15 @@
         <span class="comment">// for (a.b in ...), for ([a] in ..), for ({a} in ..)
         </span><span class="kw">if </span><span class="self">self</span>.at(Kind::In) || <span class="self">self</span>.at(Kind::Of) {
             <span class="kw">let </span>target = AssignmentTarget::cover(init_expression, <span class="self">self</span>)
-                .map_err(|<span class="kw">_</span>| Diagnostic::UnexpectedToken(<span class="self">self</span>.end_span(expression_span)))<span class="question-mark">?</span>;
+                .map_err(|<span class="kw">_</span>| diagnostics::UnexpectedToken(<span class="self">self</span>.end_span(expression_span)))<span class="question-mark">?</span>;
             <span class="kw">let </span>for_stmt_left = ForStatementLeft::AssignmentTarget(target);
 
             <span class="kw">if </span>!r#await &amp;&amp; is_async_of {
-                <span class="self">self</span>.error(Diagnostic::ForLoopAsyncOf(<span class="self">self</span>.end_span(expression_span)));
+                <span class="self">self</span>.error(diagnostics::ForLoopAsyncOf(<span class="self">self</span>.end_span(expression_span)));
             }
 
             <span class="kw">if </span>is_let_of {
-                <span class="self">self</span>.error(Diagnostic::UnexpectedKeyword(<span class="string">&quot;let&quot;</span>, <span class="self">self</span>.end_span(expression_span)));
+                <span class="self">self</span>.error(diagnostics::UnexpectedKeyword(<span class="string">&quot;let&quot;</span>, <span class="self">self</span>.end_span(expression_span)));
             }
 
             <span class="kw">return </span><span class="self">self</span>.parse_for_in_or_of_loop(span, r#await, for_stmt_left);
@@ -832,7 +832,7 @@
         <span class="self">self</span>.expect(Kind::RParen)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>r#await {
-            <span class="self">self</span>.error(Diagnostic::ForAwait(<span class="self">self</span>.end_span(span)));
+            <span class="self">self</span>.error(diagnostics::ForAwait(<span class="self">self</span>.end_span(span)));
         }
 
         <span class="kw">let </span>body = <span class="self">self</span>.parse_statement_list_item(StatementContext::For)<span class="question-mark">?</span>;
@@ -856,7 +856,7 @@
         <span class="self">self</span>.expect(Kind::RParen)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>r#await &amp;&amp; is_for_in {
-            <span class="self">self</span>.error(Diagnostic::ForAwait(<span class="self">self</span>.end_span(span)));
+            <span class="self">self</span>.error(diagnostics::ForAwait(<span class="self">self</span>.end_span(span)));
         }
 
         <span class="kw">let </span>body = <span class="self">self</span>.parse_statement_list_item(StatementContext::For)<span class="question-mark">?</span>;
@@ -954,7 +954,7 @@
         <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// advance `throw`
         </span><span class="kw">if </span><span class="self">self</span>.cur_token().is_on_new_line {
-            <span class="self">self</span>.error(Diagnostic::IllegalNewline(
+            <span class="self">self</span>.error(diagnostics::IllegalNewline(
                 <span class="string">&quot;throw&quot;</span>,
                 <span class="self">self</span>.end_span(span),
                 <span class="self">self</span>.cur_token().span(),
@@ -978,7 +978,7 @@
 
         <span class="kw">let </span>range = Span::new(<span class="self">self</span>.prev_token_end, <span class="self">self</span>.prev_token_end + <span class="number">1</span>);
         <span class="kw">if </span>handler.is_none() &amp;&amp; finalizer.is_none() {
-            <span class="self">self</span>.error(Diagnostic::ExpectCatchFinally(range));
+            <span class="self">self</span>.error(diagnostics::ExpectCatchFinally(range));
         }
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.try_statement(<span class="self">self</span>.end_span(span), block, handler, finalizer))

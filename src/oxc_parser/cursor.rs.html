@@ -315,10 +315,10 @@
 </pre><pre class="rust"><code><span class="doccomment">//! Code related to navigating `Token`s from the lexer
 
 </span><span class="kw">use </span>oxc_ast::{context::Context, Atom, Span};
-<span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>oxc_diagnostics::Result;
 
 <span class="kw">use </span><span class="kw">crate</span>::lexer::{Kind, LexerCheckpoint, LexerContext, Token};
-<span class="kw">use </span><span class="kw">crate</span>::Parser;
+<span class="kw">use crate</span>::{diagnostics, Parser};
 
 <span class="kw">pub struct </span>ParserCheckpoint&lt;<span class="lifetime">&#39;a</span>&gt; {
     lexer: LexerCheckpoint&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -416,7 +416,7 @@
         // whose code point sequence is the same as a ReservedWord.
         </span><span class="kw">if </span><span class="self">self</span>.cur_token().escaped &amp;&amp; kind.is_all_keyword() {
             <span class="kw">let </span>span = <span class="self">self</span>.cur_token().span();
-            <span class="self">self</span>.error(Diagnostic::EscapedKeyword(span));
+            <span class="self">self</span>.error(diagnostics::EscapedKeyword(span));
         }
         <span class="self">self</span>.prev_token_end = <span class="self">self</span>.token.end;
         <span class="self">self</span>.token = <span class="self">self</span>.lexer.next_token();
@@ -455,7 +455,7 @@
     </span><span class="kw">pub fn </span>asi(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.can_insert_semicolon() {
             <span class="kw">let </span>span = Span::new(<span class="self">self</span>.prev_token_end, <span class="self">self</span>.cur_token().start);
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::AutoSemicolonInsertion(span).into());
+            <span class="kw">return </span><span class="prelude-val">Err</span>(diagnostics::AutoSemicolonInsertion(span).into());
         }
         <span class="kw">if </span><span class="self">self</span>.at(Kind::Semicolon) {
             <span class="self">self</span>.advance(Kind::Semicolon);
@@ -478,7 +478,7 @@
         <span class="kw">if </span>!<span class="self">self</span>.at(kind) {
             <span class="kw">let </span>range = <span class="self">self</span>.current_range();
             <span class="kw">return </span><span class="prelude-val">Err</span>(
-                Diagnostic::ExpectToken(kind.to_str(), <span class="self">self</span>.cur_kind().to_str(), range).into()
+                diagnostics::ExpectToken(kind.to_str(), <span class="self">self</span>.cur_kind().to_str(), range).into()
             );
         }
         <span class="self">self</span>.advance(kind);

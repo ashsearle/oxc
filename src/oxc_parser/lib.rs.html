@@ -179,6 +179,7 @@
 <a href="#179" id="179">179</a>
 <a href="#180" id="180">180</a>
 <a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Recursive Descent Parser for ECMAScript and TypeScript
 
 </span><span class="attr">#![allow(clippy::wildcard_imports)] </span><span class="comment">// allow for use `oxc_ast::ast::*`
@@ -193,11 +194,12 @@
 <span class="kw">mod </span>jsx;
 <span class="kw">mod </span>ts;
 
+<span class="kw">mod </span>diagnostics;
 <span class="kw">mod </span>lexer;
 
 <span class="kw">use </span>oxc_allocator::Allocator;
 <span class="kw">use </span>oxc_ast::{ast::Program, context::Context, AstBuilder, SourceType, Span};
-<span class="kw">use </span>oxc_diagnostics::{Diagnostic, Diagnostics, PError, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>oxc_diagnostics::{Diagnostics, PError, <span class="prelude-ty">Result</span>};
 
 <span class="kw">use crate</span>::{
     lexer::{Kind, Lexer, Token},
@@ -302,7 +304,7 @@
         <span class="kw">if </span><span class="self">self</span>.source_type.is_javascript()
             &amp;&amp; (<span class="self">self</span>.source.starts_with(<span class="string">&quot;// @flow&quot;</span>) || <span class="self">self</span>.source.starts_with(<span class="string">&quot;/* @flow */&quot;</span>))
         {
-            <span class="kw">return </span><span class="prelude-val">Some</span>(Diagnostic::Flow(Span::new(<span class="number">0</span>, <span class="number">8</span>)).into());
+            <span class="kw">return </span><span class="prelude-val">Some</span>(diagnostics::Flow(Span::new(<span class="number">0</span>, <span class="number">8</span>)).into());
         }
         <span class="prelude-val">None
     </span>}
@@ -316,7 +318,7 @@
         </span><span class="kw">if </span><span class="self">self</span>.cur_kind() == Kind::Undetermined {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="self">self</span>.errors.borrow_mut().pop().unwrap());
         }
-        <span class="prelude-val">Err</span>(Diagnostic::UnexpectedToken(<span class="self">self</span>.current_range()).into())
+        <span class="prelude-val">Err</span>(diagnostics::UnexpectedToken(<span class="self">self</span>.current_range()).into())
     }
 
     <span class="doccomment">/// Push a Syntax Error

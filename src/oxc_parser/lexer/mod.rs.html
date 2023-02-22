@@ -1453,6 +1453,7 @@
 <a href="#1453" id="1453">1453</a>
 <a href="#1454" id="1454">1454</a>
 <a href="#1455" id="1455">1455</a>
+<a href="#1456" id="1456">1456</a>
 </pre><pre class="rust"><code><span class="doccomment">//! An Ecma-262 Lexer / Tokenizer
 //! Prior Arts:
 //!     * [jsparagus](https://github.com/mozilla-spidermonkey/jsparagus/blob/master/crates/parser/src)
@@ -1477,10 +1478,12 @@
 <span class="kw">use </span>number::{parse_big_int, parse_float, parse_int};
 <span class="kw">use </span>oxc_allocator::{Allocator, String};
 <span class="kw">use </span>oxc_ast::{ast::RegExpFlags, Atom, SourceType, Span};
-<span class="kw">use </span>oxc_diagnostics::{Diagnostic, Diagnostics};
+<span class="kw">use </span>oxc_diagnostics::{Diagnostics, PError};
 <span class="kw">use </span>simd::{SkipMultilineComment, SkipWhitespace};
 <span class="kw">use </span>string_builder::AutoCow;
 <span class="kw">pub use </span>token::{RegExp, Token, TokenValue};
+
+<span class="kw">use </span><span class="kw">crate</span>::diagnostics;
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>LexerCheckpoint&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -1696,7 +1699,7 @@
     }
 
     <span class="comment">// ---------- Private Methods ---------- //
-    </span><span class="kw">fn </span>error(<span class="kw-2">&amp;mut </span><span class="self">self</span>, error: Diagnostic) {
+    </span><span class="kw">fn </span>error&lt;T: Into&lt;PError&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, error: T) {
         <span class="self">self</span>.errors.borrow_mut().push(error.into());
     }
 
@@ -1743,12 +1746,11 @@
     <span class="doccomment">/// Return `IllegalCharacter` Error or `UnexpectedEnd` if EOF
     </span><span class="kw">fn </span>unexpected_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span>c = <span class="self">self</span>.peek();
-        <span class="kw">let </span>error = <span class="kw">if </span>c == EOF {
-            Diagnostic::UnexpectedEnd(<span class="self">self</span>.current_offset())
+        <span class="kw">if </span>c == EOF {
+            <span class="self">self</span>.error(diagnostics::UnexpectedEnd(<span class="self">self</span>.current_offset()));
         } <span class="kw">else </span>{
-            Diagnostic::InvalidCharacter(c, <span class="self">self</span>.current_offset())
-        };
-        <span class="self">self</span>.error(error);
+            <span class="self">self</span>.error(diagnostics::InvalidCharacter(c, <span class="self">self</span>.current_offset()));
+        }
     }
 
     <span class="doccomment">/// Add string to `SourceAtomSet` and get `TokenValue::Atom`
@@ -1772,7 +1774,7 @@
         <span class="kw">match </span>value {
             <span class="prelude-val">Ok</span>(value) =&gt; <span class="self">self</span>.current.token.value = value,
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="self">self</span>.error(Diagnostic::InvalidNumber(
+                <span class="self">self</span>.error(diagnostics::InvalidNumber(
                     err,
                     Span::new(<span class="self">self</span>.current.token.start, <span class="self">self</span>.offset()),
                 ));
@@ -1909,7 +1911,7 @@
                 Kind::NewLine
             }
             <span class="kw">_ </span>=&gt; {
-                <span class="self">self</span>.error(Diagnostic::InvalidCharacter(c, <span class="self">self</span>.unterminated_range()));
+                <span class="self">self</span>.error(diagnostics::InvalidCharacter(c, <span class="self">self</span>.unterminated_range()));
                 Kind::Undetermined
             }
         }
@@ -1969,7 +1971,7 @@
         }
 
         <span class="kw">if </span>!state.found {
-            <span class="self">self</span>.error(Diagnostic::UnterminatedMultiLineComment(<span class="self">self</span>.unterminated_range()));
+            <span class="self">self</span>.error(diagnostics::UnterminatedMultiLineComment(<span class="self">self</span>.unterminated_range()));
             <span class="kw">return </span>Kind::Eof;
         }
 
@@ -2169,11 +2171,11 @@
                 <span class="self">self</span>.identifier_unicode_escape_sequence(<span class="kw-2">&amp;mut </span>builder, <span class="bool-val">true</span>);
             }
             <span class="prelude-val">Some</span>(c) =&gt; {
-                <span class="self">self</span>.error(Diagnostic::InvalidCharacter(c, Span::new(start, <span class="self">self</span>.offset() - <span class="number">1</span>)));
+                <span class="self">self</span>.error(diagnostics::InvalidCharacter(c, Span::new(start, <span class="self">self</span>.offset() - <span class="number">1</span>)));
                 <span class="kw">return </span>Kind::Undetermined;
             }
             <span class="prelude-val">None </span>=&gt; {
-                <span class="self">self</span>.error(Diagnostic::UnexpectedEnd(Span::new(start, <span class="self">self</span>.offset() - <span class="number">1</span>)));
+                <span class="self">self</span>.error(diagnostics::UnexpectedEnd(Span::new(start, <span class="self">self</span>.offset() - <span class="number">1</span>)));
                 <span class="kw">return </span>Kind::Undetermined;
             }
         }
@@ -2390,7 +2392,7 @@
                 <span class="kw">break</span>;
             }
         }
-        <span class="self">self</span>.error(Diagnostic::InvalidNumberEnd(Span::new(offset, <span class="self">self</span>.offset())));
+        <span class="self">self</span>.error(diagnostics::InvalidNumberEnd(Span::new(offset, <span class="self">self</span>.offset())));
         Kind::Undetermined
     }
 
@@ -2400,7 +2402,7 @@
         <span class="kw">loop </span>{
             <span class="kw">match </span><span class="self">self</span>.current.chars.next() {
                 <span class="prelude-val">None </span>| <span class="prelude-val">Some</span>(<span class="string">&#39;\r&#39; </span>| <span class="string">&#39;\n&#39;</span>) =&gt; {
-                    <span class="self">self</span>.error(Diagnostic::UnterminatedString(<span class="self">self</span>.unterminated_range()));
+                    <span class="self">self</span>.error(diagnostics::UnterminatedString(<span class="self">self</span>.unterminated_range()));
                     <span class="kw">return </span>Kind::Undetermined;
                 }
                 <span class="prelude-val">Some</span>(c @ (<span class="string">&#39;&quot;&#39; </span>| <span class="string">&#39;\&#39;&#39;</span>)) =&gt; {
@@ -2418,7 +2420,7 @@
                     <span class="self">self</span>.read_string_escape_sequence(text, <span class="bool-val">false</span>, <span class="kw-2">&amp;mut </span>is_valid_escape_sequence);
                     <span class="kw">if </span>!is_valid_escape_sequence {
                         <span class="kw">let </span>range = Span::new(start, <span class="self">self</span>.offset());
-                        <span class="self">self</span>.error(Diagnostic::InvalidEscapeSequence(range));
+                        <span class="self">self</span>.error(diagnostics::InvalidEscapeSequence(range));
                     }
                 }
                 <span class="prelude-val">Some</span>(other) =&gt; {
@@ -2440,11 +2442,11 @@
         <span class="kw">loop </span>{
             <span class="kw">match </span><span class="self">self</span>.current.chars.next() {
                 <span class="prelude-val">None </span>=&gt; {
-                    <span class="self">self</span>.error(Diagnostic::UnterminatedRegExp(<span class="self">self</span>.unterminated_range()));
+                    <span class="self">self</span>.error(diagnostics::UnterminatedRegExp(<span class="self">self</span>.unterminated_range()));
                     <span class="kw">return </span>Kind::Undetermined;
                 }
                 <span class="prelude-val">Some</span>(c) <span class="kw">if </span>is_line_terminator(c) =&gt; {
-                    <span class="self">self</span>.error(Diagnostic::UnterminatedRegExp(<span class="self">self</span>.unterminated_range()));
+                    <span class="self">self</span>.error(diagnostics::UnterminatedRegExp(<span class="self">self</span>.unterminated_range()));
                     <span class="kw">return </span>Kind::Undetermined;
                 }
                 <span class="prelude-val">Some</span>(c) =&gt; {
@@ -2471,7 +2473,7 @@
             <span class="self">self</span>.current.chars.next();
             <span class="comment">// dbg!(ch);
             </span><span class="kw">if </span>!ch.is_ascii_lowercase() {
-                <span class="self">self</span>.error(Diagnostic::RegExpFlag(ch, <span class="self">self</span>.current_offset()));
+                <span class="self">self</span>.error(diagnostics::RegExpFlag(ch, <span class="self">self</span>.current_offset()));
                 <span class="kw">continue</span>;
             }
             <span class="kw">let </span>flag = <span class="kw">match </span>ch {
@@ -2484,12 +2486,12 @@
                 <span class="string">&#39;d&#39; </span>=&gt; RegExpFlags::D,
                 <span class="string">&#39;v&#39; </span>=&gt; RegExpFlags::V,
                 <span class="kw">_ </span>=&gt; {
-                    <span class="self">self</span>.error(Diagnostic::RegExpFlag(ch, <span class="self">self</span>.current_offset()));
+                    <span class="self">self</span>.error(diagnostics::RegExpFlag(ch, <span class="self">self</span>.current_offset()));
                     <span class="kw">continue</span>;
                 }
             };
             <span class="kw">if </span>flags.contains(flag) {
-                <span class="self">self</span>.error(Diagnostic::RegExpFlagTwice(ch, <span class="self">self</span>.current_offset()));
+                <span class="self">self</span>.error(diagnostics::RegExpFlagTwice(ch, <span class="self">self</span>.current_offset()));
                 <span class="kw">continue</span>;
             }
             flags |= flag;
@@ -2535,7 +2537,7 @@
                 <span class="kw">_ </span>=&gt; builder.push_matching(c),
             }
         }
-        <span class="self">self</span>.error(Diagnostic::UnterminatedString(<span class="self">self</span>.unterminated_range()));
+        <span class="self">self</span>.error(diagnostics::UnterminatedString(<span class="self">self</span>.unterminated_range()));
         Kind::Undetermined
     }
 
@@ -2629,7 +2631,7 @@
                     builder.push_matching(other);
                 }
                 <span class="prelude-val">None </span>=&gt; {
-                    <span class="self">self</span>.error(Diagnostic::UnterminatedString(<span class="self">self</span>.unterminated_range()));
+                    <span class="self">self</span>.error(diagnostics::UnterminatedString(<span class="self">self</span>.unterminated_range()));
                     <span class="kw">return </span>Kind::Undetermined;
                 }
             }
@@ -2649,7 +2651,7 @@
         <span class="kw">let </span>start = <span class="self">self</span>.offset();
         <span class="kw">if </span><span class="self">self</span>.current.chars.next() != <span class="prelude-val">Some</span>(<span class="string">&#39;u&#39;</span>) {
             <span class="kw">let </span>range = Span::new(start, <span class="self">self</span>.offset());
-            <span class="self">self</span>.error(Diagnostic::UnicodeEscapeSequence(range));
+            <span class="self">self</span>.error(diagnostics::UnicodeEscapeSequence(range));
             <span class="kw">return</span>;
         }
 
@@ -2660,7 +2662,7 @@
 
         <span class="kw">let </span><span class="prelude-val">Some</span>(value) = value <span class="kw">else </span>{
             <span class="kw">let </span>range = Span::new(start,<span class="self">self</span>.offset());
-            <span class="self">self</span>.error(Diagnostic::UnicodeEscapeSequence(range));
+            <span class="self">self</span>.error(diagnostics::UnicodeEscapeSequence(range));
             <span class="kw">return</span>;
         };
 
@@ -2668,7 +2670,7 @@
         </span><span class="kw">let </span>ch = <span class="kw">match </span>value {
             SurrogatePair::Astral(..) | SurrogatePair::HighLow(..) =&gt; {
                 <span class="kw">let </span>range = Span::new(start, <span class="self">self</span>.offset());
-                <span class="self">self</span>.error(Diagnostic::UnicodeEscapeSequence(range));
+                <span class="self">self</span>.error(diagnostics::UnicodeEscapeSequence(range));
                 <span class="kw">return</span>;
             }
             SurrogatePair::CodePoint(code_point) =&gt; {
@@ -2676,7 +2678,7 @@
                     ch
                 } <span class="kw">else </span>{
                     <span class="kw">let </span>range = Span::new(start, <span class="self">self</span>.offset());
-                    <span class="self">self</span>.error(Diagnostic::UnicodeEscapeSequence(range));
+                    <span class="self">self</span>.error(diagnostics::UnicodeEscapeSequence(range));
                     <span class="kw">return</span>;
                 }
             }
@@ -2686,7 +2688,7 @@
             <span class="kw">if </span>check_identifier_start { is_identifier_start(ch) } <span class="kw">else </span>{ is_identifier_part(ch) };
 
         <span class="kw">if </span>!is_valid {
-            <span class="self">self</span>.error(Diagnostic::InvalidCharacter(ch, <span class="self">self</span>.current_offset()));
+            <span class="self">self</span>.error(diagnostics::InvalidCharacter(ch, <span class="self">self</span>.current_offset()));
             <span class="kw">return</span>;
         }
 
@@ -2708,7 +2710,7 @@
         };
 
         <span class="kw">let </span><span class="prelude-val">Some</span>(value) = value <span class="kw">else </span>{
-            <span class="comment">// error raised within the parser by `Diagnostic::TemplateLiteral`
+            <span class="comment">// error raised within the parser by `diagnostics::TemplateLiteral`
             </span><span class="kw-2">*</span>is_valid_escape_sequence = <span class="bool-val">false</span>;
             <span class="kw">return</span>;
         };
@@ -2810,7 +2812,7 @@
     ) {
         <span class="kw">match </span><span class="self">self</span>.current.chars.next() {
             <span class="prelude-val">None </span>=&gt; {
-                <span class="self">self</span>.error(Diagnostic::UnterminatedString(<span class="self">self</span>.unterminated_range()));
+                <span class="self">self</span>.error(diagnostics::UnterminatedString(<span class="self">self</span>.unterminated_range()));
             }
             <span class="prelude-val">Some</span>(c) =&gt; <span class="kw">match </span>c {
                 <span class="comment">// CharacterEscapeSequence
@@ -2882,12 +2884,12 @@
                 }
                 <span class="string">&#39;0&#39; </span><span class="kw">if </span>in_template &amp;&amp; <span class="self">self</span>.peek().is_ascii_digit() =&gt; {
                     <span class="self">self</span>.current.chars.next();
-                    <span class="comment">// error raised within the parser by `Diagnostic::TemplateLiteral`
+                    <span class="comment">// error raised within the parser by `diagnostics::TemplateLiteral`
                     </span><span class="kw-2">*</span>is_valid_escape_sequence = <span class="bool-val">false</span>;
                 }
                 <span class="comment">// NotEscapeSequence :: DecimalDigit but not 0
                 </span><span class="string">&#39;1&#39;</span>..=<span class="string">&#39;9&#39; </span><span class="kw">if </span>in_template =&gt; {
-                    <span class="comment">// error raised within the parser by `Diagnostic::TemplateLiteral`
+                    <span class="comment">// error raised within the parser by `diagnostics::TemplateLiteral`
                     </span><span class="kw-2">*</span>is_valid_escape_sequence = <span class="bool-val">false</span>;
                 }
                 other =&gt; {

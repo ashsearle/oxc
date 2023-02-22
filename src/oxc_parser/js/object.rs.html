@@ -258,16 +258,12 @@
 <a href="#258" id="258">258</a>
 <a href="#259" id="259">259</a>
 <a href="#260" id="260">260</a>
-<a href="#261" id="261">261</a>
-<a href="#262" id="262">262</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Span};
-<span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>oxc_diagnostics::Result;
 
 <span class="kw">use </span><span class="kw">super</span>::list::ObjectExpressionProperties;
-<span class="kw">use </span><span class="kw">crate</span>::lexer::Kind;
-<span class="kw">use </span><span class="kw">crate</span>::list::SeparatedList;
-<span class="kw">use </span><span class="kw">crate</span>::Parser;
+<span class="kw">use crate</span>::{diagnostics, lexer::Kind, list::SeparatedList, Parser};
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Parser&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// [Object Expression](https://tc39.es/ecma262/#sec-object-initializer)
@@ -478,7 +474,7 @@
         <span class="kw">let </span>method = <span class="self">self</span>.parse_method(<span class="bool-val">false</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>!method.params.is_empty() {
-            <span class="self">self</span>.error(Diagnostic::GetterParameters(method.params.span));
+            <span class="self">self</span>.error(diagnostics::GetterParameters(method.params.span));
         }
 
         <span class="kw">let </span>value = PropertyValue::Expression(<span class="self">self</span>.ast.function_expression(method));
@@ -502,12 +498,12 @@
         <span class="kw">let </span>method = <span class="self">self</span>.parse_method(<span class="bool-val">false</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>method.params.items.len() != <span class="number">1 </span>{
-            <span class="self">self</span>.error(Diagnostic::SetterParameters(method.params.span));
+            <span class="self">self</span>.error(diagnostics::SetterParameters(method.params.span));
         }
 
         <span class="kw">if </span>method.params.items.len() == <span class="number">1 </span>{
             <span class="kw">if let </span>BindingPatternKind::RestElement(elem) = <span class="kw-2">&amp;</span>method.params.items[<span class="number">0</span>].pattern.kind {
-                <span class="self">self</span>.error(Diagnostic::SetterParametersRestPattern(elem.span));
+                <span class="self">self</span>.error(diagnostics::SetterParametersRestPattern(elem.span));
             }
         }
 

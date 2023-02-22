@@ -315,6 +315,19 @@
 <a href="#315" id="315">315</a>
 <a href="#316" id="316">316</a>
 <a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     fs::{<span class="self">self</span>, File},
     io::{stdout, Read, Write},
@@ -328,6 +341,7 @@
 <span class="kw">use </span>encoding_rs_io::DecodeReaderBytesBuilder;
 <span class="kw">use </span>oxc_allocator::Allocator;
 <span class="kw">use </span>oxc_ast::SourceType;
+<span class="kw">use </span>oxc_diagnostics::miette::{GraphicalReportHandler, GraphicalTheme, NamedSource};
 <span class="kw">use </span>oxc_parser::Parser;
 <span class="kw">use </span>rayon::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>similar::{ChangeTag, TextDiff};
@@ -574,10 +588,22 @@
     <span class="doccomment">/// Execute the parser once and get the test result
     </span><span class="kw">fn </span>execute(<span class="kw-2">&amp;mut </span><span class="self">self</span>, source_type: SourceType) -&gt; TestResult {
         <span class="kw">let </span>allocator = Allocator::default();
-        <span class="kw">let </span>source = <span class="self">self</span>.code();
-        <span class="kw">let </span>ret = Parser::new(<span class="kw-2">&amp;</span>allocator, source, source_type).parse();
-        <span class="kw">let </span>passed = ret.errors.is_empty();
-        <span class="kw">let </span>result = <span class="kw">if </span>passed { <span class="prelude-val">Ok</span>(String::new()) } <span class="kw">else </span>{ <span class="prelude-val">Err</span>(String::new()) };
+        <span class="kw">let </span>source_text = <span class="self">self</span>.code();
+        <span class="kw">let </span>ret = Parser::new(<span class="kw-2">&amp;</span>allocator, source_text, source_type).parse();
+        <span class="kw">let </span>result = <span class="kw">if </span>ret.errors.is_empty() {
+            <span class="prelude-val">Ok</span>(String::new())
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>handler = GraphicalReportHandler::new_themed(GraphicalTheme::unicode_nocolor());
+            <span class="kw">let </span><span class="kw-2">mut </span>output = String::new();
+            <span class="kw">for </span>error <span class="kw">in </span>ret.errors {
+                <span class="kw">let </span>error = error.with_source_code(NamedSource::new(
+                    <span class="self">self</span>.path().to_string_lossy(),
+                    source_text.to_string(),
+                ));
+                handler.render_report(<span class="kw-2">&amp;mut </span>output, error.as_ref()).unwrap();
+            }
+            <span class="prelude-val">Err</span>(output)
+        };
         <span class="self">self</span>.parser_return_to_test_result(result)
     }
 

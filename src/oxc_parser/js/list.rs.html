@@ -477,11 +477,13 @@
 <a href="#477" id="477">477</a>
 <a href="#478" id="478">478</a>
 <a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Vec;
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, syntax_directed_operations::PrivateBoundIdentifiers, Atom, GetSpan, Span};
-<span class="kw">use </span>oxc_diagnostics::{Diagnostic, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>oxc_diagnostics::Result;
 <span class="kw">use </span>rustc_hash::FxHashMap;
 
+<span class="kw">use </span><span class="kw">crate</span>::diagnostics;
 <span class="kw">use </span><span class="kw">crate</span>::lexer::Kind;
 <span class="kw">use </span><span class="kw">crate</span>::list::{NormalList, SeparatedList};
 <span class="kw">use </span><span class="kw">crate</span>::Parser;
@@ -544,7 +546,7 @@
                 <span class="kw">let </span>rest_element = p.parse_rest_element()<span class="question-mark">?</span>;
 
                 <span class="kw">if </span>!<span class="macro">matches!</span>(rest_element.argument.kind, BindingPatternKind::BindingIdentifier(<span class="kw">_</span>)) {
-                    p.error(Diagnostic::InvalidRestArgument(rest_element.span));
+                    p.error(diagnostics::InvalidRestArgument(rest_element.span));
                 }
 
                 ObjectPatternProperty::RestElement(rest_element)
@@ -770,7 +772,7 @@
         };
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(old_span) = <span class="self">self</span>.keys.get(<span class="kw-2">&amp;</span>key.as_atom()) {
-            p.error(Diagnostic::Redeclaration(key.as_atom(), <span class="kw-2">*</span>old_span, key.span()));
+            p.error(diagnostics::Redeclaration(key.as_atom(), <span class="kw-2">*</span>old_span, key.span()));
         } <span class="kw">else </span>{
             <span class="self">self</span>.keys.insert(key.as_atom(), key.span());
         }
@@ -873,7 +875,7 @@
                     <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
                 })
             {
-                p.error(Diagnostic::Redeclaration(
+                p.error(diagnostics::Redeclaration(
                     private_ident.name.clone(),
                     existed.span,
                     private_ident.span,

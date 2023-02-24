@@ -1011,6 +1011,16 @@
 <a href="#1011" id="1011">1011</a>
 <a href="#1012" id="1012">1012</a>
 <a href="#1013" id="1013">1013</a>
+<a href="#1014" id="1014">1014</a>
+<a href="#1015" id="1015">1015</a>
+<a href="#1016" id="1016">1016</a>
+<a href="#1017" id="1017">1017</a>
+<a href="#1018" id="1018">1018</a>
+<a href="#1019" id="1019">1019</a>
+<a href="#1020" id="1020">1020</a>
+<a href="#1021" id="1021">1021</a>
+<a href="#1022" id="1022">1022</a>
+<a href="#1023" id="1023">1023</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Atom, Span};
 <span class="kw">use </span>oxc_diagnostics::Result;
@@ -2007,7 +2017,17 @@
             <span class="kw">if </span><span class="self">self</span>.ctx.has_await() {
                 <span class="kw">return </span><span class="bool-val">true</span>;
             }
+
             <span class="kw">let </span>peek_token = <span class="self">self</span>.peek_token();
+            <span class="comment">// The following expressions are ambiguous
+            // await + 0, await - 0, await ( 0 ), await [ 0 ], await / 0 /u, await ``, await of []
+            </span><span class="kw">if </span><span class="macro">matches!</span>(
+                peek_token.kind,
+                Kind::Of | Kind::LParen | Kind::LBrack | Kind::Slash | Kind::RegExp
+            ) {
+                <span class="kw">return </span><span class="bool-val">false</span>;
+            }
+
             <span class="kw">return </span>peek_token.kind.is_after_await_or_yield() &amp;&amp; !peek_token.is_on_new_line;
         }
         <span class="bool-val">false

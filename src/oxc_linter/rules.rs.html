@@ -24,7 +24,7 @@
 
 <span class="kw">use crate</span>::{context::LintContext, rule::Rule};
 
-<span class="attr">#[derive(Debug)]
+<span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub enum </span>RuleEnum {
     NoDebugger(NoDebugger),
 }

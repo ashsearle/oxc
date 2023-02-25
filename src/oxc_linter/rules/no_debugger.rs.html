@@ -21,6 +21,17 @@
 <a href="#21" id="21">21</a>
 <a href="#22" id="22">22</a>
 <a href="#23" id="23">23</a>
+<a href="#24" id="24">24</a>
+<a href="#25" id="25">25</a>
+<a href="#26" id="26">26</a>
+<a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+<a href="#29" id="29">29</a>
+<a href="#30" id="30">30</a>
+<a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_ast::{AstKind, Span};
 <span class="kw">use </span>oxc_diagnostics::{
     miette::{<span class="self">self</span>, Diagnostic},
@@ -34,7 +45,7 @@
 #[diagnostic()]
 </span><span class="kw">struct </span>NoDebuggerDiagnostic(<span class="attr">#[label] </span><span class="kw">pub </span>Span);
 
-<span class="attr">#[derive(Debug, Default)]
+<span class="attr">#[derive(Debug, Default, Clone)]
 </span><span class="kw">pub struct </span>NoDebugger;
 
 <span class="kw">impl </span>Rule <span class="kw">for </span>NoDebugger {
@@ -43,6 +54,17 @@
             ctx.diagnostic(NoDebuggerDiagnostic(stmt.span));
         }
     }
+}
+
+<span class="attr">#[test]
+</span><span class="kw">fn </span>test() {
+    <span class="kw">use </span><span class="kw">crate</span>::rules::RuleEnum;
+    <span class="kw">use </span><span class="kw">crate</span>::tester::Tester;
+    <span class="kw">let </span>pass = <span class="macro">vec!</span>[<span class="string">&quot;var test = { debugger: 1 }; test.debugger;&quot;</span>];
+
+    <span class="kw">let </span>fail = <span class="macro">vec!</span>[<span class="string">&quot;if (foo) debugger&quot;</span>];
+
+    Tester::new(<span class="string">&quot;no-debugger&quot;</span>, RuleEnum::NoDebugger(NoDebugger), pass, fail).test_and_snapshot();
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="oxc_linter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (c18a5e8a5 2023-01-25)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-a43118d2dfb2799d.js" data-settings-css="settings-7c23ac01f615ce90.css" ></div></body></html>

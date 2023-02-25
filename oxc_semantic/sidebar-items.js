@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Semantic",""],["SemanticBuilder",""]]};
+window.SIDEBAR_ITEMS = {"struct":[["AstNodes","Untyped AST nodes flattened into an indextree"],["Semantic",""],["SemanticBuilder",""]],"type":[["AstNode","Indextree node containing a semantic node"]]};

@@ -199,7 +199,7 @@
 
 <span class="kw">use </span>oxc_allocator::Allocator;
 <span class="kw">use </span>oxc_ast::{ast::Program, context::Context, AstBuilder, SourceType, Span};
-<span class="kw">use </span>oxc_diagnostics::{Diagnostics, PError, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>oxc_diagnostics::{Diagnostics, Error, <span class="prelude-ty">Result</span>};
 
 <span class="kw">use crate</span>::{
     lexer::{Kind, Lexer, Token},
@@ -209,7 +209,7 @@
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>ParserReturn&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub </span>program: Program&lt;<span class="lifetime">&#39;a</span>&gt;,
-    <span class="kw">pub </span>errors: Vec&lt;PError&gt;,
+    <span class="kw">pub </span>errors: Vec&lt;Error&gt;,
 }
 
 <span class="kw">pub struct </span>Parser&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -300,7 +300,7 @@
 
     <span class="doccomment">/// Check for Flow declaration if the file cannot be parsed.
     /// The declaration must be [on the first line before any code](https://flow.org/en/docs/usage/#toc-prepare-your-code-for-flow)
-    </span><span class="kw">fn </span>flow_error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;PError&gt; {
+    </span><span class="kw">fn </span>flow_error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Error&gt; {
         <span class="kw">if </span><span class="self">self</span>.source_type.is_javascript()
             &amp;&amp; (<span class="self">self</span>.source.starts_with(<span class="string">&quot;// @flow&quot;</span>) || <span class="self">self</span>.source.starts_with(<span class="string">&quot;/* @flow */&quot;</span>))
         {
@@ -322,7 +322,7 @@
     }
 
     <span class="doccomment">/// Push a Syntax Error
-    </span><span class="kw">fn </span>error&lt;T: Into&lt;PError&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, error: T) {
+    </span><span class="kw">fn </span>error&lt;T: Into&lt;Error&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, error: T) {
         <span class="self">self</span>.errors.borrow_mut().push(error.into());
     }
 

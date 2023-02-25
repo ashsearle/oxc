@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Cli",""],["Command",""],["LintResult",""]]};
+window.SIDEBAR_ITEMS = {"enum":[["CliRunResult",""]],"struct":[["Cli",""],["Command",""]]};

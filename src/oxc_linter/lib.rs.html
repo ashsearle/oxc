@@ -52,7 +52,7 @@
 
 <span class="kw">use </span>std::rc::Rc;
 
-<span class="kw">use </span>oxc_diagnostics::PError;
+<span class="kw">use </span>oxc_diagnostics::Error;
 <span class="kw">use </span>oxc_semantic::Semantic;
 
 <span class="kw">use crate</span>::{context::LintContext, rules::RuleEnum};
@@ -76,7 +76,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>run(<span class="kw-2">&amp;</span><span class="self">self</span>, semantic: <span class="kw-2">&amp;</span>Rc&lt;Semantic&gt;) -&gt; Vec&lt;PError&gt; {
+    </span><span class="kw">pub fn </span>run(<span class="kw-2">&amp;</span><span class="self">self</span>, semantic: <span class="kw-2">&amp;</span>Rc&lt;Semantic&gt;) -&gt; Vec&lt;Error&gt; {
         <span class="kw">let </span>ctx = LintContext::new(semantic.clone());
 
         <span class="kw">for </span>node <span class="kw">in </span>semantic.nodes().iter() {

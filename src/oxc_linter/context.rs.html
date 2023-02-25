@@ -29,13 +29,13 @@
 <a href="#29" id="29">29</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, rc::Rc};
 
-<span class="kw">use </span>oxc_diagnostics::PError;
+<span class="kw">use </span>oxc_diagnostics::Error;
 <span class="kw">use </span>oxc_semantic::Semantic;
 
 <span class="kw">pub struct </span>LintContext&lt;<span class="lifetime">&#39;a</span>&gt; {
     semantic: Rc&lt;Semantic&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 
-    diagnostics: RefCell&lt;Vec&lt;PError&gt;&gt;,
+    diagnostics: RefCell&lt;Vec&lt;Error&gt;&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; LintContext&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -43,7 +43,7 @@
         <span class="self">Self </span>{ semantic, diagnostics: RefCell::new(<span class="macro">vec!</span>[]) }
     }
 
-    <span class="kw">pub fn </span>into_diagnostics(<span class="self">self</span>) -&gt; Vec&lt;PError&gt; {
+    <span class="kw">pub fn </span>into_diagnostics(<span class="self">self</span>) -&gt; Vec&lt;Error&gt; {
         <span class="self">self</span>.diagnostics.into_inner()
     }
 
@@ -52,7 +52,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.semantic
     }
 
-    <span class="kw">pub fn </span>diagnostic&lt;T: Into&lt;PError&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, diagnostic: T) {
+    <span class="kw">pub fn </span>diagnostic&lt;T: Into&lt;Error&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, diagnostic: T) {
         <span class="self">self</span>.diagnostics.borrow_mut().push(diagnostic.into());
     }
 }

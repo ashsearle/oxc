@@ -54,52 +54,44 @@
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
-<a href="#57" id="57">57</a>
-<a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
+<span class="kw">mod </span>result;
 <span class="kw">mod </span>walk;
 
-<span class="kw">use </span>std::{fs, path::Path, path::PathBuf, rc::Rc};
+<span class="kw">use </span>std::{fs, path::Path, rc::Rc};
 
-<span class="kw">pub use </span>command::Command;
 <span class="kw">use </span>oxc_allocator::Allocator;
 <span class="kw">use </span>oxc_ast::SourceType;
-<span class="kw">use </span>oxc_diagnostics::miette::Report;
+<span class="kw">use </span>oxc_diagnostics::Error;
 <span class="kw">use </span>oxc_linter::Linter;
 <span class="kw">use </span>oxc_parser::Parser;
 <span class="kw">use </span>oxc_semantic::SemanticBuilder;
 <span class="kw">use </span>rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 <span class="kw">use </span>walk::Walk;
 
+<span class="kw">pub use crate</span>::{command::Command, result::CliRunResult};
+
 <span class="kw">pub struct </span>Cli;
 
-<span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>LintResult {
-    <span class="kw">pub </span>path: PathBuf,
-    <span class="kw">pub </span>diagnostics: Vec&lt;Report&gt;,
-}
-
 <span class="kw">impl </span>Cli {
-    <span class="kw">pub fn </span>lint&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;LintResult&gt;&gt; {
+    <span class="kw">pub fn </span>lint&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; CliRunResult {
         <span class="kw">let </span>paths = Walk::new(path).iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-        <span class="kw">if </span>paths.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">None</span>;
-        }
-
-        <span class="kw">let </span>result: Vec&lt;LintResult&gt; = paths
+        <span class="kw">let </span>number_of_diagnostics = paths
             .par_iter()
             .map(|path| {
                 <span class="kw">let </span>diagnostics = <span class="self">Self</span>::lint_path(path);
-                LintResult { path: path.to_path_buf(), diagnostics }
+                <span class="kw">for </span>diagnostic <span class="kw">in </span><span class="kw-2">&amp;</span>diagnostics {
+                    <span class="macro">println!</span>(<span class="string">&quot;{diagnostic:?}&quot;</span>);
+                }
+                diagnostics.len()
             })
-            .collect();
-        <span class="prelude-val">Some</span>(result)
+            .sum();
+
+        CliRunResult::LintResult { number_of_files: paths.len(), number_of_diagnostics }
     }
 
-    <span class="kw">fn </span>lint_path(path: <span class="kw-2">&amp;</span>Path) -&gt; Vec&lt;Report&gt; {
+    <span class="kw">fn </span>lint_path(path: <span class="kw-2">&amp;</span>Path) -&gt; Vec&lt;Error&gt; {
         <span class="kw">let </span>source_text = fs::read_to_string(path).expect(<span class="string">&quot;{name} not found&quot;</span>);
         <span class="kw">let </span>allocator = Allocator::default();
         <span class="kw">let </span>source_type = SourceType::from_path(path).expect(<span class="string">&quot;incorrect {path:?}&quot;</span>);

@@ -41,6 +41,7 @@
 <a href="#41" id="41">41</a>
 <a href="#42" id="42">42</a>
 <a href="#43" id="43">43</a>
+<a href="#44" id="44">44</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
 <span class="kw">mod </span>walk;
 
@@ -63,6 +64,7 @@
         paths.par_iter().for_each(|path| {
             <span class="self">Self</span>::lint_path(path);
         });
+        <span class="macro">println!</span>(<span class="string">&quot;Checked {} files&quot;</span>, paths.len());
     }
 
     <span class="kw">fn </span>lint_path(path: <span class="kw-2">&amp;</span>Path) {

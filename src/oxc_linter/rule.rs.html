@@ -25,8 +25,6 @@
 <span class="kw">use crate</span>::{context::LintContext, AstNode};
 
 <span class="kw">pub trait </span>Rule: Sized + Default + Debug {
-    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
-
     <span class="doccomment">/// Initialize from eslint json configuration
     </span><span class="attr">#[must_use]
     </span><span class="kw">fn </span>from_configuration(_value: serde_json::Value) -&gt; <span class="self">Self </span>{
@@ -37,6 +35,8 @@
 }
 
 <span class="kw">pub trait </span>RuleMeta {
+    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+
     <span class="attr">#[must_use]
     </span><span class="kw">fn </span>documentation() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
         <span class="prelude-val">None

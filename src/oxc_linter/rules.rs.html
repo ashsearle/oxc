@@ -63,7 +63,7 @@
 <span class="kw">pub use </span>no_debugger::NoDebugger;
 <span class="kw">pub use </span>no_empty::NoEmpty;
 
-<span class="kw">use crate</span>::{context::LintContext, rule::Rule, AstNode};
+<span class="kw">use crate</span>::{context::LintContext, rule::Rule, rule::RuleMeta, AstNode};
 
 <span class="macro">lazy_static::lazy_static! </span>{
     <span class="kw">pub static </span><span class="kw-2">ref </span>RULES: Vec&lt;RuleEnum&gt; = <span class="macro">vec!</span>[

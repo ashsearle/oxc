@@ -143,6 +143,9 @@
 <a href="#143" id="143">143</a>
 <a href="#144" id="144">144</a>
 <a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
 </pre><pre class="rust"><code><span class="kw">use </span>clap::{builder::ValueParser, Arg, ArgAction, Command <span class="kw">as </span>ClapCommand};
 
 <span class="attr">#[derive(Debug)]
@@ -183,6 +186,12 @@
                 .help(<span class="string">&quot;This option allows you to disable reporting on warnings. If you enable this option, only errors are reported by oxc_lint.&quot;</span>)
             )
             .arg(
+                Arg::new(<span class="string">&quot;ignore-path&quot;</span>)
+                .long(<span class="string">&quot;ignore-path&quot;</span>)
+                .required(<span class="bool-val">false</span>)
+                .help(<span class="string">&quot;This option allows you to specify the file to use as your .eslintignore.&quot;</span>)
+            )
+            .arg(
                 Arg::new(<span class="string">&quot;ignore-pattern&quot;</span>)
                 .long(<span class="string">&quot;ignore-pattern&quot;</span>)
                 .required(<span class="bool-val">false</span>)
@@ -210,7 +219,16 @@
 </span><span class="kw">mod </span>test {
     <span class="kw">use </span>std::path::PathBuf;
 
+    <span class="kw">use </span>clap::ArgMatches;
+
     <span class="kw">use </span><span class="kw">super</span>::Command;
+
+    <span class="kw">fn </span>get_lint_matches(arg: <span class="kw-2">&amp;</span>str) -&gt; ArgMatches {
+        <span class="kw">let </span>matches = Command::new().build().try_get_matches_from(arg.split(<span class="string">&#39; &#39;</span>)).unwrap();
+        <span class="kw">let </span>matches = matches.subcommand_matches(<span class="string">&quot;lint&quot;</span>);
+        <span class="macro">assert!</span>(matches.is_some());
+        matches.unwrap().clone()
+    }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>verify_command() {
@@ -219,66 +237,54 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_lint_path() {
-        <span class="kw">let </span>arg = <span class="string">&quot;oxc lint .&quot;</span>;
-        <span class="kw">let </span>matches = Command::new().build().try_get_matches_from(arg.split(<span class="string">&#39; &#39;</span>)).unwrap();
-        <span class="kw">let </span>matches = matches.subcommand_matches(<span class="string">&quot;lint&quot;</span>);
-        <span class="macro">assert!</span>(matches.is_some());
-        <span class="macro">assert_eq!</span>(matches.unwrap().get_one::&lt;PathBuf&gt;(<span class="string">&quot;path&quot;</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>PathBuf::from(<span class="string">&quot;.&quot;</span>)));
+        <span class="kw">let </span>matches = get_lint_matches(<span class="string">&quot;oxc lint .&quot;</span>);
+        <span class="macro">assert_eq!</span>(matches.get_one::&lt;PathBuf&gt;(<span class="string">&quot;path&quot;</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>PathBuf::from(<span class="string">&quot;.&quot;</span>)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_lint_multiple_paths() {
-        <span class="kw">let </span>arg = <span class="string">&quot;oxc lint foo bar baz&quot;</span>;
-        <span class="kw">let </span>matches = Command::new().build().try_get_matches_from(arg.split(<span class="string">&#39; &#39;</span>)).unwrap();
-        <span class="kw">let </span>matches = matches.subcommand_matches(<span class="string">&quot;lint&quot;</span>);
-        <span class="macro">assert!</span>(matches.is_some());
+        <span class="kw">let </span>matches = get_lint_matches(<span class="string">&quot;oxc lint foo bar baz&quot;</span>);
         <span class="macro">assert_eq!</span>(
-            matches.unwrap().get_many::&lt;PathBuf&gt;(<span class="string">&quot;path&quot;</span>).unwrap().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+            matches.get_many::&lt;PathBuf&gt;(<span class="string">&quot;path&quot;</span>).unwrap().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
             [<span class="kw-2">&amp;</span>PathBuf::from(<span class="string">&quot;foo&quot;</span>), <span class="kw-2">&amp;</span>PathBuf::from(<span class="string">&quot;bar&quot;</span>), <span class="kw-2">&amp;</span>PathBuf::from(<span class="string">&quot;baz&quot;</span>)]
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_check_path() {
-        <span class="kw">let </span>arg = <span class="string">&quot;oxc check /path/to/dir&quot;</span>;
-        <span class="kw">let </span>matches = Command::new().build().try_get_matches_from(arg.split(<span class="string">&#39; &#39;</span>)).unwrap();
-        <span class="kw">let </span>matches = matches.subcommand_matches(<span class="string">&quot;lint&quot;</span>);
-        <span class="macro">assert!</span>(matches.is_some());
-        <span class="macro">assert_eq!</span>(
-            matches.unwrap().get_one::&lt;PathBuf&gt;(<span class="string">&quot;path&quot;</span>),
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>PathBuf::from(<span class="string">&quot;/path/to/dir&quot;</span>))
-        );
+        <span class="kw">let </span>matches = get_lint_matches(<span class="string">&quot;oxc check /path/to/dir&quot;</span>);
+        <span class="macro">assert_eq!</span>(matches.get_one::&lt;PathBuf&gt;(<span class="string">&quot;path&quot;</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>PathBuf::from(<span class="string">&quot;/path/to/dir&quot;</span>)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_quiet_true() {
-        <span class="kw">let </span>arg = <span class="string">&quot;oxc lint foo.js --quiet&quot;</span>;
-        <span class="kw">let </span>matches = Command::new().build().try_get_matches_from(arg.split(<span class="string">&#39; &#39;</span>)).unwrap();
-        <span class="kw">let </span>matches = matches.subcommand_matches(<span class="string">&quot;lint&quot;</span>);
-        <span class="macro">assert!</span>(matches.unwrap().get_flag(<span class="string">&quot;quiet&quot;</span>));
+        <span class="kw">let </span>matches = get_lint_matches(<span class="string">&quot;oxc lint foo.js --quiet&quot;</span>);
+        <span class="macro">assert!</span>(matches.get_flag(<span class="string">&quot;quiet&quot;</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_quiet_false() {
-        <span class="kw">let </span>arg = <span class="string">&quot;oxc lint foo.js&quot;</span>;
-        <span class="kw">let </span>matches = Command::new().build().try_get_matches_from(arg.split(<span class="string">&#39; &#39;</span>)).unwrap();
-        <span class="kw">let </span>matches = matches.subcommand_matches(<span class="string">&quot;lint&quot;</span>);
-        <span class="macro">assert!</span>(!matches.unwrap().get_flag(<span class="string">&quot;quiet&quot;</span>));
+        <span class="kw">let </span>matches = get_lint_matches(<span class="string">&quot;oxc lint foo.js&quot;</span>);
+        <span class="macro">assert!</span>(!matches.get_flag(<span class="string">&quot;quiet&quot;</span>));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_ignore_path() {
+        <span class="kw">let </span>matches = get_lint_matches(<span class="string">&quot;oxc lint --ignore-path .gitignore foo.js&quot;</span>);
+        <span class="macro">assert_eq!</span>(matches.get_one::&lt;String&gt;(<span class="string">&quot;ignore-path&quot;</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;.gitignore&quot;</span>.to_string()));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_single_ignore_pattern() {
-        <span class="kw">let </span>arg = <span class="string">&quot;oxc lint --ignore-pattern \&quot;./test\&quot; foo.js&quot;</span>;
-        <span class="kw">let </span>matches = Command::new().build().try_get_matches_from(arg.split(<span class="string">&#39; &#39;</span>)).unwrap();
-        <span class="kw">let </span>matches = matches.subcommand_matches(<span class="string">&quot;lint&quot;</span>).unwrap();
+        <span class="kw">let </span>matches = get_lint_matches(<span class="string">&quot;oxc lint --ignore-pattern \&quot;./test\&quot; foo.js&quot;</span>);
         <span class="macro">assert_eq!</span>(matches.get_one::&lt;String&gt;(<span class="string">&quot;ignore-pattern&quot;</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;\&quot;./test\&quot;&quot;</span>.to_string()));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_multiple_ignore_pattern() {
-        <span class="kw">let </span>arg = <span class="string">&quot;oxc lint --ignore-pattern \&quot;./test\&quot; --ignore-pattern \&quot;bar.js\&quot; foo.js&quot;</span>;
-        <span class="kw">let </span>matches = Command::new().build().try_get_matches_from(arg.split(<span class="string">&#39; &#39;</span>)).unwrap();
-        <span class="kw">let </span>matches = matches.subcommand_matches(<span class="string">&quot;lint&quot;</span>).unwrap();
+        <span class="kw">let </span>matches = get_lint_matches(
+            <span class="string">&quot;oxc lint --ignore-pattern \&quot;./test\&quot; --ignore-pattern \&quot;bar.js\&quot; foo.js&quot;</span>,
+        );
         <span class="kw">let </span>ignore_pattern = matches.get_many::&lt;String&gt;(<span class="string">&quot;ignore-pattern&quot;</span>).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>compare = <span class="macro">vec!</span>[];
         <span class="kw">for </span>pattern <span class="kw">in </span>ignore_pattern {

@@ -33,19 +33,23 @@
 <a href="#33" id="33">33</a>
 <a href="#34" id="34">34</a>
 <a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::path::Path;
 
 <span class="kw">use </span>ignore::{DirEntry, WalkBuilder};
 <span class="kw">use </span>oxc_ast::VALID_EXTENSIONS;
+
+<span class="kw">use </span><span class="kw">crate</span>::CliOptions;
 
 <span class="kw">pub struct </span>Walk {
     inner: ignore::Walk,
 }
 
 <span class="kw">impl </span>Walk {
-    <span class="kw">pub fn </span>new&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>new&lt;P: AsRef&lt;Path&gt;&gt;(path: P, options: <span class="kw-2">&amp;</span>CliOptions) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>inner = WalkBuilder::new(path)
-            .add_custom_ignore_filename(<span class="string">&quot;.eslintignore&quot;</span>)
+            .add_custom_ignore_filename(<span class="kw-2">&amp;</span>options.ignore_path)
             .ignore(<span class="bool-val">false</span>)
             .git_global(<span class="bool-val">false</span>)
             .build();

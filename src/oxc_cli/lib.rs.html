@@ -138,7 +138,7 @@
             .paths
             .iter()
             .flat_map(|path| {
-                Walk::new(path)
+                Walk::new(path, <span class="kw-2">&amp;</span><span class="self">self</span>.cli_options)
                     .iter()
                     .filter(|path| {
                         <span class="kw">let </span>ignore_pattern = <span class="kw-2">&amp;</span><span class="self">self</span>.cli_options.ignore_pattern;

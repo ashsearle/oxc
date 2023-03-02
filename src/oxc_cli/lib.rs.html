@@ -101,6 +101,13 @@
 <a href="#101" id="101">101</a>
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
 <span class="kw">mod </span>options;
 <span class="kw">mod </span>result;
@@ -162,7 +169,7 @@
             })
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-        <span class="kw">let </span>number_of_diagnostics = paths
+        <span class="kw">let </span>number_of_warnings = paths
             .par_iter()
             .map(|path| {
                 <span class="kw">let </span>diagnostics = <span class="self">Self</span>::lint_path(path);
@@ -182,7 +189,14 @@
             })
             .sum();
 
-        CliRunResult::LintResult { number_of_files: paths.len(), number_of_diagnostics }
+        CliRunResult::LintResult {
+            number_of_files: paths.len(),
+            number_of_warnings,
+            max_warnings_exceeded: <span class="self">self
+                </span>.cli_options
+                .max_warnings
+                .map_or(<span class="bool-val">false</span>, |max_warnings| number_of_warnings &gt; max_warnings),
+        }
     }
 
     <span class="kw">fn </span>lint_path(path: <span class="kw-2">&amp;</span>Path) -&gt; Vec&lt;Error&gt; {

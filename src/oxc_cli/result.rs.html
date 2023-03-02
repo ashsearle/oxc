@@ -31,6 +31,11 @@
 <a href="#31" id="31">31</a>
 <a href="#32" id="32">32</a>
 <a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
+<a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     path::PathBuf,
     process::{ExitCode, Termination},
@@ -40,7 +45,7 @@
 </span><span class="kw">pub enum </span>CliRunResult {
     <span class="prelude-val">None</span>,
     PathNotFound { paths: Vec&lt;PathBuf&gt; },
-    LintResult { number_of_files: usize, number_of_diagnostics: usize },
+    LintResult { number_of_files: usize, number_of_warnings: usize, max_warnings_exceeded: bool },
 }
 
 <span class="kw">impl </span>Termination <span class="kw">for </span>CliRunResult {
@@ -51,11 +56,16 @@
                 <span class="macro">println!</span>(<span class="string">&quot;Path {paths:?} does not exist.&quot;</span>);
                 ExitCode::from(<span class="number">1</span>)
             }
-            <span class="self">Self</span>::LintResult { number_of_files, number_of_diagnostics } =&gt; {
+            <span class="self">Self</span>::LintResult { number_of_files, number_of_warnings, max_warnings_exceeded } =&gt; {
                 <span class="macro">println!</span>(<span class="string">&quot;Checked {number_of_files} files.&quot;</span>);
 
+                <span class="kw">if </span>max_warnings_exceeded {
+                    <span class="macro">println!</span>(<span class="string">&quot;Exceeded maximum number of warnings. Found {number_of_warnings}.&quot;</span>);
+                    <span class="kw">return </span>ExitCode::from(<span class="number">1</span>);
+                }
+
                 <span class="kw">if </span>number_of_files &gt; <span class="number">0 </span>{
-                    <span class="macro">println!</span>(<span class="string">&quot;Found {number_of_diagnostics} diagnostics.&quot;</span>);
+                    <span class="macro">println!</span>(<span class="string">&quot;Found {number_of_warnings} diagnostics.&quot;</span>);
                     <span class="kw">return </span>ExitCode::from(<span class="number">1</span>);
                 }
 

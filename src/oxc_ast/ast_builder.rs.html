@@ -2435,7 +2435,7 @@
         pattern: BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt;,
         accessibility: <span class="prelude-ty">Option</span>&lt;TSAccessibility&gt;,
         readonly: bool,
-        decorators: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
+        decorators: Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; FormalParameter&lt;<span class="lifetime">&#39;a</span>&gt; {
         FormalParameter { span, pattern, accessibility, readonly, decorators }
     }
@@ -2497,7 +2497,7 @@
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         super_type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         implements: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Box&lt;<span class="lifetime">&#39;a</span>, TSClassImplements&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;&gt;,
-        decorators: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
+        decorators: Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, Class&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.alloc(Class {

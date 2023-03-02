@@ -2987,8 +2987,8 @@
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>accessibility: <span class="prelude-ty">Option</span>&lt;TSAccessibility&gt;,
     <span class="kw">pub </span>readonly: bool,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
-    </span><span class="kw">pub </span>decorators: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Vec::is_empty&quot;</span>)]
+    </span><span class="kw">pub </span>decorators: Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
 <span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -3064,8 +3064,8 @@
     </span><span class="kw">pub </span>super_type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>implements: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Box&lt;<span class="lifetime">&#39;a</span>, TSClassImplements&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
-    </span><span class="kw">pub </span>decorators: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Vec::is_empty&quot;</span>)]
+    </span><span class="kw">pub </span>decorators: Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="doccomment">/// Valid Modifiers: `export`, `abstract`
     </span><span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Modifiers::is_none&quot;</span>)]
     </span><span class="kw">pub </span>modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -3192,8 +3192,8 @@
     <span class="kw">pub </span>optional: bool,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>accessibility: <span class="prelude-ty">Option</span>&lt;TSAccessibility&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
-    </span><span class="kw">pub </span>decorators: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Vec::is_empty&quot;</span>)]
+    </span><span class="kw">pub </span>decorators: Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Hash)]
@@ -3215,8 +3215,8 @@
     </span><span class="kw">pub </span>type_annotation: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>accessibility: <span class="prelude-ty">Option</span>&lt;TSAccessibility&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
-    </span><span class="kw">pub </span>decorators: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Vec::is_empty&quot;</span>)]
+    </span><span class="kw">pub </span>decorators: Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
 <span class="attr">#[derive(Debug, Clone, Copy, Serialize, Eq, PartialEq, Hash)]

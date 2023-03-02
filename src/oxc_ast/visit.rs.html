@@ -1605,14 +1605,6 @@
 <a href="#1605" id="1605">1605</a>
 <a href="#1606" id="1606">1606</a>
 <a href="#1607" id="1607">1607</a>
-<a href="#1608" id="1608">1608</a>
-<a href="#1609" id="1609">1609</a>
-<a href="#1610" id="1610">1610</a>
-<a href="#1611" id="1611">1611</a>
-<a href="#1612" id="1612">1612</a>
-<a href="#1613" id="1613">1613</a>
-<a href="#1614" id="1614">1614</a>
-<a href="#1615" id="1615">1615</a>
 </pre><pre class="rust"><code><span class="doccomment">//! AST Visitor Pattern.
 //! See:
 //! * [visitor pattern](https://rust-unofficial.github.io/patterns/patterns/behavioural/visitor.html)
@@ -1954,10 +1946,8 @@
     <span class="kw">fn </span>visit_formal_parameter(<span class="kw-2">&amp;mut </span><span class="self">self</span>, param: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FormalParameter&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::FormalParameter(param);
         <span class="self">self</span>.enter_node(kind);
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(decorators) = <span class="kw-2">&amp;</span>param.decorators {
-            <span class="kw">for </span>decorator <span class="kw">in </span>decorators {
-                <span class="self">self</span>.visit_decorator(decorator);
-            }
+        <span class="kw">for </span>decorator <span class="kw">in </span><span class="kw-2">&amp;</span>param.decorators {
+            <span class="self">self</span>.visit_decorator(decorator);
         }
         <span class="self">self</span>.visit_pattern(<span class="kw-2">&amp;</span>param.pattern);
         <span class="self">self</span>.leave_node(kind);
@@ -1975,10 +1965,8 @@
     <span class="kw">fn </span>visit_class(<span class="kw-2">&amp;mut </span><span class="self">self</span>, class: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Class&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::Class(class);
         <span class="self">self</span>.enter_node(kind);
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(decorators) = <span class="kw-2">&amp;</span>class.decorators {
-            <span class="kw">for </span>decorator <span class="kw">in </span>decorators {
-                <span class="self">self</span>.visit_decorator(decorator);
-            }
+        <span class="kw">for </span>decorator <span class="kw">in </span><span class="kw-2">&amp;</span>class.decorators {
+            <span class="self">self</span>.visit_decorator(decorator);
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = <span class="kw-2">&amp;</span>class.id {
             <span class="self">self</span>.visit_binding_identifier(id);
@@ -2036,10 +2024,8 @@
     <span class="kw">fn </span>visit_method_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, def: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>MethodDefinition&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::MethodDefinition(def);
         <span class="self">self</span>.enter_node(kind);
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(decorators) = <span class="kw-2">&amp;</span>def.decorators {
-            <span class="kw">for </span>decorator <span class="kw">in </span>decorators {
-                <span class="self">self</span>.visit_decorator(decorator);
-            }
+        <span class="kw">for </span>decorator <span class="kw">in </span><span class="kw-2">&amp;</span>def.decorators {
+            <span class="self">self</span>.visit_decorator(decorator);
         }
         <span class="self">self</span>.visit_property_key(<span class="kw-2">&amp;</span>def.key);
         <span class="self">self</span>.visit_function(<span class="kw-2">&amp;</span>def.value);
@@ -2049,10 +2035,8 @@
     <span class="kw">fn </span>visit_property_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, def: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>PropertyDefinition&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = AstKind::PropertyDefinition(def);
         <span class="self">self</span>.enter_node(kind);
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(decorators) = <span class="kw-2">&amp;</span>def.decorators {
-            <span class="kw">for </span>decorator <span class="kw">in </span>decorators {
-                <span class="self">self</span>.visit_decorator(decorator);
-            }
+        <span class="kw">for </span>decorator <span class="kw">in </span><span class="kw-2">&amp;</span>def.decorators {
+            <span class="self">self</span>.visit_decorator(decorator);
         }
         <span class="self">self</span>.visit_property_key(<span class="kw-2">&amp;</span>def.key);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = <span class="kw-2">&amp;</span>def.value {

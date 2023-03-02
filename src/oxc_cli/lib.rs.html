@@ -97,6 +97,10 @@
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
 <span class="kw">mod </span>options;
 <span class="kw">mod </span>result;
@@ -141,6 +145,10 @@
                 Walk::new(path, <span class="kw-2">&amp;</span><span class="self">self</span>.cli_options)
                     .iter()
                     .filter(|path| {
+                        <span class="kw">if </span><span class="self">self</span>.cli_options.no_ignore {
+                            <span class="kw">return </span><span class="bool-val">true</span>;
+                        }
+
                         <span class="kw">let </span>ignore_pattern = <span class="kw-2">&amp;</span><span class="self">self</span>.cli_options.ignore_pattern;
                         <span class="kw">for </span>pattern <span class="kw">in </span>ignore_pattern {
                             <span class="kw">if </span>pattern.matches_path(path) {

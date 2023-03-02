@@ -255,7 +255,7 @@
             errors,
             token: Token::default(),
             prev_token_end: <span class="number">0</span>,
-            state: ParserState::default(),
+            state: ParserState::new(allocator),
             ctx: source_type.default_context(),
             ast: AstBuilder::new(allocator),
         }

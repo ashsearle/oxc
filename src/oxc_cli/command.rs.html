@@ -146,6 +146,19 @@
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
 </pre><pre class="rust"><code><span class="kw">use </span>clap::{builder::ValueParser, Arg, ArgAction, Command <span class="kw">as </span>ClapCommand};
 
 <span class="attr">#[derive(Debug)]
@@ -182,7 +195,7 @@
               Arg::new(<span class="string">&quot;quiet&quot;</span>)
                 .long(<span class="string">&quot;quiet&quot;</span>)
                 .required(<span class="bool-val">false</span>)
-                .action(clap::ArgAction::SetTrue)
+                .action(ArgAction::SetTrue)
                 .help(<span class="string">&quot;This option allows you to disable reporting on warnings. If you enable this option, only errors are reported by oxc_lint.&quot;</span>)
             )
             .arg(
@@ -190,6 +203,13 @@
                 .long(<span class="string">&quot;ignore-path&quot;</span>)
                 .required(<span class="bool-val">false</span>)
                 .help(<span class="string">&quot;This option allows you to specify the file to use as your .eslintignore.&quot;</span>)
+            )
+            .arg(
+                Arg::new(<span class="string">&quot;no-ignore&quot;</span>)
+                .long(<span class="string">&quot;no-ignore&quot;</span>)
+                .required(<span class="bool-val">false</span>)
+                .action(ArgAction::SetTrue)
+                .help(<span class="string">&quot;Disables excluding of files from .eslintignore files, --ignore-path flags, --ignore-pattern flags.&quot;</span>)
             )
             .arg(
                 Arg::new(<span class="string">&quot;ignore-pattern&quot;</span>)
@@ -272,6 +292,12 @@
     </span><span class="kw">fn </span>test_ignore_path() {
         <span class="kw">let </span>matches = get_lint_matches(<span class="string">&quot;oxc lint --ignore-path .gitignore foo.js&quot;</span>);
         <span class="macro">assert_eq!</span>(matches.get_one::&lt;String&gt;(<span class="string">&quot;ignore-path&quot;</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;.gitignore&quot;</span>.to_string()));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_no_ignore() {
+        <span class="kw">let </span>matches = get_lint_matches(<span class="string">&quot;oxc lint --no-ignore foo.js&quot;</span>);
+        <span class="macro">assert!</span>(matches.get_flag(<span class="string">&quot;no-ignore&quot;</span>));
     }
 
     <span class="attr">#[test]

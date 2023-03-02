@@ -15,21 +15,39 @@
 <a href="#15" id="15">15</a>
 <a href="#16" id="16">16</a>
 <a href="#17" id="17">17</a>
+<a href="#18" id="18">18</a>
+<a href="#19" id="19">19</a>
+<a href="#20" id="20">20</a>
+<a href="#21" id="21">21</a>
+<a href="#22" id="22">22</a>
+<a href="#23" id="23">23</a>
+<a href="#24" id="24">24</a>
+<a href="#25" id="25">25</a>
+<a href="#26" id="26">26</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
-<span class="kw">use </span>oxc_allocator::Vec;
+<span class="kw">use </span>oxc_allocator::{Allocator, Vec};
 <span class="kw">use </span>oxc_ast::ast::Decorator;
 
-<span class="attr">#[derive(Default)]
-</span><span class="kw">pub struct </span>ParserState&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">pub struct </span>ParserState&lt;<span class="lifetime">&#39;a</span>&gt; {
+    allocator: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Allocator,
+
     <span class="kw">pub </span>not_parenthesized_arrow: HashSet&lt;u32&gt;,
 
-    <span class="kw">pub </span>decorators: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
+    <span class="kw">pub </span>decorators: Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ParserState&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub fn </span>consume_decorators(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="self">self</span>.decorators.take()
+    <span class="kw">pub fn </span>new(allocator: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Allocator) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            allocator,
+            not_parenthesized_arrow: HashSet::new(),
+            decorators: Vec::new_in(allocator),
+        }
+    }
+
+    <span class="kw">pub fn </span>consume_decorators(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        std::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.decorators, Vec::new_in(<span class="self">self</span>.allocator))
     }
 }
 </code></pre></div>

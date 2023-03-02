@@ -52,6 +52,8 @@
 <a href="#52" id="52">52</a>
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::path::PathBuf;
 
 <span class="kw">use </span>clap::ArgMatches;
@@ -61,6 +63,7 @@
     <span class="kw">pub </span>quiet: bool,
     <span class="kw">pub </span>paths: Vec&lt;PathBuf&gt;,
     <span class="kw">pub </span>ignore_path: String,
+    <span class="kw">pub </span>no_ignore: bool,
     <span class="kw">pub </span>ignore_pattern: Vec&lt;Pattern&gt;,
 }
 
@@ -85,9 +88,10 @@
         }
 
         <span class="kw">let </span>ignore_path = get_ignore_path(matches);
+        <span class="kw">let </span>no_ignore = matches.get_flag(<span class="string">&quot;no-ignore&quot;</span>);
         <span class="kw">let </span>ignore_pattern = get_ignore_pattern(matches);
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ quiet: matches.get_flag(<span class="string">&quot;quiet&quot;</span>), paths, ignore_path, ignore_pattern })
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ quiet: matches.get_flag(<span class="string">&quot;quiet&quot;</span>), paths, ignore_path, no_ignore, ignore_pattern })
     }
 }
 

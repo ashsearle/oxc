@@ -101,8 +101,9 @@
 <a href="#101" id="101">101</a>
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
-<span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::StatementContext, GetSpan};
+<span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::StatementContext, GetSpan, Span};
 <span class="kw">use </span>oxc_diagnostics::Result;
 
 <span class="kw">use crate</span>::{diagnostics, lexer::Kind, Parser};
@@ -146,9 +147,10 @@
 
     <span class="kw">pub fn </span>parse_variable_declaration(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        start_span: Span,
         decl_ctx: VariableDeclarationContext,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, VariableDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>kind = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             Kind::Var =&gt; VariableDeclarationKind::Var,
             Kind::Const =&gt; VariableDeclarationKind::Const,
@@ -173,7 +175,7 @@
             <span class="self">self</span>.asi()<span class="question-mark">?</span>;
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.variable_declaration(<span class="self">self</span>.end_span(span), kind, declarations))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.variable_declaration(<span class="self">self</span>.end_span(start_span), kind, declarations, modifiers))
     }
 
     <span class="kw">fn </span>parse_variable_declarator(

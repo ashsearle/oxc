@@ -511,6 +511,101 @@
 <a href="#511" id="511">511</a>
 <a href="#512" id="512">512</a>
 <a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
 <span class="kw">use </span>oxc_ast::{
     ast::<span class="kw-2">*</span>,
@@ -519,7 +614,10 @@
 };
 <span class="kw">use </span>oxc_diagnostics::Result;
 
-<span class="kw">use </span><span class="kw">super</span>::list::{TSEnumMemberList, TSInterfaceOrObjectBodyList};
+<span class="kw">use super</span>::{
+    list::{TSEnumMemberList, TSInterfaceOrObjectBodyList},
+    types::ModifierFlags,
+};
 <span class="kw">use </span><span class="kw">crate</span>::js::declaration::{VariableDeclarationContext, VariableDeclarationParent};
 <span class="kw">use </span><span class="kw">crate</span>::js::function::FunctionKind;
 <span class="kw">use </span><span class="kw">crate</span>::lexer::Kind;
@@ -536,15 +634,14 @@
     <span class="doccomment">/// `https://www.typescriptlang.org/docs/handbook/enums.html`
     </span><span class="kw">pub fn </span>parse_ts_enum_declaration(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        declare: bool,
         span: Span,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Declaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>r#const = <span class="self">self</span>.eat(Kind::Const);
         <span class="self">self</span>.expect(Kind::Enum)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>id = <span class="self">self</span>.parse_binding_identifier()<span class="question-mark">?</span>;
         <span class="kw">let </span>members = TSEnumMemberList::parse(<span class="self">self</span>)<span class="question-mark">?</span>.members;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_enum_declaration(span, id, members, declare, r#const))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_enum_declaration(span, id, members, modifiers))
     }
 
     <span class="kw">pub fn </span>parse_ts_enum_member(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TSEnumMember&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -605,8 +702,8 @@
 
     <span class="kw">pub fn </span>parse_ts_type_alias_declaration(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        declare: bool,
         span: Span,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Declaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.expect(Kind::Type)<span class="question-mark">?</span>;
 
@@ -617,15 +714,15 @@
         <span class="kw">let </span>annotation = <span class="self">self</span>.parse_ts_type()<span class="question-mark">?</span>;
 
         <span class="self">self</span>.asi()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_alias_declaration(span, id, annotation, params, declare))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_type_alias_declaration(span, id, annotation, params, modifiers))
     }
 
     <span class="doccomment">/** ---------------------  Interface  ------------------------ */
 
     </span><span class="kw">pub fn </span>parse_ts_interface_declaration(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        declare: bool,
         span: Span,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Declaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.expect(Kind::Interface)<span class="question-mark">?</span>; <span class="comment">// bump interface
         </span><span class="kw">let </span>id = <span class="self">self</span>.parse_binding_identifier()<span class="question-mark">?</span>;
@@ -639,7 +736,7 @@
             body,
             type_parameters,
             extends,
-            declare,
+            modifiers,
         ))
     }
 
@@ -749,23 +846,13 @@
     }
 
     <span class="kw">fn </span>parse_ts_module_item(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">match </span><span class="self">self</span>.cur_kind() {
-            Kind::Import <span class="kw">if </span>!<span class="macro">matches!</span>(<span class="self">self</span>.peek_kind(), Kind::Dot | Kind::LParen) =&gt; {
-                <span class="self">self</span>.parse_import_declaration()
-            }
-            Kind::Export =&gt; <span class="self">self</span>.parse_export_declaration(),
-            Kind::At =&gt; {
-                <span class="self">self</span>.eat_decorators()<span class="question-mark">?</span>;
-                <span class="self">self</span>.parse_ts_module_item()
-            }
-            <span class="kw">_ </span>=&gt; <span class="self">self</span>.parse_statement_list_item(StatementContext::StatementList),
-        }
+        <span class="self">self</span>.parse_statement_list_item(StatementContext::StatementList)
     }
 
     <span class="kw">pub fn </span>parse_ts_namespace_or_module_declaration_body(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         span: Span,
-        declare: bool,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSModuleDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
         <span class="kw">let </span>id = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             Kind::Str =&gt; <span class="self">self</span>.parse_literal_string().map(TSModuleDeclarationName::StringLiteral),
@@ -774,7 +861,8 @@
 
         <span class="kw">let </span>body = <span class="kw">if </span><span class="self">self</span>.eat(Kind::Dot) {
             <span class="kw">let </span>span = <span class="self">self</span>.start_span();
-            <span class="kw">let </span>decl = <span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(span, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
+            <span class="kw">let </span>decl =
+                <span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(span, Modifiers::empty())<span class="question-mark">?</span>;
             TSModuleDeclarationBody::TSModuleDeclaration(decl)
         } <span class="kw">else </span>{
             <span class="kw">let </span>block = <span class="self">self</span>.parse_ts_module_block()<span class="question-mark">?</span>;
@@ -782,34 +870,24 @@
             TSModuleDeclarationBody::TSModuleBlock(block)
         };
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_module_declaration(<span class="self">self</span>.end_span(span), id, body, declare))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.ts_module_declaration(<span class="self">self</span>.end_span(span), id, body, modifiers))
     }
 
     <span class="kw">pub fn </span>parse_ts_namespace_or_module_declaration(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        declare: bool,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSModuleDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
         <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.expect(Kind::Namespace).or_else(|<span class="kw">_</span>| <span class="self">self</span>.expect(Kind::Module))<span class="question-mark">?</span>;
-        <span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(span, declare)
+        <span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(span, modifiers)
     }
 
-    <span class="kw">pub fn </span>parse_ts_global_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSModuleDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
-        <span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(span, <span class="bool-val">false</span>)
-    }
-
-    <span class="kw">pub fn </span>parse_ts_namespace_or_module_statement(
+    <span class="kw">pub fn </span>parse_ts_global_declaration(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        declare: bool,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.parse_ts_namespace_or_module_declaration(declare)
-            .map(|decl| Statement::Declaration(Declaration::TSModuleDeclaration(decl)))
-    }
-
-    <span class="kw">pub fn </span>parse_ts_global_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.parse_ts_global_declaration()
-            .map(|decl| Statement::Declaration(Declaration::TSModuleDeclaration(decl)))
+        start_span: Span,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSModuleDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
+        <span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(start_span, modifiers)
     }
 
     <span class="kw">pub fn </span>is_nth_at_ts_namespace_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: u8) -&gt; bool {
@@ -870,75 +948,84 @@
     </span>}
 
     <span class="kw">pub fn </span>parse_ts_declaration_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>declaration = <span class="self">self</span>.parse_declaration_clause()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(Statement::Declaration(declaration))
+        <span class="kw">let </span>reserved_ctx = <span class="self">self</span>.ctx;
+        <span class="kw">let </span>start_span = <span class="self">self</span>.start_span();
+        <span class="kw">let </span>(flags, modifiers) = <span class="self">self</span>.eat_modifiers_before_declaration();
+        <span class="kw">let </span>declare = flags.declare();
+        <span class="kw">let </span>r#async = flags.r#async();
+        <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_ambient(declare).and_await(r#async);
+
+        <span class="kw">let </span>result = <span class="self">self</span>.parse_declaration(start_span, modifiers);
+
+        <span class="self">self</span>.ctx = reserved_ctx;
+        result.map(Statement::Declaration)
     }
 
-    <span class="kw">pub fn </span>parse_declaration_clause(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Declaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>has_ambient = <span class="self">self</span>.ctx.has_ambient();
-
-        <span class="kw">let </span>declare = <span class="self">self</span>.eat(Kind::Declare);
-        <span class="kw">if </span>declare {
-            <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_ambient(<span class="bool-val">true</span>);
-        }
-
-        <span class="kw">let </span>start_span = <span class="self">self</span>.start_span();
-
-        <span class="kw">let </span>result = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
+    <span class="kw">pub fn </span>parse_declaration(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        start_span: Span,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Declaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             Kind::Namespace | Kind::Module =&gt; <span class="self">self
-                </span>.parse_ts_namespace_or_module_declaration(declare)
+                </span>.parse_ts_namespace_or_module_declaration(modifiers)
                 .map(Declaration::TSModuleDeclaration),
             Kind::Global =&gt; {
                 <span class="kw">let </span>decl = <span class="kw">if </span><span class="self">self</span>.peek_at(Kind::LCurly) {
                     <span class="comment">// valid syntax for
                     // declare global { }
-                    </span><span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(start_span, declare)
+                    </span><span class="self">self</span>.parse_ts_namespace_or_module_declaration_body(start_span, modifiers)
                 } <span class="kw">else </span>{
-                    <span class="self">self</span>.parse_ts_global_declaration()
+                    <span class="self">self</span>.parse_ts_global_declaration(start_span, modifiers)
                 }<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(Declaration::TSModuleDeclaration(decl))
             }
-            Kind::Type =&gt; <span class="self">self</span>.parse_ts_type_alias_declaration(declare, start_span),
-            Kind::Const | Kind::Enum <span class="kw">if </span><span class="self">self</span>.is_at_enum_declaration() =&gt; {
-                <span class="self">self</span>.parse_ts_enum_declaration(declare, start_span)
-            }
+            Kind::Type =&gt; <span class="self">self</span>.parse_ts_type_alias_declaration(start_span, modifiers),
+            Kind::Enum =&gt; <span class="self">self</span>.parse_ts_enum_declaration(start_span, modifiers),
             Kind::Interface <span class="kw">if </span><span class="self">self</span>.is_at_interface_declaration() =&gt; {
-                <span class="self">self</span>.parse_ts_interface_declaration(declare, start_span)
+                <span class="self">self</span>.parse_ts_interface_declaration(start_span, modifiers)
             }
-            Kind::Class | Kind::Abstract =&gt; {
-                <span class="self">self</span>.parse_class_declaration(declare).map(Declaration::ClassDeclaration)
-            }
+            Kind::Class =&gt; <span class="self">self
+                </span>.parse_class_declaration(start_span, modifiers)
+                .map(Declaration::ClassDeclaration),
             Kind::Import =&gt; {
                 <span class="self">self</span>.bump_any();
                 <span class="self">self</span>.parse_ts_import_equals_declaration(start_span, <span class="bool-val">true</span>)
             }
             kind <span class="kw">if </span>kind.is_variable_declaration() =&gt; <span class="self">self
-                </span>.parse_variable_declaration(VariableDeclarationContext::new(
-                    VariableDeclarationParent::Clause,
-                ))
+                </span>.parse_variable_declaration(
+                    start_span,
+                    VariableDeclarationContext::new(VariableDeclarationParent::Clause),
+                    modifiers,
+                )
                 .map(Declaration::VariableDeclaration),
             <span class="kw">_ if </span><span class="self">self</span>.at_function_with_async() =&gt; {
+                <span class="kw">let </span>declare = modifiers.contains(ModifierKind::Declare);
                 <span class="kw">if </span>declare {
-                    <span class="self">self</span>.parse_ts_declare_function().map(Declaration::FunctionDeclaration)
+                    <span class="self">self</span>.parse_ts_declare_function(start_span, modifiers)
+                        .map(Declaration::FunctionDeclaration)
+                } <span class="kw">else if </span><span class="self">self</span>.ts_enabled() {
+                    <span class="self">self</span>.parse_ts_function_impl(start_span, FunctionKind::TSDeclaration, modifiers)
+                        .map(Declaration::FunctionDeclaration)
                 } <span class="kw">else </span>{
                     <span class="self">self</span>.parse_function_impl(FunctionKind::Declaration { single_statement: <span class="bool-val">true </span>})
                         .map(Declaration::FunctionDeclaration)
                 }
             }
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.unexpected(),
-        };
-
-        <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_ambient(has_ambient);
-        result
+        }
     }
 
-    <span class="kw">pub fn </span>parse_ts_declare_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, Function&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
-        <span class="kw">let </span>r#async = <span class="self">self</span>.eat(Kind::Async);
+    <span class="kw">pub fn </span>parse_ts_declare_function(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        start_span: Span,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, Function&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
+        <span class="kw">let </span>r#async = modifiers.contains(ModifierKind::Async);
         <span class="self">self</span>.expect(Kind::Function)<span class="question-mark">?</span>;
         <span class="kw">let </span>func_kind = FunctionKind::TSDeclaration;
         <span class="kw">let </span>id = <span class="self">self</span>.parse_function_id(func_kind, r#async, <span class="bool-val">false</span>);
-        <span class="self">self</span>.parse_function(span, id, r#async, <span class="bool-val">false</span>, func_kind)
+        <span class="self">self</span>.parse_function(start_span, id, r#async, <span class="bool-val">false</span>, func_kind, modifiers)
     }
 
     <span class="kw">pub fn </span>parse_ts_type_assertion(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
@@ -1022,6 +1109,109 @@
         </span><span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>expr = <span class="self">self</span>.with_context(Context::Decorator, <span class="self">Self</span>::parse_lhs_expression)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.decorator(<span class="self">self</span>.end_span(span), expr))
+    }
+
+    <span class="kw">pub fn </span>eat_modifiers_before_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; (ModifierFlags, Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;) {
+        <span class="kw">let </span><span class="kw-2">mut </span>flags = ModifierFlags::empty();
+        <span class="kw">let </span><span class="kw-2">mut </span>modifiers = <span class="self">self</span>.ast.new_vec();
+        <span class="kw">while </span><span class="self">self</span>.at_modifier() {
+            <span class="kw">let </span>span = <span class="self">self</span>.start_span();
+            <span class="kw">let </span>modifier_flag = <span class="self">self</span>.cur_kind().into();
+            flags.set(modifier_flag, <span class="bool-val">true</span>);
+            <span class="kw">let </span>kind = <span class="self">self</span>.cur_kind();
+            <span class="self">self</span>.bump_any();
+            modifiers.push(<span class="self">Self</span>::modifier(kind, <span class="self">self</span>.end_span(span)));
+        }
+
+        (flags, Modifiers(<span class="prelude-val">Some</span>(modifiers)))
+    }
+
+    <span class="kw">fn </span>at_modifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.lookahead(<span class="self">Self</span>::at_modifier_worker)
+    }
+
+    <span class="kw">fn </span>at_modifier_worker(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">if </span>!<span class="self">self</span>.cur_kind().is_modifier_kind() {
+            <span class="kw">return </span><span class="bool-val">false</span>;
+        }
+
+        <span class="kw">match </span><span class="self">self</span>.cur_kind() {
+            Kind::Const =&gt; !<span class="self">self</span>.peek_token().is_on_new_line &amp;&amp; <span class="self">self</span>.peek_kind() == Kind::Enum,
+            Kind::Export =&gt; {
+                <span class="self">self</span>.bump_any();
+                <span class="kw">match </span><span class="self">self</span>.cur_kind() {
+                    Kind::Default =&gt; {
+                        <span class="self">self</span>.bump_any();
+                        <span class="self">self</span>.can_follow_default()
+                    }
+                    Kind::Type =&gt; {
+                        <span class="self">self</span>.bump_any();
+                        <span class="self">self</span>.can_follow_export()
+                    }
+                    <span class="kw">_ </span>=&gt; <span class="self">self</span>.can_follow_export(),
+                }
+            }
+            Kind::Default =&gt; {
+                <span class="self">self</span>.bump_any();
+                <span class="self">self</span>.can_follow_default()
+            }
+            Kind::Accessor | Kind::Static | Kind::Get | Kind::Set =&gt; {
+                <span class="comment">// These modifiers can cross line.
+                </span><span class="self">self</span>.bump_any();
+                <span class="self">Self</span>::can_follow_modifier(<span class="self">self</span>.cur_kind())
+            }
+            <span class="comment">// Rest modifiers cannot cross line
+            </span><span class="kw">_ </span>=&gt; {
+                <span class="self">self</span>.bump_any();
+                <span class="self">Self</span>::can_follow_modifier(<span class="self">self</span>.cur_kind()) &amp;&amp; !<span class="self">self</span>.cur_token().is_on_new_line
+            }
+        }
+    }
+
+    <span class="kw">fn </span>can_follow_default(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">let </span>at_declaration =
+            <span class="macro">matches!</span>(<span class="self">self</span>.cur_kind(), Kind::Class | Kind::Function | Kind::Interface);
+        <span class="kw">let </span>at_abstract_declaration = <span class="self">self</span>.at(Kind::Abstract)
+            &amp;&amp; <span class="self">self</span>.peek_at(Kind::Class)
+            &amp;&amp; !<span class="self">self</span>.peek_token().is_on_new_line;
+        <span class="kw">let </span>at_async_function = <span class="self">self</span>.at(Kind::Async)
+            &amp;&amp; <span class="self">self</span>.peek_at(Kind::Function)
+            &amp;&amp; !<span class="self">self</span>.peek_token().is_on_new_line;
+        at_declaration | at_abstract_declaration | at_async_function
+    }
+
+    <span class="kw">fn </span>can_follow_export(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
+        <span class="comment">// Note that the `export` in export assignment is not a modifier
+        // and are handled explicitly in the parser.
+        </span>!<span class="macro">matches!</span>(<span class="self">self</span>.cur_kind(), Kind::Star | Kind::As | Kind::LCurly)
+            &amp;&amp; <span class="self">Self</span>::can_follow_modifier(<span class="self">self</span>.cur_kind())
+    }
+
+    <span class="kw">fn </span>can_follow_modifier(kind: Kind) -&gt; bool {
+        kind.is_literal_property_name()
+            || <span class="macro">matches!</span>(kind, Kind::LCurly | Kind::LBrack | Kind::Star | Kind::Dot3)
+    }
+
+    <span class="kw">fn </span>modifier(kind: Kind, span: Span) -&gt; Modifier {
+        <span class="kw">let </span>modifier_kind = <span class="kw">match </span>kind {
+            Kind::Abstract =&gt; ModifierKind::Abstract,
+            Kind::Declare =&gt; ModifierKind::Declare,
+            Kind::Private =&gt; ModifierKind::Private,
+            Kind::Protected =&gt; ModifierKind::Protected,
+            Kind::Public =&gt; ModifierKind::Public,
+            Kind::Static =&gt; ModifierKind::Static,
+            Kind::Readonly =&gt; ModifierKind::Readonly,
+            Kind::Override =&gt; ModifierKind::Override,
+            Kind::Async =&gt; ModifierKind::Async,
+            Kind::Const =&gt; ModifierKind::Const,
+            Kind::In =&gt; ModifierKind::In,
+            Kind::Out =&gt; ModifierKind::Out,
+            Kind::Export =&gt; ModifierKind::Export,
+            Kind::Default =&gt; ModifierKind::Default,
+            Kind::Accessor =&gt; ModifierKind::Accessor,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
+        };
+        Modifier { span, kind: modifier_kind }
     }
 }
 </code></pre></div>

@@ -1725,6 +1725,17 @@
 <a href="#1725" id="1725">1725</a>
 <a href="#1726" id="1726">1726</a>
 <a href="#1727" id="1727">1727</a>
+<a href="#1728" id="1728">1728</a>
+<a href="#1729" id="1729">1729</a>
+<a href="#1730" id="1730">1730</a>
+<a href="#1731" id="1731">1731</a>
+<a href="#1732" id="1732">1732</a>
+<a href="#1733" id="1733">1733</a>
+<a href="#1734" id="1734">1734</a>
+<a href="#1735" id="1735">1735</a>
+<a href="#1736" id="1736">1736</a>
+<a href="#1737" id="1737">1737</a>
+<a href="#1738" id="1738">1738</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::fmt::Display;
 
 <span class="kw">use </span>oxc_allocator::{Box, Vec};
@@ -2567,7 +2578,7 @@
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::VariableDeclaration(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
             <span class="self">Self</span>::FunctionDeclaration(func) =&gt; func.is_typescript_syntax(),
-            <span class="self">Self</span>::ClassDeclaration(class) =&gt; class.declare,
+            <span class="self">Self</span>::ClassDeclaration(class) =&gt; class.is_declare(),
             <span class="kw">_ </span>=&gt; <span class="bool-val">true</span>,
         }
     }
@@ -2575,12 +2586,15 @@
 
 <span class="doccomment">/// Section 14.3.2 Variable Declaration
 </span><span class="attr">#[derive(Debug, Serialize, PartialEq, Hash)]
-#[serde(tag = <span class="string">&quot;type&quot;</span>)]
+#[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;camelCase&quot;</span>)]
 </span><span class="kw">pub struct </span>VariableDeclaration&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[serde(flatten)]
     </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>kind: VariableDeclarationKind,
     <span class="kw">pub </span>declarations: Vec&lt;<span class="lifetime">&#39;a</span>, VariableDeclarator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    <span class="doccomment">/// Valid Modifiers: `export`, `declare`
+    </span><span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Modifiers::is_none&quot;</span>)]
+    </span><span class="kw">pub </span>modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
 <span class="attr">#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq, Hash)]
@@ -2914,17 +2928,19 @@
     <span class="kw">pub </span>params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>body: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, FunctionBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-    <span class="kw">pub </span>declare: bool,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    <span class="doccomment">/// Valid modifiers: `export`, `default`, `async`
+    </span><span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Modifiers::is_none&quot;</span>)]
+    </span><span class="kw">pub </span>modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Function&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_typescript_syntax(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.declare || <span class="self">self</span>.body.is_none()
+    </span><span class="kw">pub fn </span>is_typescript_syntax(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.modifiers.contains(ModifierKind::Declare) || <span class="self">self</span>.body.is_none()
     }
 
     <span class="attr">#[must_use]
@@ -3048,10 +3064,11 @@
     </span><span class="kw">pub </span>super_type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>implements: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Box&lt;<span class="lifetime">&#39;a</span>, TSClassImplements&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;&gt;,
-    <span class="kw">pub </span>r#abstract: bool,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>decorators: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-    <span class="kw">pub </span>declare: bool,
+    <span class="doccomment">/// Valid Modifiers: `export`, `abstract`
+    </span><span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Modifiers::is_none&quot;</span>)]
+    </span><span class="kw">pub </span>modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Class&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -3063,6 +3080,11 @@
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>is_declaration(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.r#type == ClassType::ClassDeclaration
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>is_declare(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.modifiers.contains(ModifierKind::Declare)
     }
 }
 

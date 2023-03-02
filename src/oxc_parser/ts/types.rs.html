@@ -1069,6 +1069,35 @@
 <a href="#1069" id="1069">1069</a>
 <a href="#1070" id="1070">1070</a>
 <a href="#1071" id="1071">1071</a>
+<a href="#1072" id="1072">1072</a>
+<a href="#1073" id="1073">1073</a>
+<a href="#1074" id="1074">1074</a>
+<a href="#1075" id="1075">1075</a>
+<a href="#1076" id="1076">1076</a>
+<a href="#1077" id="1077">1077</a>
+<a href="#1078" id="1078">1078</a>
+<a href="#1079" id="1079">1079</a>
+<a href="#1080" id="1080">1080</a>
+<a href="#1081" id="1081">1081</a>
+<a href="#1082" id="1082">1082</a>
+<a href="#1083" id="1083">1083</a>
+<a href="#1084" id="1084">1084</a>
+<a href="#1085" id="1085">1085</a>
+<a href="#1086" id="1086">1086</a>
+<a href="#1087" id="1087">1087</a>
+<a href="#1088" id="1088">1088</a>
+<a href="#1089" id="1089">1089</a>
+<a href="#1090" id="1090">1090</a>
+<a href="#1091" id="1091">1091</a>
+<a href="#1092" id="1092">1092</a>
+<a href="#1093" id="1093">1093</a>
+<a href="#1094" id="1094">1094</a>
+<a href="#1095" id="1095">1095</a>
+<a href="#1096" id="1096">1096</a>
+<a href="#1097" id="1097">1097</a>
+<a href="#1098" id="1098">1098</a>
+<a href="#1099" id="1099">1099</a>
+<a href="#1100" id="1100">1100</a>
 </pre><pre class="rust"><code><span class="kw">use </span>bitflags::bitflags;
 <span class="kw">use </span>oxc_allocator::{Box, Vec};
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::Context};
@@ -1086,10 +1115,10 @@
 };
 
 <span class="macro">bitflags! </span>{
-  <span class="doccomment">/// Bitflag of class member modifiers.
+  <span class="doccomment">/// Bitflag of modifiers and contextual modifiers.
   /// Useful to cheaply track all already seen modifiers of a member (instead of using a HashSet&lt;ModifierKind&gt;).
   </span><span class="attr">#[derive(Default)]
-  </span><span class="kw">pub struct </span>ModifierFlags: u8 {
+  </span><span class="kw">pub struct </span>ModifierFlags: u16 {
       <span class="kw">const </span>DECLARE       = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>;
       <span class="kw">const </span>PRIVATE       = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>;
       <span class="kw">const </span>PROTECTED     = <span class="number">1 </span>&lt;&lt; <span class="number">2</span>;
@@ -1098,8 +1127,41 @@
       <span class="kw">const </span>READONLY      = <span class="number">1 </span>&lt;&lt; <span class="number">5</span>;
       <span class="kw">const </span>ABSTRACT      = <span class="number">1 </span>&lt;&lt; <span class="number">6</span>;
       <span class="kw">const </span>OVERRIDE      = <span class="number">1 </span>&lt;&lt; <span class="number">7</span>;
+      <span class="kw">const </span>ASYNC         = <span class="number">1 </span>&lt;&lt; <span class="number">8</span>;
+      <span class="kw">const </span>CONST         = <span class="number">1 </span>&lt;&lt; <span class="number">9</span>;
+      <span class="kw">const </span>IN            = <span class="number">1 </span>&lt;&lt; <span class="number">10</span>;
+      <span class="kw">const </span>OUT           = <span class="number">1 </span>&lt;&lt; <span class="number">11</span>;
+      <span class="kw">const </span>EXPORT        = <span class="number">1 </span>&lt;&lt; <span class="number">12</span>;
+      <span class="kw">const </span>DEFAULT       = <span class="number">1 </span>&lt;&lt; <span class="number">13</span>;
+      <span class="kw">const </span>ACCESSOR      = <span class="number">1 </span>&lt;&lt; <span class="number">14</span>;
       <span class="kw">const </span>ACCESSIBILITY = <span class="self">Self</span>::PRIVATE.bits | <span class="self">Self</span>::PROTECTED.bits | <span class="self">Self</span>::PUBLIC.bits;
   }
+}
+
+<span class="doccomment">/// It is the caller&#39;s savety to always check by `Kind::is_modifier_kind`
+/// before converting [`Kind`] to [`ModifierFlags`] so that we can assume here that
+/// the convertion always succeeds.
+</span><span class="kw">impl </span>From&lt;Kind&gt; <span class="kw">for </span>ModifierFlags {
+    <span class="kw">fn </span>from(value: Kind) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>value {
+            Kind::Abstract =&gt; <span class="self">Self</span>::ABSTRACT,
+            Kind::Declare =&gt; <span class="self">Self</span>::DECLARE,
+            Kind::Private =&gt; <span class="self">Self</span>::PRIVATE,
+            Kind::Protected =&gt; <span class="self">Self</span>::PROTECTED,
+            Kind::Public =&gt; <span class="self">Self</span>::PUBLIC,
+            Kind::Static =&gt; <span class="self">Self</span>::STATIC,
+            Kind::Readonly =&gt; <span class="self">Self</span>::READONLY,
+            Kind::Override =&gt; <span class="self">Self</span>::OVERRIDE,
+            Kind::Async =&gt; <span class="self">Self</span>::ASYNC,
+            Kind::Const =&gt; <span class="self">Self</span>::CONST,
+            Kind::In =&gt; <span class="self">Self</span>::IN,
+            Kind::Out =&gt; <span class="self">Self</span>::OUT,
+            Kind::Export =&gt; <span class="self">Self</span>::EXPORT,
+            Kind::Default =&gt; <span class="self">Self</span>::DEFAULT,
+            Kind::Accessor =&gt; <span class="self">Self</span>::ACCESSOR,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
+        }
+    }
 }
 
 <span class="kw">impl </span>ModifierFlags {
@@ -1123,6 +1185,10 @@
 
     <span class="kw">pub const fn </span>declare(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.contains(<span class="self">Self</span>::DECLARE)
+    }
+
+    <span class="kw">pub const fn </span>r#async(<span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.contains(<span class="self">Self</span>::ASYNC)
     }
 
     <span class="kw">pub const fn </span>r#override(<span class="self">self</span>) -&gt; bool {
@@ -2105,19 +2171,11 @@
                 <span class="kw">break</span>;
             }
 
-            <span class="kw">let </span>modifier_flag = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
-                Kind::Private =&gt; ModifierFlags::PRIVATE,
-                Kind::Protected =&gt; ModifierFlags::PROTECTED,
-                Kind::Public =&gt; ModifierFlags::PUBLIC,
-                Kind::Static =&gt; ModifierFlags::STATIC,
-                Kind::Abstract =&gt; ModifierFlags::ABSTRACT,
-                Kind::Readonly =&gt; ModifierFlags::READONLY,
-                Kind::Declare =&gt; ModifierFlags::DECLARE,
-                Kind::Override =&gt; ModifierFlags::OVERRIDE,
-                <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
-            };
-
-            flags.set(modifier_flag, <span class="bool-val">true</span>);
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(modifier_flag) = <span class="self">self</span>.cur_kind().try_into() {
+                flags.set(modifier_flag, <span class="bool-val">true</span>);
+            } <span class="kw">else </span>{
+                <span class="kw">break</span>;
+            }
 
             <span class="self">self</span>.bump_any();
         }

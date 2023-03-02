@@ -419,6 +419,7 @@
 <a href="#419" id="419">419</a>
 <a href="#420" id="420">420</a>
 <a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::{Box, Vec};
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::Context, Span};
 <span class="kw">use </span>oxc_diagnostics::Result;
@@ -692,8 +693,14 @@
         <span class="comment">// For tc39/proposal-decorators
         // For more information, please refer to https://babeljs.io/docs/babel-plugin-proposal-decorators#decoratorsbeforeexport
         </span><span class="self">self</span>.eat_decorators()<span class="question-mark">?</span>;
+        <span class="kw">let </span>start_span = <span class="self">self</span>.start_span();
+        <span class="kw">let </span>modifiers = <span class="kw">if </span><span class="self">self</span>.ts_enabled() {
+            <span class="self">self</span>.eat_modifiers_before_declaration().<span class="number">1
+        </span>} <span class="kw">else </span>{
+            Modifiers::empty()
+        };
 
-        <span class="kw">let </span>declaration = <span class="self">self</span>.parse_declaration_clause()<span class="question-mark">?</span>;
+        <span class="kw">let </span>declaration = <span class="self">self</span>.parse_declaration(start_span, modifiers)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.export_named_declaration(<span class="prelude-val">Some</span>(declaration), <span class="self">self</span>.ast.new_vec(), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>))
     }
 
@@ -704,36 +711,31 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, ExportDefaultDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
         <span class="kw">let </span>exported = <span class="self">self</span>.parse_keyword_identifier(Kind::Default);
+        <span class="kw">let </span>start_span = <span class="self">self</span>.start_span();
         <span class="comment">// For tc39/proposal-decorators
         // For more information, please refer to https://babeljs.io/docs/babel-plugin-proposal-decorators#decoratorsbeforeexport
         </span><span class="self">self</span>.eat_decorators()<span class="question-mark">?</span>;
         <span class="kw">let </span>declaration = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             Kind::Class =&gt; <span class="self">self
-                </span>.parse_class_declaration(<span class="comment">/* declare */ </span><span class="bool-val">false</span>)
+                </span>.parse_class_declaration(start_span, <span class="comment">/* modifiers */ </span>Modifiers::empty())
                 .map(ExportDefaultDeclarationKind::ClassDeclaration)<span class="question-mark">?</span>,
             <span class="kw">_ if </span><span class="self">self</span>.at(Kind::Abstract) &amp;&amp; <span class="self">self</span>.peek_at(Kind::Class) &amp;&amp; <span class="self">self</span>.ts_enabled() =&gt; {
-                <span class="self">self</span>.parse_class_declaration(<span class="comment">/* declare */ </span><span class="bool-val">false</span>)
+                <span class="comment">// eat the abstract modifier
+                </span><span class="kw">let </span>(<span class="kw">_</span>, modifiers) = <span class="self">self</span>.eat_modifiers_before_declaration();
+                <span class="self">self</span>.parse_class_declaration(start_span, modifiers)
                     .map(ExportDefaultDeclarationKind::ClassDeclaration)<span class="question-mark">?
             </span>}
             <span class="kw">_ if </span><span class="self">self</span>.at(Kind::Interface)
                 &amp;&amp; !<span class="self">self</span>.peek_token().is_on_new_line
                 &amp;&amp; <span class="self">self</span>.ts_enabled() =&gt;
             {
-                <span class="self">self</span>.parse_ts_interface_declaration(<span class="bool-val">false</span>, <span class="self">self</span>.start_span()).map(
-                    |decl| <span class="kw">match </span>decl {
+                <span class="self">self</span>.parse_ts_interface_declaration(start_span, Modifiers::empty()).map(|decl| {
+                    <span class="kw">match </span>decl {
                         Declaration::TSInterfaceDeclaration(decl) =&gt; {
                             ExportDefaultDeclarationKind::TSInterfaceDeclaration(decl)
                         }
                         <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
-                    },
-                )<span class="question-mark">?
-            </span>}
-            <span class="kw">_ if </span><span class="self">self</span>.at(Kind::Enum) &amp;&amp; <span class="self">self</span>.ts_enabled() =&gt; {
-                <span class="self">self</span>.parse_ts_enum_declaration(<span class="bool-val">false</span>, <span class="self">self</span>.start_span()).map(|decl| <span class="kw">match </span>decl {
-                    Declaration::TSEnumDeclaration(decl) =&gt; {
-                        ExportDefaultDeclarationKind::TSEnumDeclaration(decl)
                     }
-                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 })<span class="question-mark">?
             </span>}
             <span class="kw">_ if </span><span class="self">self</span>.at_function_with_async() =&gt; <span class="self">self

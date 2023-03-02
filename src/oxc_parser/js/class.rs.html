@@ -468,6 +468,12 @@
 <a href="#468" id="468">468</a>
 <a href="#469" id="469">469</a>
 <a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::{Box, Vec};
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::StatementContext, syntax_directed_operations::PropName, Span};
 <span class="kw">use </span>oxc_diagnostics::Result;
@@ -483,7 +489,8 @@
 <span class="doccomment">/// Section 15.7 Class Definitions
 </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Parser&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub fn </span>parse_class_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt_ctx: StatementContext) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>decl = <span class="self">self</span>.parse_class_declaration(<span class="comment">/* declare */ </span><span class="bool-val">false</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>start_span = <span class="self">self</span>.start_span();
+        <span class="kw">let </span>decl = <span class="self">self</span>.parse_class_declaration(start_span, Modifiers::empty())<span class="question-mark">?</span>;
 
         <span class="kw">if </span>stmt_ctx.is_single_statement() {
             <span class="self">self</span>.error(diagnostics::ClassDeclaration(Span::new(
@@ -496,23 +503,29 @@
     }
 
     <span class="doccomment">/// Section 15.7 Class Definitions
-    </span><span class="kw">pub fn </span>parse_class_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, declare: bool) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, Class&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="self">self</span>.parse_class(declare, ClassType::ClassDeclaration)
+    </span><span class="kw">pub fn </span>parse_class_declaration(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        start_span: Span,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, Class&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
+        <span class="self">self</span>.parse_class(start_span, ClassType::ClassDeclaration, modifiers)
     }
 
     <span class="doccomment">/// Section Class Definitions `https://tc39.es/ecma262/#prod-ClassExpression`
     /// `ClassExpression`[Yield, Await] :
     ///     class `BindingIdentifier`[?Yield, ?Await]opt `ClassTail`[?Yield, ?Await]
     </span><span class="kw">pub fn </span>parse_class_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>class = <span class="self">self</span>.parse_class(<span class="comment">/* declare */ </span><span class="bool-val">false</span>, ClassType::ClassExpression)<span class="question-mark">?</span>;
+        <span class="kw">let </span>class =
+            <span class="self">self</span>.parse_class(<span class="self">self</span>.start_span(), ClassType::ClassExpression, Modifiers::empty())<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.class_expression(class))
     }
 
-    <span class="kw">fn </span>parse_class(<span class="kw-2">&amp;mut </span><span class="self">self</span>, declare: bool, r#type: ClassType) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, Class&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
-        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
-
-        <span class="kw">let </span>r#abstract = <span class="self">self</span>.eat(Kind::Abstract);
-
+    <span class="kw">fn </span>parse_class(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        start_span: Span,
+        r#type: ClassType,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, Class&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
         <span class="self">self</span>.bump_any(); <span class="comment">// advance `class`
 
         </span><span class="kw">let </span>decorators = <span class="self">self</span>.state.consume_decorators();
@@ -539,16 +552,15 @@
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.class(
             r#type,
-            <span class="self">self</span>.end_span(span),
+            <span class="self">self</span>.end_span(start_span),
             id,
             super_class,
             body,
             type_parameters,
             super_type_parameters,
             implements,
-            r#abstract,
             decorators,
-            declare,
+            modifiers,
         ))
     }
 

@@ -1741,9 +1741,6 @@
 <a href="#1741" id="1741">1741</a>
 <a href="#1742" id="1742">1742</a>
 <a href="#1743" id="1743">1743</a>
-<a href="#1744" id="1744">1744</a>
-<a href="#1745" id="1745">1745</a>
-<a href="#1746" id="1746">1746</a>
 </pre><pre class="rust"><code><span class="doccomment">//! AST builder for creating AST spans
 
 </span><span class="attr">#![allow(clippy::unused_self, clippy::missing_const_for_fn, clippy::too_many_arguments)]
@@ -2458,7 +2455,7 @@
         body: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, FunctionBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-        declare: bool,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, Function&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.alloc(Function {
             r#type,
@@ -2469,9 +2466,9 @@
             r#async,
             params,
             body,
-            declare,
             type_parameters,
             return_type,
+            modifiers,
         })
     }
 
@@ -2500,9 +2497,8 @@
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         super_type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         implements: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Box&lt;<span class="lifetime">&#39;a</span>, TSClassImplements&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;&gt;,
-        r#abstract: bool,
         decorators: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-        declare: bool,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, Class&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.alloc(Class {
             r#type,
@@ -2513,9 +2509,8 @@
             type_parameters,
             super_type_parameters,
             implements,
-            r#abstract,
             decorators,
-            declare,
+            modifiers,
         })
     }
 
@@ -2559,8 +2554,9 @@
         span: Span,
         kind: VariableDeclarationKind,
         declarations: Vec&lt;<span class="lifetime">&#39;a</span>, VariableDeclarator&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, VariableDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(VariableDeclaration { span, kind, declarations })
+        <span class="self">self</span>.alloc(VariableDeclaration { span, kind, declarations, modifiers })
     }
 
     <span class="attr">#[must_use]
@@ -2875,9 +2871,9 @@
         span: Span,
         id: TSModuleDeclarationName,
         body: TSModuleDeclarationBody&lt;<span class="lifetime">&#39;a</span>&gt;,
-        declare: bool,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, TSModuleDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="self">self</span>.alloc(TSModuleDeclaration { span, id, body, declare })
+        <span class="self">self</span>.alloc(TSModuleDeclaration { span, id, body, modifiers })
     }
 
     <span class="attr">#[must_use]
@@ -3194,7 +3190,7 @@
         body: Box&lt;<span class="lifetime">&#39;a</span>, TSInterfaceBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         extends: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Box&lt;<span class="lifetime">&#39;a</span>, TSInterfaceHeritage&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;&gt;,
-        declare: bool,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Declaration&lt;<span class="lifetime">&#39;a</span>&gt; {
         Declaration::TSInterfaceDeclaration(<span class="self">self</span>.alloc(TSInterfaceDeclaration {
             span,
@@ -3202,7 +3198,7 @@
             body,
             type_parameters,
             extends,
-            declare,
+            modifiers,
         }))
     }
 
@@ -3214,14 +3210,14 @@
         id: BindingIdentifier,
         type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-        declare: bool,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Declaration&lt;<span class="lifetime">&#39;a</span>&gt; {
         Declaration::TSTypeAliasDeclaration(<span class="self">self</span>.alloc(TSTypeAliasDeclaration {
             span,
             id,
             type_annotation,
             type_parameters,
-            declare,
+            modifiers,
         }))
     }
 
@@ -3232,15 +3228,13 @@
         span: Span,
         id: BindingIdentifier,
         members: Vec&lt;<span class="lifetime">&#39;a</span>, TSEnumMember&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-        declare: bool,
-        r#const: bool,
+        modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Declaration&lt;<span class="lifetime">&#39;a</span>&gt; {
         Declaration::TSEnumDeclaration(<span class="self">self</span>.alloc(TSEnumDeclaration {
             span,
             id,
             members,
-            declare,
-            r#const,
+            modifiers,
         }))
     }
 

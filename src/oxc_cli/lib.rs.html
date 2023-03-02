@@ -108,11 +108,35 @@
 <a href="#108" id="108">108</a>
 <a href="#109" id="109">109</a>
 <a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
 <span class="kw">mod </span>options;
 <span class="kw">mod </span>result;
 <span class="kw">mod </span>walk;
 
+<span class="kw">use </span>std::sync::mpsc::{sync_channel, Receiver, SyncSender};
 <span class="kw">use </span>std::{fs, path::Path, rc::Rc};
 
 <span class="kw">use </span>oxc_allocator::Allocator;
@@ -144,6 +168,8 @@
     /// This function may panic if the `fs::read_to_string` function in `lint_path` fails to read a file.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>lint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CliRunResult {
+        <span class="kw">let </span>(sender, receiver): (SyncSender&lt;Error&gt;, Receiver&lt;Error&gt;) = sync_channel(<span class="number">32</span>);
+
         <span class="kw">let </span>paths = <span class="kw-2">&amp;</span><span class="self">self
             </span>.cli_options
             .paths
@@ -169,33 +195,53 @@
             })
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-        <span class="kw">let </span>number_of_warnings = paths
-            .par_iter()
-            .map(|path| {
-                <span class="kw">let </span>diagnostics = <span class="self">Self</span>::lint_path(path);
-                diagnostics
-                    .iter()
-                    .filter(|d| <span class="kw">match </span>d.severity() {
+        <span class="kw">let </span>(<span class="kw">_</span>, (warnings, diagnostics)): (<span class="kw">_</span>, (usize, usize)) = rayon::join(
+            <span class="kw">move </span>|| {
+                paths.par_iter().for_each(|path| {
+                    <span class="kw">let </span>diagnostics = <span class="self">Self</span>::lint_path(path);
+
+                    <span class="kw">for </span>d <span class="kw">in </span>diagnostics {
+                        sender.send(d).unwrap();
+                    }
+                });
+            },
+            <span class="kw">move </span>|| {
+                <span class="kw">let </span><span class="kw-2">mut </span>number_of_warnings = <span class="number">0</span>;
+                <span class="kw">let </span><span class="kw-2">mut </span>number_of_diagnostics = <span class="number">0</span>;
+
+                <span class="kw">while let </span><span class="prelude-val">Ok</span>(diagnostic) = receiver.recv() {
+                    number_of_diagnostics += <span class="number">1</span>;
+
+                    <span class="kw">if </span>diagnostic.severity() == <span class="prelude-val">Some</span>(Severity::Warning) {
+                        number_of_warnings += <span class="number">1</span>;
                         <span class="comment">// The --quiet flag follows ESLint&#39;s --quiet behavior as documented here: https://eslint.org/docs/latest/use/command-line-interface#--quiet
                         // Note that it does not disable ALL diagnostics, only Warning diagnostics
-                        </span><span class="prelude-val">Some</span>(Severity::Warning) =&gt; !<span class="self">self</span>.cli_options.quiet,
-                        <span class="kw">_ </span>=&gt; <span class="bool-val">true</span>,
-                    })
-                    .for_each(|diagnostic| {
-                        <span class="macro">println!</span>(<span class="string">&quot;{diagnostic:?}&quot;</span>);
-                    });
+                        </span><span class="kw">if </span><span class="self">self</span>.cli_options.quiet {
+                            <span class="kw">continue</span>;
+                        }
 
-                diagnostics.len()
-            })
-            .sum();
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(max_warnings) = <span class="self">self</span>.cli_options.max_warnings {
+                            <span class="kw">if </span>number_of_warnings &gt; max_warnings {
+                                <span class="kw">continue</span>;
+                            }
+                        }
+                    }
+
+                    <span class="macro">println!</span>(<span class="string">&quot;{diagnostic:?}&quot;</span>);
+                }
+
+                (number_of_warnings, number_of_diagnostics)
+            },
+        );
 
         CliRunResult::LintResult {
             number_of_files: paths.len(),
-            number_of_warnings,
+            number_of_diagnostics: diagnostics,
+            number_of_warnings: warnings,
             max_warnings_exceeded: <span class="self">self
                 </span>.cli_options
                 .max_warnings
-                .map_or(<span class="bool-val">false</span>, |max_warnings| number_of_warnings &gt; max_warnings),
+                .map_or(<span class="bool-val">false</span>, |max_warnings| warnings &gt; max_warnings),
         }
     }
 

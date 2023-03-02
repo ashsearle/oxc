@@ -319,6 +319,22 @@
     }
 
     <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_max_warnings_none() {
+        <span class="kw">let </span>arg = <span class="string">&quot;oxc lint foo.js&quot;</span>;
+        <span class="kw">let </span>matches = Command::new().build().try_get_matches_from(arg.split(<span class="string">&#39; &#39;</span>)).unwrap();
+        <span class="kw">let </span>matches = matches.subcommand_matches(<span class="string">&quot;lint&quot;</span>);
+        <span class="macro">assert_eq!</span>(matches.unwrap().get_one::&lt;usize&gt;(<span class="string">&quot;max-warnings&quot;</span>), <span class="prelude-val">None</span>)
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_max_warnings_some() {
+        <span class="kw">let </span>arg = <span class="string">&quot;oxc lint --max-warnings 10 foo.js&quot;</span>;
+        <span class="kw">let </span>matches = Command::new().build().try_get_matches_from(arg.split(<span class="string">&#39; &#39;</span>)).unwrap();
+        <span class="kw">let </span>matches = matches.subcommand_matches(<span class="string">&quot;lint&quot;</span>);
+        <span class="macro">assert_eq!</span>(matches.unwrap().get_one::&lt;usize&gt;(<span class="string">&quot;max-warnings&quot;</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">10</span>))
+    }
+
+    <span class="attr">#[test]
     </span><span class="kw">fn </span>test_ignore_path() {
         <span class="kw">let </span>matches = get_lint_matches(<span class="string">&quot;oxc lint --ignore-path .gitignore foo.js&quot;</span>);
         <span class="macro">assert_eq!</span>(matches.get_one::&lt;String&gt;(<span class="string">&quot;ignore-path&quot;</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;.gitignore&quot;</span>.to_string()));
@@ -328,22 +344,6 @@
     </span><span class="kw">fn </span>test_no_ignore() {
         <span class="kw">let </span>matches = get_lint_matches(<span class="string">&quot;oxc lint --no-ignore foo.js&quot;</span>);
         <span class="macro">assert!</span>(matches.get_flag(<span class="string">&quot;no-ignore&quot;</span>));
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_max_warnings_none() {
-        <span class="kw">let </span>arg = <span class="string">&quot;oxc lint foo.js&quot;</span>;
-        <span class="kw">let </span>matches = Command::new().build().try_get_matches_from(arg.split(<span class="string">&#39; &#39;</span>)).unwrap();
-        <span class="kw">let </span>matches = matches.subcommand_matches(<span class="string">&quot;lint&quot;</span>);
-        <span class="macro">assert_eq!</span>(matches.unwrap().get_one::&lt;usize&gt;(<span class="string">&quot;max-warnings&quot;</span>), <span class="prelude-val">None</span>);
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_max_warnings_some() {
-        <span class="kw">let </span>arg = <span class="string">&quot;oxc lint --max-warnings 10 foo.js&quot;</span>;
-        <span class="kw">let </span>matches = Command::new().build().try_get_matches_from(arg.split(<span class="string">&#39; &#39;</span>)).unwrap();
-        <span class="kw">let </span>matches = matches.subcommand_matches(<span class="string">&quot;lint&quot;</span>);
-        <span class="macro">assert_eq!</span>(matches.unwrap().get_one::&lt;usize&gt;(<span class="string">&quot;max-warnings&quot;</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">10</span>));
     }
 
     <span class="attr">#[test]

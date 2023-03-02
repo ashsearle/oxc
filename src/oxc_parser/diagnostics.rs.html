@@ -758,6 +758,14 @@
 <a href="#758" id="758">758</a>
 <a href="#759" id="759">759</a>
 <a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_ast::{Atom, Span};
 <span class="kw">use </span>oxc_diagnostics::{
     miette::{<span class="self">self</span>, Diagnostic},
@@ -1517,6 +1525,14 @@
 #[diagnostic()]
 </span><span class="kw">pub struct </span>AnEnumMemberCannotHaveANumericName(
     <span class="attr">#[label(<span class="string">&quot;An enum member cannot have a numeric name&quot;</span>)] </span><span class="kw">pub </span>Span,
+);
+
+<span class="attr">#[derive(Debug, Error, Diagnostic)]
+#[error(<span class="string">&quot;TS18007: JSX expressions may not use the comma operator. Did you mean to write an array?&quot;</span>)]
+#[diagnostic()]
+</span><span class="kw">pub struct </span>JSXExpressionsMayNotUseTheCommaOperator(
+    <span class="attr">#[label(<span class="string">&quot;JSX expressions may not use the comma operator. Did you mean to write an array?&quot;</span>)]
+    </span><span class="kw">pub </span>Span,
 );
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oxc_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (c18a5e8a5 2023-01-25)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-a43118d2dfb2799d.js" data-settings-css="settings-7c23ac01f615ce90.css" ></div></body></html>

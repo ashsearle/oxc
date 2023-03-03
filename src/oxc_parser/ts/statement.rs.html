@@ -947,9 +947,9 @@
         <span class="bool-val">false
     </span>}
 
-    <span class="kw">pub fn </span>parse_ts_declaration_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    <span class="kw">pub fn </span>parse_ts_declaration_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, start_span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span>reserved_ctx = <span class="self">self</span>.ctx;
-        <span class="kw">let </span>start_span = <span class="self">self</span>.start_span();
+
         <span class="kw">let </span>(flags, modifiers) = <span class="self">self</span>.eat_modifiers_before_declaration();
         <span class="kw">let </span>declare = flags.declare();
         <span class="kw">let </span>r#async = flags.r#async();
@@ -1105,9 +1105,9 @@
     }
 
     <span class="kw">fn </span>parse_decorator(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// bump @
-        </span><span class="kw">let </span>span = <span class="self">self</span>.start_span();
-        <span class="kw">let </span>expr = <span class="self">self</span>.with_context(Context::Decorator, <span class="self">Self</span>::parse_lhs_expression)<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>expr = <span class="self">self</span>.with_context(Context::Decorator, <span class="self">Self</span>::parse_lhs_expression)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.decorator(<span class="self">self</span>.end_span(span), expr))
     }
 

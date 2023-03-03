@@ -612,7 +612,7 @@
     <span class="doccomment">/// Exports
     /// `https://tc39.es/ecma262/#sec-exports`
     </span><span class="kw">pub fn </span>parse_export_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
+        <span class="kw">let </span>start_span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// advance `export`
 
         </span><span class="kw">let </span>kind = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
@@ -641,7 +641,7 @@
                 </span>.parse_export_named_declaration()
                 .map(ModuleDeclarationKind::ExportNamedDeclaration),
         }<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.module_declaration(<span class="self">self</span>.end_span(span), kind))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.module_declaration(<span class="self">self</span>.end_span(start_span), kind))
     }
 
     <span class="comment">// export NamedExports ;
@@ -690,10 +690,10 @@
 
     <span class="comment">// export Declaration
     </span><span class="kw">fn </span>parse_export_named_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, ExportNamedDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
+        <span class="kw">let </span>start_span = <span class="self">self</span>.start_span();
         <span class="comment">// For tc39/proposal-decorators
         // For more information, please refer to https://babeljs.io/docs/babel-plugin-proposal-decorators#decoratorsbeforeexport
         </span><span class="self">self</span>.eat_decorators()<span class="question-mark">?</span>;
-        <span class="kw">let </span>start_span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>modifiers = <span class="kw">if </span><span class="self">self</span>.ts_enabled() {
             <span class="self">self</span>.eat_modifiers_before_declaration().<span class="number">1
         </span>} <span class="kw">else </span>{

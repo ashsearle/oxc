@@ -131,11 +131,18 @@
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
 <span class="kw">mod </span>options;
 <span class="kw">mod </span>result;
 <span class="kw">mod </span>walk;
 
+<span class="kw">use </span>std::io::{BufWriter, Write};
 <span class="kw">use </span>std::sync::mpsc::{sync_channel, Receiver, SyncSender};
 <span class="kw">use </span>std::{fs, path::Path, rc::Rc};
 
@@ -206,6 +213,7 @@
                 });
             },
             <span class="kw">move </span>|| {
+                <span class="kw">let </span><span class="kw-2">mut </span>buf_writer = BufWriter::new(std::io::stdout());
                 <span class="kw">let </span><span class="kw-2">mut </span>number_of_warnings = <span class="number">0</span>;
                 <span class="kw">let </span><span class="kw-2">mut </span>number_of_diagnostics = <span class="number">0</span>;
 
@@ -227,8 +235,12 @@
                         }
                     }
 
-                    <span class="macro">println!</span>(<span class="string">&quot;{diagnostic:?}&quot;</span>);
+                    buf_writer
+                        .write_all(<span class="macro">format!</span>(<span class="string">&quot;{diagnostic:?}&quot;</span>).as_bytes())
+                        .expect(<span class="string">&quot;Failed to write diagnostic.&quot;</span>);
                 }
+
+                buf_writer.flush().expect(<span class="string">&quot;Failed to flush.&quot;</span>);
 
                 (number_of_warnings, number_of_diagnostics)
             },

@@ -139,6 +139,13 @@
 <a href="#139" id="139">139</a>
 <a href="#140" id="140">140</a>
 <a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
 <span class="kw">mod </span>options;
 <span class="kw">mod </span>result;
@@ -146,8 +153,9 @@
 
 <span class="kw">use </span>std::io::{BufWriter, Write};
 <span class="kw">use </span>std::sync::mpsc::{sync_channel, Receiver, SyncSender};
-<span class="kw">use </span>std::{fs, path::Path, rc::Rc};
+<span class="kw">use </span>std::{fs, path::Path, rc::Rc, sync::Arc};
 
+<span class="kw">use </span>miette::NamedSource;
 <span class="kw">use </span>oxc_allocator::Allocator;
 <span class="kw">use </span>oxc_ast::SourceType;
 <span class="kw">use </span>oxc_diagnostics::{Error, Severity};
@@ -273,10 +281,16 @@
             LintRunResult { fixed_source: source_text.clone().into(), diagnostics: ret.errors }
         };
 
+        <span class="kw">if </span>result.diagnostics.is_empty() {
+            <span class="kw">return </span><span class="macro">vec!</span>[];
+        }
+
+        <span class="kw">let </span>path = path.to_string_lossy();
+        <span class="kw">let </span>source = Arc::new(NamedSource::new(path, source_text.clone()));
         result
             .diagnostics
             .into_iter()
-            .map(|diagnostic| diagnostic.with_source_code(source_text.clone()))
+            .map(|diagnostic| diagnostic.with_source_code(source.clone()))
             .collect()
     }
 }

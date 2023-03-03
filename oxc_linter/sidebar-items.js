@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["rule",""]],"struct":[["Linter",""]]};
+window.SIDEBAR_ITEMS = {"mod":[["rule",""]],"struct":[["LintRunResult",""],["Linter",""]]};

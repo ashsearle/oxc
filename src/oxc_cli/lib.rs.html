@@ -137,6 +137,8 @@
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
 <a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
 <span class="kw">mod </span>options;
 <span class="kw">mod </span>result;
@@ -149,7 +151,7 @@
 <span class="kw">use </span>oxc_allocator::Allocator;
 <span class="kw">use </span>oxc_ast::SourceType;
 <span class="kw">use </span>oxc_diagnostics::{Error, Severity};
-<span class="kw">use </span>oxc_linter::Linter;
+<span class="kw">use </span>oxc_linter::{LintRunResult, Linter};
 <span class="kw">use </span>oxc_parser::Parser;
 <span class="kw">use </span>oxc_semantic::SemanticBuilder;
 <span class="kw">use </span>rayon::iter::{IntoParallelRefIterator, ParallelIterator};
@@ -261,16 +263,18 @@
         <span class="kw">let </span>source_text = fs::read_to_string(path).expect(<span class="string">&quot;{name} not found&quot;</span>);
         <span class="kw">let </span>allocator = Allocator::default();
         <span class="kw">let </span>source_type = SourceType::from_path(path).expect(<span class="string">&quot;incorrect {path:?}&quot;</span>);
-        <span class="kw">let </span>ret = Parser::new(<span class="kw-2">&amp;</span>allocator, <span class="kw-2">&amp;</span>source_text, source_type).parse();
-        <span class="kw">let </span>diagnostics = <span class="kw">if </span>ret.errors.is_empty() {
+        <span class="kw">let </span>parser_source_text = source_text.clone();
+        <span class="kw">let </span>ret = Parser::new(<span class="kw-2">&amp;</span>allocator, <span class="kw-2">&amp;</span>parser_source_text, source_type).parse();
+        <span class="kw">let </span>result = <span class="kw">if </span>ret.errors.is_empty() {
             <span class="kw">let </span>program = allocator.alloc(ret.program);
             <span class="kw">let </span>semantic = SemanticBuilder::new().build(program, ret.trivias);
-            Linter::new().run(<span class="kw-2">&amp;</span>Rc::new(semantic))
+            Linter::new().run(<span class="kw-2">&amp;</span>Rc::new(semantic), <span class="kw-2">&amp;</span>source_text)
         } <span class="kw">else </span>{
-            ret.errors
+            LintRunResult { fixed_source: source_text.clone().into(), diagnostics: ret.errors }
         };
 
-        diagnostics
+        result
+            .diagnostics
             .into_iter()
             .map(|diagnostic| diagnostic.with_source_code(source_text.clone()))
             .collect()

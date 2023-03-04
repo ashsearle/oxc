@@ -85,6 +85,11 @@
 <a href="#85" id="85">85</a>
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
 </pre><pre class="rust"><code><span class="attr">#![feature(let_chains, is_some_and)]
 
 #[cfg(test)]
@@ -152,8 +157,13 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>run&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, semantic: <span class="kw-2">&amp;</span>Rc&lt;Semantic&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, source_text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; LintRunResult&lt;<span class="lifetime">&#39;a</span>&gt; {
-        <span class="kw">let </span>ctx = LintContext::new(source_text, semantic.clone());
+    </span><span class="kw">pub fn </span>run&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        semantic: <span class="kw-2">&amp;</span>Rc&lt;Semantic&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+        source_text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        fix: bool,
+    ) -&gt; LintRunResult&lt;<span class="lifetime">&#39;a</span>&gt; {
+        <span class="kw">let </span>ctx = LintContext::new(source_text, semantic.clone(), fix);
 
         <span class="kw">for </span>node <span class="kw">in </span>semantic.nodes().iter() {
             <span class="kw">for </span>rule <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.rules {

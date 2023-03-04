@@ -386,7 +386,7 @@
 <span class="attr">#[allow(clippy::wildcard_imports)]
 </span><span class="kw">use </span><span class="kw">crate</span>::ast::<span class="kw-2">*</span>;
 
-<span class="attr">#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize)]
+<span class="attr">#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, PartialOrd, Ord)]
 </span><span class="kw">pub struct </span>Span {
     <span class="kw">pub </span>start: u32,
     <span class="kw">pub </span>end: u32,

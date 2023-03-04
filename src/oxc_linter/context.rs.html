@@ -54,6 +54,10 @@
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, rc::Rc};
 
 <span class="kw">use </span>oxc_ast::AstKind;
@@ -69,15 +73,20 @@
 
     diagnostics: RefCell&lt;Vec&lt;Error&gt;&gt;,
 
-    fixes: RefCell&lt;Vec&lt;Fix&gt;&gt;,
+    <span class="doccomment">/// Whether or not to apply code fixes during linting.
+    </span>fix: bool,
+
+    <span class="doccomment">/// Collection of applicable fixes based on reported issues.
+    </span>fixes: RefCell&lt;Vec&lt;Fix&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; LintContext&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub fn </span>new(source_text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, semantic: Rc&lt;Semantic&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>new(source_text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, semantic: Rc&lt;Semantic&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, fix: bool) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             source_text,
             semantic,
             diagnostics: RefCell::new(<span class="macro">vec!</span>[]),
+            fix,
             fixes: RefCell::new(<span class="macro">vec!</span>[]),
         }
     }
@@ -86,7 +95,7 @@
         <span class="self">self</span>.source_text
     }
 
-    <span class="kw">pub fn </span>into_diagnostics(<span class="self">self</span>) -&gt; (Vec&lt;Fix&gt;, Vec&lt;Error&gt;) {
+    <span class="kw">pub fn </span>into_diagnostics(<span class="self">self</span>) -&gt; (Vec&lt;Fix&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, Vec&lt;Error&gt;) {
         (<span class="self">self</span>.fixes.into_inner(), <span class="self">self</span>.diagnostics.into_inner())
     }
 
@@ -98,12 +107,11 @@
         <span class="self">self</span>.diagnostics.borrow_mut().push(diagnostic.into());
     }
 
-    <span class="kw">pub fn </span>fix(<span class="kw-2">&amp;</span><span class="self">self</span>, fix: Fix) {
+    <span class="kw">pub fn </span>fix(<span class="kw-2">&amp;</span><span class="self">self</span>, fix: Fix&lt;<span class="lifetime">&#39;a</span>&gt;) {
+        <span class="kw">if </span>!<span class="self">self</span>.fix {
+            <span class="kw">return</span>;
+        }
         <span class="self">self</span>.fixes.borrow_mut().push(fix);
-    }
-
-    <span class="kw">pub fn </span>into_fixes(<span class="self">self</span>) -&gt; Vec&lt;Fix&gt; {
-        <span class="self">self</span>.fixes.into_inner()
     }
 
     <span class="kw">pub fn </span>parent_kind(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; AstKind&lt;<span class="lifetime">&#39;a</span>&gt; {

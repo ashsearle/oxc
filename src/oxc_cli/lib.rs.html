@@ -147,6 +147,8 @@
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
 <a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
 <span class="kw">mod </span>options;
 <span class="kw">mod </span>result;
@@ -213,10 +215,12 @@
             })
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
+        <span class="kw">let </span>fix = <span class="self">self</span>.cli_options.fix;
+
         <span class="kw">let </span>(<span class="kw">_</span>, (warnings, diagnostics)): (<span class="kw">_</span>, (usize, usize)) = rayon::join(
             <span class="kw">move </span>|| {
                 paths.par_iter().for_each(|path| {
-                    <span class="kw">let </span>diagnostics = <span class="self">Self</span>::lint_path(path);
+                    <span class="kw">let </span>diagnostics = <span class="self">Self</span>::lint_path(path, fix);
 
                     <span class="kw">for </span>d <span class="kw">in </span>diagnostics {
                         sender.send(d).unwrap();
@@ -269,7 +273,7 @@
         }
     }
 
-    <span class="kw">fn </span>lint_path(path: <span class="kw-2">&amp;</span>Path) -&gt; Vec&lt;Error&gt; {
+    <span class="kw">fn </span>lint_path(path: <span class="kw-2">&amp;</span>Path, fix: bool) -&gt; Vec&lt;Error&gt; {
         <span class="kw">let </span>source_text = fs::read_to_string(path).expect(<span class="string">&quot;{name} not found&quot;</span>);
         <span class="kw">let </span>allocator = Allocator::default();
         <span class="kw">let </span>source_type = SourceType::from_path(path).expect(<span class="string">&quot;incorrect {path:?}&quot;</span>);
@@ -278,7 +282,7 @@
         <span class="kw">let </span>result = <span class="kw">if </span>ret.errors.is_empty() {
             <span class="kw">let </span>program = allocator.alloc(ret.program);
             <span class="kw">let </span>semantic = SemanticBuilder::new().build(program, ret.trivias);
-            Linter::new().run(<span class="kw-2">&amp;</span>Rc::new(semantic), <span class="kw-2">&amp;</span>source_text)
+            Linter::new().run(<span class="kw-2">&amp;</span>Rc::new(semantic), <span class="kw-2">&amp;</span>source_text, fix)
         } <span class="kw">else </span>{
             LintRunResult { fixed_source: source_text.clone().into(), diagnostics: ret.errors }
         };

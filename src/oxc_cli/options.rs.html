@@ -62,6 +62,8 @@
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
 <a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::path::PathBuf;
 
 <span class="kw">use </span>clap::ArgMatches;
@@ -69,6 +71,7 @@
 
 <span class="kw">pub struct </span>CliOptions {
     <span class="kw">pub </span>quiet: bool,
+    <span class="kw">pub </span>fix: bool,
     <span class="kw">pub </span>max_warnings: <span class="prelude-ty">Option</span>&lt;usize&gt;,
     <span class="kw">pub </span>paths: Vec&lt;PathBuf&gt;,
     <span class="kw">pub </span>ignore_path: String,
@@ -102,6 +105,7 @@
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             quiet: matches.get_flag(<span class="string">&quot;quiet&quot;</span>),
+            fix: matches.get_flag(<span class="string">&quot;fix&quot;</span>),
             max_warnings: matches.get_one(<span class="string">&quot;max-warnings&quot;</span>).copied(),
             paths,
             ignore_path,

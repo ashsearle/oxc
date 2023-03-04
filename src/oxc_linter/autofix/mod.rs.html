@@ -21,41 +21,27 @@
 <a href="#21" id="21">21</a>
 <a href="#22" id="22">22</a>
 <a href="#23" id="23">23</a>
-<a href="#24" id="24">24</a>
-<a href="#25" id="25">25</a>
-<a href="#26" id="26">26</a>
-<a href="#27" id="27">27</a>
-<a href="#28" id="28">28</a>
-<a href="#29" id="29">29</a>
-<a href="#30" id="30">30</a>
-</pre><pre class="rust"><code><span class="kw">use </span>oxc_ast::Span;
+</pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
+
+<span class="kw">use </span>oxc_ast::Span;
 
 <span class="kw">mod </span>fixer;
 
 <span class="kw">pub use </span>fixer::Fixer;
 
 <span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>Fix {
-    <span class="kw">pub </span>content: String,
+</span><span class="kw">pub struct </span>Fix&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub </span>content: Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;,
     <span class="kw">pub </span>span: Span,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Fix {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Fix&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub const fn </span>delete(span: Span) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ content: String::new(), span }
+        <span class="self">Self </span>{ content: Cow::Borrowed(<span class="string">&quot;&quot;</span>), span }
     }
 
-    <span class="kw">pub fn </span>apply(<span class="kw-2">&amp;</span><span class="self">self</span>, source_text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; String {
-        <span class="kw">let </span><span class="kw-2">mut </span>output = String::new();
-
-        <span class="kw">let </span>slice = <span class="kw-2">&amp;</span>source_text[..<span class="self">self</span>.span.start <span class="kw">as </span>usize];
-        <span class="kw">let </span>remainder = <span class="kw-2">&amp;</span>source_text[<span class="self">self</span>.span.end <span class="kw">as </span>usize..];
-
-        output.push_str(slice);
-        output.push_str(<span class="kw-2">&amp;</span><span class="self">self</span>.content);
-        output.push_str(remainder);
-
-        output
+    <span class="kw">pub fn </span>new&lt;T: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;&gt;(content: T, span: Span) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ content: content.into(), span }
     }
 }
 </code></pre></div>

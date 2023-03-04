@@ -1736,6 +1736,11 @@
 <a href="#1736" id="1736">1736</a>
 <a href="#1737" id="1737">1737</a>
 <a href="#1738" id="1738">1738</a>
+<a href="#1739" id="1739">1739</a>
+<a href="#1740" id="1740">1740</a>
+<a href="#1741" id="1741">1741</a>
+<a href="#1742" id="1742">1742</a>
+<a href="#1743" id="1743">1743</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::fmt::Display;
 
 <span class="kw">use </span>oxc_allocator::{Box, Vec};
@@ -1900,6 +1905,11 @@
             Expression::Identifier(ident) =&gt; <span class="prelude-val">Some</span>(ident),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub const fn </span>is_function(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>, Expression::FunctionExpression(<span class="kw">_</span>) | Expression::ArrowFunctionExpression(<span class="kw">_</span>))
     }
 }
 

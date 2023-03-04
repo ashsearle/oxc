@@ -58,11 +58,23 @@
 <a href="#58" id="58">58</a>
 <a href="#59" id="59">59</a>
 <a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, rc::Rc};
 
 <span class="kw">use </span>oxc_ast::AstKind;
 <span class="kw">use </span>oxc_diagnostics::Error;
-<span class="kw">use </span>oxc_semantic::Semantic;
+<span class="kw">use </span>oxc_semantic::{AstNodes, Semantic};
 
 <span class="kw">use crate</span>::{autofix::Fix, AstNode};
 
@@ -99,10 +111,6 @@
         (<span class="self">self</span>.fixes.into_inner(), <span class="self">self</span>.diagnostics.into_inner())
     }
 
-    <span class="kw">pub fn </span>semantic(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Semantic&lt;<span class="lifetime">&#39;a</span>&gt; {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.semantic
-    }
-
     <span class="kw">pub fn </span>diagnostic&lt;T: Into&lt;Error&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, diagnostic: T) {
         <span class="self">self</span>.diagnostics.borrow_mut().push(diagnostic.into());
     }
@@ -114,8 +122,24 @@
         <span class="self">self</span>.fixes.borrow_mut().push(fix);
     }
 
-    <span class="kw">pub fn </span>parent_kind(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; AstKind&lt;<span class="lifetime">&#39;a</span>&gt; {
-        <span class="self">self</span>.semantic().nodes().parent_kind(node)
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>semantic(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Semantic&lt;<span class="lifetime">&#39;a</span>&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.semantic
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>nodes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AstNodes&lt;<span class="lifetime">&#39;a</span>&gt; {
+        <span class="self">self</span>.semantic().nodes()
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>parent_kind(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; AstKind&lt;<span class="lifetime">&#39;a</span>&gt; {
+        <span class="self">self</span>.nodes().parent_kind(node)
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>parent_node(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        node.parent().and_then(|node_id| <span class="self">self</span>.nodes().get(node_id))
     }
 }
 </code></pre></div>

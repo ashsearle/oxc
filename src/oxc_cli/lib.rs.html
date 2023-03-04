@@ -144,12 +144,8 @@
 <a href="#144" id="144">144</a>
 <a href="#145" id="145">145</a>
 <a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
+<span class="kw">mod </span>git;
 <span class="kw">mod </span>options;
 <span class="kw">mod </span>result;
 <span class="kw">mod </span>walk;
@@ -158,6 +154,7 @@
 <span class="kw">use </span>std::sync::mpsc::{sync_channel, Receiver, SyncSender};
 <span class="kw">use </span>std::{fs, path::Path, rc::Rc, sync::Arc};
 
+<span class="kw">use </span>git::{Git, GitResult};
 <span class="kw">use </span>miette::NamedSource;
 <span class="kw">use </span>oxc_allocator::Allocator;
 <span class="kw">use </span>oxc_ast::SourceType;
@@ -166,7 +163,6 @@
 <span class="kw">use </span>oxc_parser::Parser;
 <span class="kw">use </span>oxc_semantic::SemanticBuilder;
 <span class="kw">use </span>rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-<span class="kw">use </span>walk::Walk;
 
 <span class="kw">pub use crate</span>::{command::Command, options::CliOptions, result::CliRunResult};
 
@@ -190,30 +186,24 @@
     </span><span class="kw">pub fn </span>lint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CliRunResult {
         <span class="kw">let </span>(sender, receiver): (SyncSender&lt;Error&gt;, Receiver&lt;Error&gt;) = sync_channel(<span class="number">32</span>);
         <span class="kw">let </span>now = std::time::Instant::now();
-        <span class="kw">let </span>paths = <span class="kw-2">&amp;</span><span class="self">self
-            </span>.cli_options
-            .paths
-            .iter()
-            .flat_map(|path| {
-                Walk::new(path, <span class="kw-2">&amp;</span><span class="self">self</span>.cli_options)
-                    .iter()
-                    .filter(|path| {
-                        <span class="kw">if </span><span class="self">self</span>.cli_options.no_ignore {
-                            <span class="kw">return </span><span class="bool-val">true</span>;
-                        }
 
-                        <span class="kw">let </span>ignore_pattern = <span class="kw-2">&amp;</span><span class="self">self</span>.cli_options.ignore_pattern;
-                        <span class="kw">for </span>pattern <span class="kw">in </span>ignore_pattern {
-                            <span class="kw">if </span>pattern.matches_path(path) {
-                                <span class="kw">return </span><span class="bool-val">false</span>;
-                            }
-                        }
-
-                        <span class="bool-val">true
-                    </span>})
-                    .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-            })
-            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let </span>paths = <span class="kw-2">&amp;</span><span class="self">self</span>.cli_options.paths();
+        <span class="kw">let </span>git = Git::new(paths);
+        <span class="kw">match </span>git.verify() {
+            <span class="prelude-val">Err</span>(GitResult::MultipleRepos) =&gt; {
+                <span class="macro">println!</span>(<span class="string">&quot;Found multiple Git repositories.&quot;</span>);
+                <span class="kw">return </span>CliRunResult::None;
+            }
+            <span class="prelude-val">Err</span>(GitResult::NoRepo) =&gt; {
+                <span class="macro">println!</span>(<span class="string">&quot;No valid Git repository found.&quot;</span>);
+                <span class="kw">return </span>CliRunResult::None;
+            }
+            <span class="prelude-val">Err</span>(GitResult::UncommittedChanges) =&gt; {
+                <span class="macro">println!</span>(<span class="string">&quot;Please commit changes before linting.&quot;</span>);
+                <span class="kw">return </span>CliRunResult::None;
+            }
+            <span class="kw">_ </span>=&gt; {}
+        }
 
         <span class="kw">let </span>fix = <span class="self">self</span>.cli_options.fix;
 

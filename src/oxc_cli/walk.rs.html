@@ -35,6 +35,9 @@
 <a href="#35" id="35">35</a>
 <a href="#36" id="36">36</a>
 <a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
+<a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::path::Path;
 
 <span class="kw">use </span>ignore::{DirEntry, WalkBuilder};
@@ -52,7 +55,10 @@
         <span class="kw">if </span>!options.no_ignore {
             inner.add_custom_ignore_filename(<span class="kw-2">&amp;</span>options.ignore_path);
         }
-        <span class="kw">let </span>inner = inner.ignore(<span class="bool-val">false</span>).git_global(<span class="bool-val">false</span>).build();
+        <span class="comment">// Turning off `follow_links` because:
+        // * following symlinks is a really slow syscall
+        // * it is super rare to have symlinked source code
+        </span><span class="kw">let </span>inner = inner.ignore(<span class="bool-val">false</span>).git_global(<span class="bool-val">false</span>).follow_links(<span class="bool-val">false</span>).build();
         <span class="self">Self </span>{ inner }
     }
 

@@ -144,27 +144,40 @@
 <a href="#144" id="144">144</a>
 <a href="#145" id="145">145</a>
 <a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
-<span class="kw">mod </span>git;
-<span class="kw">mod </span>options;
+<span class="comment">// mod git;
+</span><span class="kw">mod </span>options;
 <span class="kw">mod </span>result;
 <span class="kw">mod </span>walk;
 
-<span class="kw">use </span>std::io::{BufWriter, Write};
-<span class="kw">use </span>std::sync::mpsc::{sync_channel, Receiver, SyncSender};
-<span class="kw">use </span>std::{fs, path::Path, rc::Rc, sync::Arc};
+<span class="kw">use </span>std::{
+    fs,
+    io::{BufWriter, Write},
+    path::Path,
+    rc::Rc,
+    sync::{mpsc, Arc},
+};
 
-<span class="kw">use </span>git::{Git, GitResult};
-<span class="kw">use </span>miette::NamedSource;
+<span class="comment">// use git::{Git, GitResult};
+</span><span class="kw">use </span>miette::NamedSource;
 <span class="kw">use </span>oxc_allocator::Allocator;
 <span class="kw">use </span>oxc_ast::SourceType;
 <span class="kw">use </span>oxc_diagnostics::{Error, Severity};
 <span class="kw">use </span>oxc_linter::{LintRunResult, Linter};
 <span class="kw">use </span>oxc_parser::Parser;
 <span class="kw">use </span>oxc_semantic::SemanticBuilder;
-<span class="kw">use </span>rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
-<span class="kw">pub use crate</span>::{command::Command, options::CliOptions, result::CliRunResult};
+<span class="kw">pub use crate</span>::{command::Command, options::CliOptions, result::CliRunResult, walk::Walk};
 
 <span class="kw">pub struct </span>Cli {
     <span class="kw">pub </span>cli_options: CliOptions,
@@ -184,82 +197,89 @@
     /// This function may panic if the `fs::read_to_string` function in `lint_path` fails to read a file.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>lint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CliRunResult {
-        <span class="kw">let </span>(sender, receiver): (SyncSender&lt;Error&gt;, Receiver&lt;Error&gt;) = sync_channel(<span class="number">32</span>);
         <span class="kw">let </span>now = std::time::Instant::now();
 
-        <span class="kw">let </span>paths = <span class="kw-2">&amp;</span><span class="self">self</span>.cli_options.paths();
-        <span class="kw">let </span>git = Git::new(paths);
-        <span class="kw">match </span>git.verify() {
-            <span class="prelude-val">Err</span>(GitResult::MultipleRepos) =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;Found multiple Git repositories.&quot;</span>);
-                <span class="kw">return </span>CliRunResult::None;
-            }
-            <span class="prelude-val">Err</span>(GitResult::NoRepo) =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;No valid Git repository found.&quot;</span>);
-                <span class="kw">return </span>CliRunResult::None;
-            }
-            <span class="prelude-val">Err</span>(GitResult::UncommittedChanges) =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;Please commit changes before linting.&quot;</span>);
-                <span class="kw">return </span>CliRunResult::None;
-            }
-            <span class="kw">_ </span>=&gt; {}
-        }
+        <span class="kw">let </span>(tx_error, rx_error) = mpsc::channel::&lt;Error&gt;();
+        <span class="kw">let </span>(tx_path, rx_path) = mpsc::channel::&lt;Box&lt;Path&gt;&gt;();
 
-        <span class="kw">let </span>fix = <span class="self">self</span>.cli_options.fix;
-
-        <span class="kw">let </span>(<span class="kw">_</span>, (warnings, diagnostics)): (<span class="kw">_</span>, (usize, usize)) = rayon::join(
-            <span class="kw">move </span>|| {
-                paths.par_iter().for_each(|path| {
-                    <span class="kw">let </span>diagnostics = <span class="self">Self</span>::lint_path(path, fix);
-
-                    <span class="kw">for </span>d <span class="kw">in </span>diagnostics {
-                        sender.send(d).unwrap();
-                    }
-                });
-            },
-            <span class="kw">move </span>|| {
-                <span class="kw">let </span><span class="kw-2">mut </span>buf_writer = BufWriter::new(std::io::stdout());
-                <span class="kw">let </span><span class="kw-2">mut </span>number_of_warnings = <span class="number">0</span>;
-                <span class="kw">let </span><span class="kw-2">mut </span>number_of_diagnostics = <span class="number">0</span>;
-
-                <span class="kw">while let </span><span class="prelude-val">Ok</span>(diagnostic) = receiver.recv() {
-                    number_of_diagnostics += <span class="number">1</span>;
-
-                    <span class="kw">if </span>diagnostic.severity() == <span class="prelude-val">Some</span>(Severity::Warning) {
-                        number_of_warnings += <span class="number">1</span>;
-                        <span class="comment">// The --quiet flag follows ESLint&#39;s --quiet behavior as documented here: https://eslint.org/docs/latest/use/command-line-interface#--quiet
-                        // Note that it does not disable ALL diagnostics, only Warning diagnostics
-                        </span><span class="kw">if </span><span class="self">self</span>.cli_options.quiet {
-                            <span class="kw">continue</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>number_of_files = <span class="number">0</span>;
+        rayon::join(
+            || {
+                <span class="kw">let </span>paths = <span class="self">self
+                    </span>.cli_options
+                    .paths
+                    .iter()
+                    .flat_map(|path| Walk::new(path, <span class="kw-2">&amp;</span><span class="self">self</span>.cli_options).iter())
+                    .filter(|path| {
+                        <span class="kw">if </span><span class="self">self</span>.cli_options.no_ignore {
+                            <span class="kw">return </span><span class="bool-val">true</span>;
                         }
-
-                        <span class="kw">if let </span><span class="prelude-val">Some</span>(max_warnings) = <span class="self">self</span>.cli_options.max_warnings {
-                            <span class="kw">if </span>number_of_warnings &gt; max_warnings {
-                                <span class="kw">continue</span>;
+                        <span class="kw">for </span>pattern <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.cli_options.ignore_pattern {
+                            <span class="kw">if </span>pattern.matches_path(path) {
+                                <span class="kw">return </span><span class="bool-val">false</span>;
                             }
                         }
-                    }
-
-                    buf_writer
-                        .write_all(<span class="macro">format!</span>(<span class="string">&quot;{diagnostic:?}&quot;</span>).as_bytes())
-                        .expect(<span class="string">&quot;Failed to write diagnostic.&quot;</span>);
+                        <span class="bool-val">true
+                    </span>});
+                <span class="kw">for </span>path <span class="kw">in </span>paths {
+                    number_of_files += <span class="number">1</span>;
+                    tx_path.send(path).unwrap();
                 }
-
-                buf_writer.flush().expect(<span class="string">&quot;Failed to flush.&quot;</span>);
-
-                (number_of_warnings, number_of_diagnostics)
+                drop(tx_path);
+            },
+            <span class="kw">move </span>|| {
+                <span class="kw">let </span>fix = <span class="self">self</span>.cli_options.fix;
+                <span class="kw">while let </span><span class="prelude-val">Ok</span>(path) = rx_path.recv() {
+                    <span class="kw">let </span>tx_error = tx_error.clone();
+                    rayon::spawn(<span class="kw">move </span>|| {
+                        <span class="kw">let </span>diagnostics = <span class="self">Self</span>::lint_path(<span class="kw-2">&amp;</span>path, fix);
+                        <span class="kw">for </span>d <span class="kw">in </span>diagnostics {
+                            tx_error.send(d).unwrap();
+                        }
+                        drop(tx_error);
+                    })
+                }
             },
         );
 
+        <span class="kw">let </span><span class="kw-2">mut </span>buf_writer = BufWriter::new(std::io::stdout());
+        <span class="kw">let </span><span class="kw-2">mut </span>number_of_warnings = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>number_of_diagnostics = <span class="number">0</span>;
+
+        <span class="kw">while let </span><span class="prelude-val">Ok</span>(diagnostic) = rx_error.recv() {
+            number_of_diagnostics += <span class="number">1</span>;
+
+            <span class="kw">if </span>diagnostic.severity() == <span class="prelude-val">Some</span>(Severity::Warning) {
+                number_of_warnings += <span class="number">1</span>;
+                <span class="comment">// The --quiet flag follows ESLint&#39;s --quiet behavior as documented here: https://eslint.org/docs/latest/use/command-line-interface#--quiet
+                // Note that it does not disable ALL diagnostics, only Warning diagnostics
+                </span><span class="kw">if </span><span class="self">self</span>.cli_options.quiet {
+                    <span class="kw">continue</span>;
+                }
+
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(max_warnings) = <span class="self">self</span>.cli_options.max_warnings {
+                    <span class="kw">if </span>number_of_warnings &gt; max_warnings {
+                        <span class="kw">continue</span>;
+                    }
+                }
+            }
+
+            buf_writer
+                .write_all(<span class="macro">format!</span>(<span class="string">&quot;{diagnostic:?}&quot;</span>).as_bytes())
+                .expect(<span class="string">&quot;Failed to write diagnostic.&quot;</span>);
+        }
+
+        buf_writer.flush().unwrap();
+
         CliRunResult::LintResult {
             duration: now.elapsed(),
-            number_of_files: paths.len(),
-            number_of_diagnostics: diagnostics,
-            number_of_warnings: warnings,
+            number_of_files,
+            number_of_diagnostics,
+            number_of_warnings,
             max_warnings_exceeded: <span class="self">self
                 </span>.cli_options
                 .max_warnings
-                .map_or(<span class="bool-val">false</span>, |max_warnings| warnings &gt; max_warnings),
+                .map_or(<span class="bool-val">false</span>, |max_warnings| number_of_warnings &gt; max_warnings),
         }
     }
 

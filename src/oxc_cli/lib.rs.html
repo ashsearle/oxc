@@ -146,6 +146,7 @@
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
 <span class="kw">mod </span>options;
 <span class="kw">mod </span>result;
@@ -186,7 +187,7 @@
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>lint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CliRunResult {
         <span class="kw">let </span>(sender, receiver): (SyncSender&lt;Error&gt;, Receiver&lt;Error&gt;) = sync_channel(<span class="number">32</span>);
-
+        <span class="kw">let </span>now = std::time::Instant::now();
         <span class="kw">let </span>paths = <span class="kw-2">&amp;</span><span class="self">self
             </span>.cli_options
             .paths
@@ -257,6 +258,7 @@
         );
 
         CliRunResult::LintResult {
+            duration: now.elapsed(),
             number_of_files: paths.len(),
             number_of_diagnostics: diagnostics,
             number_of_warnings: warnings,

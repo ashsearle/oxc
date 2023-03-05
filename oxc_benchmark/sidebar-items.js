@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["get_code","Errors"]]};
+window.SIDEBAR_ITEMS = {"struct":[["Code",""]]};

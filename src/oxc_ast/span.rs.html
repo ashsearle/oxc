@@ -378,6 +378,10 @@
 <a href="#378" id="378">378</a>
 <a href="#379" id="379">379</a>
 <a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::hash::{Hash, Hasher};
 
 <span class="kw">use </span>miette::{SourceOffset, SourceSpan};
@@ -386,7 +390,11 @@
 <span class="attr">#[allow(clippy::wildcard_imports)]
 </span><span class="kw">use </span><span class="kw">crate</span>::ast::<span class="kw-2">*</span>;
 
-<span class="attr">#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, PartialOrd, Ord)]
+<span class="doccomment">/// Newtype for working with text sizes/ranges.
+/// See the [`text-size`](https://docs.rs/text-size) crate for details.
+/// Utility methods can be copied from the `text-size` crate if they are needed.
+/// NOTE: `u32` is sufficient for &quot;all&quot; reasonable programs. Larger than u32 is a 4GB JS file.
+</span><span class="attr">#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, PartialOrd, Ord)]
 </span><span class="kw">pub struct </span>Span {
     <span class="kw">pub </span>start: u32,
     <span class="kw">pub </span>end: u32,

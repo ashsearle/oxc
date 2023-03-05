@@ -22,8 +22,12 @@
 <a href="#22" id="22">22</a>
 <a href="#23" id="23">23</a>
 <a href="#24" id="24">24</a>
+<a href="#25" id="25">25</a>
+<a href="#26" id="26">26</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>builder;
 <span class="kw">mod </span>node;
+
+<span class="kw">use </span>std::rc::Rc;
 
 <span class="kw">pub use </span>builder::SemanticBuilder;
 <span class="kw">pub use </span>node::{AstNode, AstNodes};
@@ -32,7 +36,7 @@
 <span class="kw">pub struct </span>Semantic&lt;<span class="lifetime">&#39;a</span>&gt; {
     nodes: AstNodes&lt;<span class="lifetime">&#39;a</span>&gt;,
 
-    trivias: Trivias,
+    trivias: Rc&lt;Trivias&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Semantic&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -42,7 +46,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>trivias(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Trivias {
+    </span><span class="kw">pub fn </span>trivias(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Trivias {
         <span class="kw-2">&amp;</span><span class="self">self</span>.trivias
     }
 }

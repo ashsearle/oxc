@@ -123,6 +123,7 @@
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
 <a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_ast::{AstKind, Span};
 <span class="kw">use </span>oxc_diagnostics::{
     miette::{<span class="self">self</span>, Diagnostic},
@@ -157,7 +158,8 @@
     ///
     /// }
     /// ```
-    </span>NoEmpty
+    </span>NoEmpty,
+    correctness
 );
 
 <span class="kw">impl </span>Rule <span class="kw">for </span>NoEmpty {

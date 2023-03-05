@@ -71,11 +71,24 @@
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
 </pre><pre class="rust"><code><span class="kw">use </span>convert_case::{Case, Casing};
 <span class="kw">use </span>proc_macro2::TokenStream;
 <span class="kw">use </span>quote::quote;
 <span class="kw">use </span>syn::parse::{Parse, ParseStream};
-<span class="kw">use </span>syn::{Attribute, Error, Ident, Lit, LitStr, Meta, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>syn::{Attribute, Error, Ident, Lit, LitStr, Meta, <span class="prelude-ty">Result</span>, Token};
 
 <span class="kw">fn </span>parse_attr&lt;<span class="kw">const </span>LEN: usize&gt;(path: [<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str; LEN], attr: <span class="kw-2">&amp;</span>Attribute) -&gt; <span class="prelude-ty">Option</span>&lt;LitStr&gt; {
     <span class="kw">if let </span>Meta::NameValue(name_value) = attr.parse_meta().ok()<span class="question-mark">? </span>{
@@ -93,6 +106,7 @@
 
 <span class="kw">pub struct </span>LintRuleMeta {
     name: Ident,
+    category: Ident,
     documentation: String,
     <span class="kw">pub </span>used_in_test: bool,
 }
@@ -115,26 +129,38 @@
         }
 
         <span class="kw">let </span>struct_name = input.parse()<span class="question-mark">?</span>;
+        input.parse::&lt;<span class="macro">Token!</span>(,)&gt;()<span class="question-mark">?</span>;
+        <span class="kw">let </span>category = input.parse()<span class="question-mark">?</span>;
 
         <span class="comment">// Ignore the rest
         </span>input.parse::&lt;TokenStream&gt;()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ name: struct_name, documentation, used_in_test: <span class="bool-val">false </span>})
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ name: struct_name, category, documentation, used_in_test: <span class="bool-val">false </span>})
     }
 }
 
 <span class="kw">pub fn </span>declare_oxc_lint(metadata: LintRuleMeta) -&gt; TokenStream {
-    <span class="kw">let </span>LintRuleMeta { name, documentation, used_in_test } = metadata;
+    <span class="kw">let </span>LintRuleMeta { name, category, documentation, used_in_test } = metadata;
     <span class="kw">let </span>canonical_name = name.to_string().to_case(Case::Kebab);
+    <span class="kw">let </span>category = <span class="kw">match </span>category.to_string().as_str() {
+        <span class="string">&quot;correctness&quot; </span>=&gt; <span class="macro">quote! </span>{ RuleCategory::Correctness },
+        <span class="string">&quot;nursery&quot; </span>=&gt; <span class="macro">quote! </span>{ RuleCategory::Nursery },
+        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;invalid rule category&quot;</span>),
+    };
 
-    <span class="kw">let </span>import_statement =
-        <span class="kw">if </span>used_in_test { <span class="prelude-val">None </span>} <span class="kw">else </span>{ <span class="prelude-val">Some</span>(<span class="macro">quote! </span>{ <span class="kw">use </span><span class="kw">crate</span>::rule::RuleMeta; }) };
+    <span class="kw">let </span>import_statement = <span class="kw">if </span>used_in_test {
+        <span class="prelude-val">None
+    </span>} <span class="kw">else </span>{
+        <span class="prelude-val">Some</span>(<span class="macro">quote! </span>{ <span class="kw">use </span><span class="kw">crate</span>::rule::{RuleCategory, RuleMeta}; })
+    };
 
     <span class="kw">let </span>output = <span class="macro">quote! </span>{
         #import_statement
 
         <span class="kw">impl </span>RuleMeta <span class="kw">for </span>#name {
             <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = #canonical_name;
+
+            <span class="kw">const </span>CATEGORY: RuleCategory = #category;
 
             <span class="kw">fn </span>documentation() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
                 <span class="prelude-val">Some</span>(#documentation)

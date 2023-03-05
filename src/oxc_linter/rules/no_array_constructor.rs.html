@@ -105,6 +105,7 @@
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_ast::{ast::Expression, AstKind, Span};
 <span class="kw">use </span>oxc_diagnostics::{
     miette::{<span class="self">self</span>, Diagnostic},
@@ -135,7 +136,8 @@
     /// ```javascript
     /// let arr = new Array();
     /// ```
-    </span>NoArrayConstructor
+    </span>NoArrayConstructor,
+    correctness
 );
 
 <span class="kw">impl </span>Rule <span class="kw">for </span>NoArrayConstructor {

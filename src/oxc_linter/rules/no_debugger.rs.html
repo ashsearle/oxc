@@ -51,6 +51,7 @@
 <a href="#51" id="51">51</a>
 <a href="#52" id="52">52</a>
 <a href="#53" id="53">53</a>
+<a href="#54" id="54">54</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_ast::{AstKind, Span};
 <span class="kw">use </span>oxc_diagnostics::{
     miette::{<span class="self">self</span>, Diagnostic},
@@ -83,7 +84,8 @@
     /// const result = complexCalculation(data);
     /// debugger;
     /// ```
-    </span>NoDebugger
+    </span>NoDebugger,
+    correctness
 );
 
 <span class="kw">impl </span>Rule <span class="kw">for </span>NoDebugger {

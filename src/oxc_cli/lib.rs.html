@@ -154,6 +154,17 @@
 <a href="#154" id="154">154</a>
 <a href="#155" id="155">155</a>
 <a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
 <span class="comment">// mod git;
 </span><span class="kw">mod </span>options;
@@ -173,7 +184,7 @@
 <span class="kw">use </span>oxc_allocator::Allocator;
 <span class="kw">use </span>oxc_ast::SourceType;
 <span class="kw">use </span>oxc_diagnostics::{Error, Severity};
-<span class="kw">use </span>oxc_linter::{LintRunResult, Linter};
+<span class="kw">use </span>oxc_linter::{Fixer, Linter};
 <span class="kw">use </span>oxc_parser::Parser;
 <span class="kw">use </span>oxc_semantic::SemanticBuilder;
 
@@ -289,24 +300,35 @@
         <span class="kw">let </span>source_type = SourceType::from_path(path).expect(<span class="string">&quot;incorrect {path:?}&quot;</span>);
         <span class="kw">let </span>parser_source_text = source_text.clone();
         <span class="kw">let </span>ret = Parser::new(<span class="kw-2">&amp;</span>allocator, <span class="kw-2">&amp;</span>parser_source_text, source_type).parse();
-        <span class="kw">let </span>result = <span class="kw">if </span>ret.errors.is_empty() {
-            <span class="kw">let </span>program = allocator.alloc(ret.program);
-            <span class="kw">let </span>semantic = SemanticBuilder::new().build(program, ret.trivias);
-            Linter::new().run(<span class="kw-2">&amp;</span>Rc::new(semantic), <span class="kw-2">&amp;</span>source_text, fix)
-        } <span class="kw">else </span>{
-            LintRunResult { fixed_source: source_text.clone().into(), diagnostics: ret.errors }
+        <span class="kw">if </span>!ret.errors.is_empty() {
+            <span class="kw">return </span>ret.errors;
         };
 
-        <span class="kw">if </span>result.diagnostics.is_empty() {
+        <span class="kw">let </span>program = allocator.alloc(ret.program);
+        <span class="kw">let </span>semantic = SemanticBuilder::new().build(program, ret.trivias);
+        <span class="kw">let </span>result = Linter::new().run(<span class="kw-2">&amp;</span>Rc::new(semantic), <span class="kw-2">&amp;</span>source_text, fix);
+
+        <span class="kw">if </span>result.is_empty() {
             <span class="kw">return </span><span class="macro">vec!</span>[];
         }
 
-        <span class="kw">let </span>path = path.to_string_lossy();
-        <span class="kw">let </span>source = Arc::new(NamedSource::new(path, source_text.clone()));
+        <span class="kw">let </span>path_cow = path.to_string_lossy();
+        <span class="kw">let </span>source = Arc::new(NamedSource::new(path_cow, source_text.clone()));
+
+        <span class="kw">if </span>fix {
+            <span class="kw">let </span>fix_result = Fixer::new(<span class="kw-2">&amp;</span>source_text, result).fix();
+            fs::write(path, fix_result.fixed_code.as_bytes())
+                .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;{path:?} not found&quot;</span>));
+            <span class="kw">return </span>fix_result
+                .messages
+                .into_iter()
+                .map(|m| m.error.with_source_code(source.clone()))
+                .collect();
+        }
+
         result
-            .diagnostics
             .into_iter()
-            .map(|diagnostic| diagnostic.with_source_code(source.clone()))
+            .map(|diagnostic| diagnostic.error.with_source_code(source.clone()))
             .collect()
     }
 }

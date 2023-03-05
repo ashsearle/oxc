@@ -58,7 +58,7 @@
 };
 <span class="kw">use </span>oxc_macros::declare_oxc_lint;
 
-<span class="kw">use crate</span>::{context::LintContext, rule::Rule, AstNode};
+<span class="kw">use crate</span>::{autofix::Fix, context::LintContext, rule::Rule, AstNode};
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
 #[error(<span class="string">&quot;eslint(no-debugger): `debugger` statement is not allowed&quot;</span>)]
@@ -89,7 +89,7 @@
 <span class="kw">impl </span>Rule <span class="kw">for </span>NoDebugger {
     <span class="kw">fn </span>run&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;, ctx: <span class="kw-2">&amp;</span>LintContext&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">if let </span>AstKind::DebuggerStatement(stmt) = node.get().kind() {
-            ctx.diagnostic(NoDebuggerDiagnostic(stmt.span));
+            ctx.diagnostic_with_fix(NoDebuggerDiagnostic(stmt.span), || Fix::delete(stmt.span));
         }
     }
 }

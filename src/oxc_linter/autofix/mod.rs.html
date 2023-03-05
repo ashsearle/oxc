@@ -27,9 +27,9 @@
 
 <span class="kw">mod </span>fixer;
 
-<span class="kw">pub use </span>fixer::Fixer;
+<span class="kw">pub use </span>fixer::{Fixer, Message};
 
-<span class="attr">#[derive(Debug)]
+<span class="attr">#[derive(Debug, Default)]
 </span><span class="kw">pub struct </span>Fix&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub </span>content: Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;,
     <span class="kw">pub </span>span: Span,

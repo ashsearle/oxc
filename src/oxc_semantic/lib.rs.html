@@ -24,14 +24,18 @@
 <a href="#24" id="24">24</a>
 <a href="#25" id="25">25</a>
 <a href="#26" id="26">26</a>
+<a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>builder;
 <span class="kw">mod </span>node;
+<span class="kw">mod </span>scope;
 
 <span class="kw">use </span>std::rc::Rc;
 
 <span class="kw">pub use </span>builder::SemanticBuilder;
 <span class="kw">pub use </span>node::{AstNode, AstNodes};
 <span class="kw">use </span>oxc_ast::Trivias;
+<span class="kw">pub use </span>scope::{Scope, ScopeTree};
 
 <span class="kw">pub struct </span>Semantic&lt;<span class="lifetime">&#39;a</span>&gt; {
     nodes: AstNodes&lt;<span class="lifetime">&#39;a</span>&gt;,

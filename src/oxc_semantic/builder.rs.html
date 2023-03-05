@@ -57,34 +57,66 @@
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
 <a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Semantic Builder
 //! This builds:
 //!   * The untyped and flattened ast nodes into an indextree
 
 </span><span class="kw">use </span>std::rc::Rc;
 
-<span class="kw">use </span>oxc_ast::{ast::Program, visit::Visit, AstKind, Trivias};
+<span class="kw">use </span>oxc_ast::{ast::Program, visit::Visit, AstKind, SourceType, Trivias};
 
 <span class="kw">use crate</span>::{
-    node::{AstNodeId, AstNodes, SemanticNode},
+    node::{AstNodeId, AstNodes, NodeFlags, SemanticNode},
+    scope::ScopeBuilder,
     Semantic,
 };
 
-<span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>SemanticBuilder&lt;<span class="lifetime">&#39;a</span>&gt; {
-    nodes: AstNodes&lt;<span class="lifetime">&#39;a</span>&gt;,
+<span class="kw">pub struct </span>SemanticBuilder&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="comment">// states
+    </span>current_node_id: AstNodeId,
+    current_node_flags: NodeFlags,
 
-    current_node_id: AstNodeId,
+    <span class="comment">// builders
+    </span>nodes: AstNodes&lt;<span class="lifetime">&#39;a</span>&gt;,
+    scope: ScopeBuilder,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; SemanticBuilder&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
-    #[allow(clippy::new_without_default)]
-    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(source_type: SourceType) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>scope = ScopeBuilder::new(source_type);
         <span class="kw">let </span><span class="kw-2">mut </span>nodes = AstNodes::default();
-        <span class="kw">let </span>semantic_node = SemanticNode::new(AstKind::Root);
+        <span class="kw">let </span>semantic_node =
+            SemanticNode::new(AstKind::Root, scope.current_scope_id, NodeFlags::empty());
         <span class="kw">let </span>current_node_id = nodes.new_node(semantic_node).into();
-        <span class="self">Self </span>{ nodes, current_node_id }
+        <span class="self">Self </span>{ current_node_id, nodes, scope, current_node_flags: NodeFlags::empty() }
     }
 
     <span class="attr">#[must_use]
@@ -95,7 +127,8 @@
     }
 
     <span class="kw">fn </span>create_ast_node(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;) {
-        <span class="kw">let </span>ast_node = SemanticNode::new(kind);
+        <span class="kw">let </span>ast_node =
+            SemanticNode::new(kind, <span class="self">self</span>.scope.current_scope_id, <span class="self">self</span>.current_node_flags);
         <span class="kw">let </span>node_id = <span class="self">self</span>.nodes.new_node(ast_node);
         <span class="self">self</span>.current_node_id.append(node_id, <span class="kw-2">&amp;mut </span><span class="self">self</span>.nodes);
         <span class="self">self</span>.current_node_id = node_id.into();
@@ -105,15 +138,36 @@
         <span class="self">self</span>.current_node_id =
             <span class="self">self</span>.nodes[<span class="self">self</span>.current_node_id.indextree_id()].parent().unwrap().into();
     }
+
+    <span class="kw">fn </span>try_enter_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(flags) = ScopeBuilder::scope_flags_from_ast_kind(kind) {
+            <span class="self">self</span>.scope.enter(flags);
+        }
+    }
+
+    <span class="kw">fn </span>try_leave_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;) {
+        <span class="kw">if </span>ScopeBuilder::scope_flags_from_ast_kind(kind).is_some()
+            || <span class="macro">matches!</span>(kind, AstKind::Program(<span class="kw">_</span>))
+        {
+            <span class="self">self</span>.scope.leave();
+        }
+    }
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Visit&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>SemanticBuilder&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>enter_node(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;) {
-        <span class="self">self</span>.create_ast_node(kind);
+    <span class="comment">// Setup all the context for the binder,
+    // the order is important here.
+    </span><span class="kw">fn </span>enter_node(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;) {
+        <span class="comment">// create new self.scope.current_scope_id
+        </span><span class="self">self</span>.try_enter_scope(kind);
+
+        <span class="comment">// create new self.current_node_id
+        </span><span class="self">self</span>.create_ast_node(kind);
     }
 
-    <span class="kw">fn </span>leave_node(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;) {
+    <span class="kw">fn </span>leave_node(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="self">self</span>.pop_ast_node();
+        <span class="self">self</span>.try_leave_scope(kind);
     }
 }
 </code></pre></div>

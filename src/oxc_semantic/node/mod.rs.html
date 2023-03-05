@@ -25,12 +25,47 @@
 <a href="#25" id="25">25</a>
 <a href="#26" id="26">26</a>
 <a href="#27" id="27">27</a>
-</pre><pre class="rust"><code><span class="kw">mod </span>id;
+<a href="#28" id="28">28</a>
+<a href="#29" id="29">29</a>
+<a href="#30" id="30">30</a>
+<a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
+<a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
+<a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a>
+<a href="#41" id="41">41</a>
+<a href="#42" id="42">42</a>
+<a href="#43" id="43">43</a>
+<a href="#44" id="44">44</a>
+<a href="#45" id="45">45</a>
+<a href="#46" id="46">46</a>
+<a href="#47" id="47">47</a>
+<a href="#48" id="48">48</a>
+<a href="#49" id="49">49</a>
+<a href="#50" id="50">50</a>
+<a href="#51" id="51">51</a>
+<a href="#52" id="52">52</a>
+<a href="#53" id="53">53</a>
+<a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+</pre><pre class="rust"><code><span class="attr">#![allow(non_upper_case_globals)] </span><span class="comment">// for bitflags
+
+</span><span class="kw">mod </span>id;
 <span class="kw">mod </span>tree;
 
-<span class="kw">pub use </span>id::AstNodeId;
+<span class="kw">use </span>bitflags::bitflags;
 <span class="kw">use </span>oxc_ast::AstKind;
-<span class="kw">pub use </span>tree::AstNodes;
+
+<span class="kw">pub use </span><span class="self">self</span>::{id::AstNodeId, tree::AstNodes};
+<span class="kw">use </span><span class="kw">crate</span>::scope::{Scope, ScopeId};
 
 <span class="doccomment">/// Indextree node containing a semantic node
 </span><span class="kw">pub type </span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt; = indextree::Node&lt;SemanticNode&lt;<span class="lifetime">&#39;a</span>&gt;&gt;;
@@ -40,16 +75,43 @@
 </span><span class="kw">pub struct </span>SemanticNode&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// A pointer to the ast node, which resides in the `bumpalo` memory arena.
     </span>kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;,
+
+    <span class="doccomment">/// Associated Scope (initialized by binding)
+    </span>scope_id: ScopeId,
+
+    flags: NodeFlags,
+}
+
+<span class="macro">bitflags! </span>{
+    <span class="attr">#[derive(Default)]
+    </span><span class="kw">pub struct </span>NodeFlags: u8 {
+        <span class="kw">const </span>Class = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>; <span class="comment">// If Node is inside a class
+    </span>}
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; SemanticNode&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new(kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ kind }
+    </span><span class="kw">pub const fn </span>new(kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;, scope_id: ScopeId, flags: NodeFlags) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ kind, scope_id, flags }
     }
 
     <span class="kw">pub const fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AstKind&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="self">self</span>.kind
+    }
+
+    <span class="kw">pub const fn </span>scope_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScopeId {
+        <span class="self">self</span>.scope_id
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub const fn </span>strict_mode(<span class="kw-2">&amp;</span><span class="self">self</span>, scope: <span class="kw-2">&amp;</span>Scope) -&gt; bool {
+        <span class="comment">// All parts of a ClassDeclaration or a ClassExpression are strict mode code.
+        </span>scope.strict_mode() || <span class="self">self</span>.in_class()
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub const fn </span>in_class(<span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.flags.contains(NodeFlags::Class)
     }
 }
 </code></pre></div>

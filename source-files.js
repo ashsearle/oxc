@@ -9,6 +9,6 @@ var sourcesIndex = JSON.parse('{\
 "oxc_macros":["",[],["declare_oxc_lint.rs","lib.rs"]],\
 "oxc_parser":["",[["js",[],["binding.rs","class.rs","declaration.rs","expression.rs","function.rs","grammar.rs","list.rs","mod.rs","module.rs","object.rs","operator.rs","statement.rs"]],["jsx",[],["mod.rs"]],["lexer",[],["constants.rs","kind.rs","mod.rs","number.rs","simd.rs","string_builder.rs","token.rs","trivia_builder.rs"]],["ts",[],["declaration.rs","list.rs","mod.rs","statement.rs","types.rs"]]],["cursor.rs","diagnostics.rs","lib.rs","list.rs","state.rs"]],\
 "oxc_printer":["",[],["gen.rs","lib.rs"]],\
-"oxc_semantic":["",[["node",[],["id.rs","mod.rs","tree.rs"]]],["builder.rs","lib.rs"]]\
+"oxc_semantic":["",[["node",[],["id.rs","mod.rs","tree.rs"]],["scope",[],["builder.rs","id.rs","mod.rs","tree.rs"]]],["builder.rs","lib.rs"]]\
 }');
 createSourceSidebar();

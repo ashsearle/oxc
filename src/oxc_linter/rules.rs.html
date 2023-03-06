@@ -75,7 +75,17 @@
 <a href="#75" id="75">75</a>
 <a href="#76" id="76">76</a>
 <a href="#77" id="77">77</a>
-</pre><pre class="rust"><code><span class="kw">mod </span>no_array_constructor;
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+</pre><pre class="rust"><code><span class="kw">mod </span>for_direction;
+<span class="kw">mod </span>no_array_constructor;
 <span class="kw">mod </span>no_debugger;
 <span class="kw">mod </span>no_empty;
 <span class="kw">mod </span>no_empty_pattern;
@@ -84,6 +94,7 @@
 }
 
 <span class="kw">pub use </span>deepscan::uninvoked_array_callback::UninvokedArrayCallback;
+<span class="kw">pub use </span>for_direction::ForDirection;
 <span class="kw">pub use </span>no_array_constructor::NoArrayConstructor;
 <span class="kw">pub use </span>no_debugger::NoDebugger;
 <span class="kw">pub use </span>no_empty::NoEmpty;
@@ -98,6 +109,7 @@
         RuleEnum::NoArrayConstructor(NoArrayConstructor::default()),
         RuleEnum::NoEmptyPattern(NoEmptyPattern::default()),
         RuleEnum::UninvokedArrayCallback(UninvokedArrayCallback::default()),
+        RuleEnum::ForDirection(ForDirection::default()),
     ];
 }
 
@@ -109,6 +121,7 @@
     NoArrayConstructor(NoArrayConstructor),
     NoEmptyPattern(NoEmptyPattern),
     UninvokedArrayCallback(UninvokedArrayCallback),
+    ForDirection(ForDirection),
 }
 
 <span class="kw">impl </span>RuleEnum {
@@ -119,6 +132,7 @@
             <span class="self">Self</span>::NoArrayConstructor(<span class="kw">_</span>) =&gt; NoArrayConstructor::NAME,
             <span class="self">Self</span>::NoEmptyPattern(<span class="kw">_</span>) =&gt; NoEmptyPattern::NAME,
             <span class="self">Self</span>::UninvokedArrayCallback(<span class="kw">_</span>) =&gt; UninvokedArrayCallback::NAME,
+            <span class="self">Self</span>::ForDirection(<span class="kw">_</span>) =&gt; ForDirection::NAME,
         }
     }
 
@@ -139,6 +153,9 @@
             <span class="self">Self</span>::UninvokedArrayCallback(<span class="kw">_</span>) =&gt; <span class="self">Self</span>::UninvokedArrayCallback(
                 maybe_value.map(UninvokedArrayCallback::from_configuration).unwrap_or_default(),
             ),
+            <span class="self">Self</span>::ForDirection(<span class="kw">_</span>) =&gt; <span class="self">Self</span>::ForDirection(
+                maybe_value.map(ForDirection::from_configuration).unwrap_or_default(),
+            ),
         }
     }
 
@@ -149,6 +166,7 @@
             <span class="self">Self</span>::NoArrayConstructor(rule) =&gt; rule.run(node, ctx),
             <span class="self">Self</span>::NoEmptyPattern(rule) =&gt; rule.run(node, ctx),
             <span class="self">Self</span>::UninvokedArrayCallback(rule) =&gt; rule.run(node, ctx),
+            <span class="self">Self</span>::ForDirection(rule) =&gt; rule.run(node, ctx),
         }
     }
 }

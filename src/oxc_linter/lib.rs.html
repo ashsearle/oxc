@@ -76,6 +76,28 @@
 <a href="#76" id="76">76</a>
 <a href="#77" id="77">77</a>
 <a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
 </pre><pre class="rust"><code><span class="attr">#![feature(let_chains, is_some_and)]
 
 #[cfg(test)]
@@ -120,6 +142,28 @@
                     .collect()
             },
         );
+        <span class="self">Self </span>{ rules }
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>from_json_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>rules = serde_json::from_str(s)
+            .ok()
+            .and_then(|v: serde_json::Value| v.get(<span class="string">&quot;rules&quot;</span>).cloned())
+            .and_then(|v| v.as_object().cloned())
+            .map_or_else(
+                || RULES.to_vec(),
+                |rules_config| {
+                    RULES
+                        .iter()
+                        .map(|rule| {
+                            <span class="kw">let </span>value = rules_config.get(rule.name());
+                            rule.read_json(value.cloned())
+                        })
+                        .collect()
+                },
+            );
+
         <span class="self">Self </span>{ rules }
     }
 

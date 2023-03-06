@@ -2857,7 +2857,7 @@
     <span class="attr">#[serde(flatten)]
     </span><span class="kw">pub </span>kind: BindingPatternKind&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
-    </span><span class="kw">pub </span>type_annotation: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    </span><span class="kw">pub </span>type_annotation: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     <span class="kw">pub </span>optional: bool,
 }
 
@@ -2941,7 +2941,7 @@
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
-    </span><span class="kw">pub </span>return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    </span><span class="kw">pub </span>return_type: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     <span class="doccomment">/// Valid modifiers: `export`, `default`, `async`
     </span><span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Modifiers::is_none&quot;</span>)]
     </span><span class="kw">pub </span>modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -3045,7 +3045,7 @@
     </span><span class="kw">pub </span>body: Box&lt;<span class="lifetime">&#39;a</span>, FunctionBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 
     <span class="kw">pub </span>type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-    <span class="kw">pub </span>return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    <span class="kw">pub </span>return_type: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
 }
 
 <span class="doccomment">/// Section 15.5 Generator Function Definitions
@@ -3067,7 +3067,7 @@
     </span><span class="kw">pub </span>span: Span,
     <span class="kw">pub </span>id: <span class="prelude-ty">Option</span>&lt;BindingIdentifier&gt;,
     <span class="kw">pub </span>super_class: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-    <span class="kw">pub </span>body: ClassBody&lt;<span class="lifetime">&#39;a</span>&gt;,
+    <span class="kw">pub </span>body: Box&lt;<span class="lifetime">&#39;a</span>, ClassBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
@@ -3222,7 +3222,7 @@
     <span class="kw">pub </span>definite: bool,
     <span class="kw">pub </span>readonly: bool,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
-    </span><span class="kw">pub </span>type_annotation: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    </span><span class="kw">pub </span>type_annotation: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
     </span><span class="kw">pub </span>accessibility: <span class="prelude-ty">Option</span>&lt;TSAccessibility&gt;,
     <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Vec::is_empty&quot;</span>)]

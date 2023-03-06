@@ -1098,6 +1098,8 @@
 <a href="#1098" id="1098">1098</a>
 <a href="#1099" id="1099">1099</a>
 <a href="#1100" id="1100">1100</a>
+<a href="#1101" id="1101">1101</a>
+<a href="#1102" id="1102">1102</a>
 </pre><pre class="rust"><code><span class="kw">use </span>bitflags::bitflags;
 <span class="kw">use </span>oxc_allocator::{Box, Vec};
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::Context};
@@ -1928,7 +1930,9 @@
         <span class="self">self</span>.unexpected()
     }
 
-    <span class="kw">pub fn </span>parse_ts_return_type_annotation(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
+    <span class="kw">pub fn </span>parse_ts_return_type_annotation(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.ts_enabled() {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }

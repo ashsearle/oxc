@@ -1741,6 +1741,16 @@
 <a href="#1741" id="1741">1741</a>
 <a href="#1742" id="1742">1742</a>
 <a href="#1743" id="1743">1743</a>
+<a href="#1744" id="1744">1744</a>
+<a href="#1745" id="1745">1745</a>
+<a href="#1746" id="1746">1746</a>
+<a href="#1747" id="1747">1747</a>
+<a href="#1748" id="1748">1748</a>
+<a href="#1749" id="1749">1749</a>
+<a href="#1750" id="1750">1750</a>
+<a href="#1751" id="1751">1751</a>
+<a href="#1752" id="1752">1752</a>
+<a href="#1753" id="1753">1753</a>
 </pre><pre class="rust"><code><span class="doccomment">//! AST builder for creating AST spans
 
 </span><span class="attr">#![allow(clippy::unused_self, clippy::missing_const_for_fn, clippy::too_many_arguments)]
@@ -2095,7 +2105,7 @@
         params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         body: Box&lt;<span class="lifetime">&#39;a</span>, FunctionBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-        return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+        return_type: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         Expression::ArrowFunctionExpression(<span class="self">self</span>.alloc(ArrowExpression {
             span,
@@ -2454,7 +2464,7 @@
         params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         body: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, FunctionBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-        return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+        return_type: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         modifiers: Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, Function&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.alloc(Function {
@@ -2493,7 +2503,7 @@
         span: Span,
         id: <span class="prelude-ty">Option</span>&lt;BindingIdentifier&gt;,
         super_class: <span class="prelude-ty">Option</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-        body: ClassBody&lt;<span class="lifetime">&#39;a</span>&gt;,
+        body: Box&lt;<span class="lifetime">&#39;a</span>, ClassBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         super_type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterInstantiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         implements: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="lifetime">&#39;a</span>, Box&lt;<span class="lifetime">&#39;a</span>, TSClassImplements&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;&gt;,
@@ -2512,6 +2522,16 @@
             decorators,
             modifiers,
         })
+    }
+
+    <span class="attr">#[must_use]
+    #[inline]
+    </span><span class="kw">pub fn </span>class_body(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        span: Span,
+        body: Vec&lt;<span class="lifetime">&#39;a</span>, ClassElement&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, ClassBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="self">self</span>.alloc(ClassBody { span, body })
     }
 
     <span class="attr">#[must_use]
@@ -2579,7 +2599,7 @@
     </span><span class="kw">pub fn </span>binding_pattern(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         kind: BindingPatternKind&lt;<span class="lifetime">&#39;a</span>&gt;,
-        type_annotation: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+        type_annotation: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         optional: bool,
     ) -&gt; BindingPattern&lt;<span class="lifetime">&#39;a</span>&gt; {
         BindingPattern { kind, type_annotation, optional }
@@ -2882,8 +2902,8 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         span: Span,
         type_annotation: TSType&lt;<span class="lifetime">&#39;a</span>&gt;,
-    ) -&gt; TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt; {
-        TSTypeAnnotation { span, type_annotation }
+    ) -&gt; Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="self">self</span>.alloc(TSTypeAnnotation { span, type_annotation })
     }
 
     <span class="attr">#[must_use]
@@ -3032,7 +3052,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         span: Span,
         parameters: Vec&lt;<span class="lifetime">&#39;a</span>, Box&lt;<span class="lifetime">&#39;a</span>, TSIndexSignatureName&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-        type_annotation: TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;,
+        type_annotation: Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     ) -&gt; TSSignature&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSSignature::TSIndexSignature(<span class="self">self</span>.alloc(TSIndexSignature {
             span,
@@ -3050,7 +3070,7 @@
         optional: bool,
         readonly: bool,
         key: PropertyKey&lt;<span class="lifetime">&#39;a</span>&gt;,
-        type_annotation: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+        type_annotation: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; TSSignature&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSSignature::TSPropertySignature(<span class="self">self</span>.alloc(TSPropertySignature {
             span,
@@ -3068,7 +3088,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         span: Span,
         params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-        return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+        return_type: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; TSSignature&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSSignature::TSCallSignatureDeclaration(<span class="self">self</span>.alloc(TSCallSignatureDeclaration {
@@ -3085,7 +3105,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         span: Span,
         params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-        return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+        return_type: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; TSSignature&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSSignature::TSConstructSignatureDeclaration(<span class="self">self</span>.alloc(TSConstructSignatureDeclaration {
@@ -3106,7 +3126,7 @@
         optional: bool,
         kind: TSMethodSignatureKind,
         params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-        return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+        return_type: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; TSSignature&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSSignature::TSMethodSignature(<span class="self">self</span>.alloc(TSMethodSignature {
@@ -3410,7 +3430,7 @@
         span: Span,
         r#abstract: bool,
         params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-        return_type: TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;,
+        return_type: Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSType::TSConstructorType(<span class="self">self</span>.alloc(TSConstructorType {
@@ -3428,7 +3448,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         span: Span,
         params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-        return_type: TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;,
+        return_type: Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSType::TSFunctionType(<span class="self">self</span>.alloc(TSFunctionType {
@@ -3456,7 +3476,7 @@
         span: Span,
         parameter_name: TSTypePredicateName,
         asserts: bool,
-        type_annotation: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+        type_annotation: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     ) -&gt; TSType&lt;<span class="lifetime">&#39;a</span>&gt; {
         TSType::TSTypePredicate(<span class="self">self</span>.alloc(TSTypePredicate {
             span,

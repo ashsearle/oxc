@@ -535,7 +535,7 @@
 <span class="kw">type </span>ArrowFunctionHead&lt;<span class="lifetime">&#39;a</span>&gt; = (
     <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-    <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     bool,
     Span,
 );
@@ -1004,7 +1004,7 @@
         span: Span,
         type_parameters: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeParameterDeclaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         params: Box&lt;<span class="lifetime">&#39;a</span>, FormalParameters&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-        return_type: <span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+        return_type: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
         r#async: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span>has_await = <span class="self">self</span>.ctx.has_await();

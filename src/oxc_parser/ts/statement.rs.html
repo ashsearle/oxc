@@ -606,6 +606,8 @@
 <a href="#606" id="606">606</a>
 <a href="#607" id="607">607</a>
 <a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
 <span class="kw">use </span>oxc_ast::{
     ast::<span class="kw-2">*</span>,
@@ -669,7 +671,7 @@
 
     <span class="doccomment">/** ------------------- Annotation ----------------- */
 
-    </span><span class="kw">pub fn </span>parse_ts_type_annotation(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
+    </span><span class="kw">pub fn </span>parse_ts_type_annotation(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.at(Kind::Colon) {
             <span class="kw">let </span>span = <span class="self">self</span>.start_span();
             <span class="self">self</span>.bump_any(); <span class="comment">// bump &#39;:&#39;
@@ -680,7 +682,9 @@
         }
     }
 
-    <span class="kw">pub fn </span>parse_ts_variable_annotation(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(<span class="prelude-ty">Option</span>&lt;TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, bool)&gt; {
+    <span class="kw">pub fn </span>parse_ts_variable_annotation(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(<span class="prelude-ty">Option</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, TSTypeAnnotation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;, bool)&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.at(Kind::Bang) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="self">self</span>.parse_ts_type_annotation()<span class="question-mark">?</span>, <span class="bool-val">false</span>));
         }
@@ -1123,7 +1127,7 @@
             modifiers.push(<span class="self">Self</span>::modifier(kind, <span class="self">self</span>.end_span(span)));
         }
 
-        (flags, Modifiers(<span class="prelude-val">Some</span>(modifiers)))
+        (flags, Modifiers::new(modifiers))
     }
 
     <span class="kw">fn </span>at_modifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {

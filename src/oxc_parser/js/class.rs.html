@@ -477,8 +477,6 @@
 <a href="#477" id="477">477</a>
 <a href="#478" id="478">478</a>
 <a href="#479" id="479">479</a>
-<a href="#480" id="480">480</a>
-<a href="#481" id="481">481</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::{Box, Vec};
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::StatementContext, syntax_directed_operations::PropName, Span};
 <span class="kw">use </span>oxc_diagnostics::Result;
@@ -631,14 +629,12 @@
         <span class="prelude-val">Ok</span>(extends)
     }
 
-    <span class="kw">fn </span>parse_class_body(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ClassBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    <span class="kw">fn </span>parse_class_body(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="lifetime">&#39;a</span>, ClassBody&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; {
         <span class="kw">let </span>span = <span class="self">self</span>.start_span();
-
         <span class="kw">let </span><span class="kw-2">mut </span>class_elements = ClassElements::new(<span class="self">self</span>);
         class_elements.parse(<span class="self">self</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>body = class_elements.elements;
-
-        <span class="prelude-val">Ok</span>(ClassBody { span: <span class="self">self</span>.end_span(span), body })
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.class_body(<span class="self">self</span>.end_span(span), body))
     }
 
     <span class="attr">#[allow(clippy::too_many_lines)]

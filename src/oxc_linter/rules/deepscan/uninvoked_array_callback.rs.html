@@ -94,7 +94,6 @@
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_ast::{
     ast::{Argument, Expression, MemberExpression},
     AstKind, GetSpan, Span,
@@ -129,7 +128,6 @@
     /// ### Why is this bad?
     /// When the Array constructor is called with a single number argument, an array with the specified number of empty slots (not actual undefined values) is constructed.
     /// If a callback function is passed to the function of this array, the callback function is never invoked because the array has no actual elements.
-    ///
     ///
     /// ### Example
     /// ```javascript

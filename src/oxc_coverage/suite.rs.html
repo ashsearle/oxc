@@ -328,6 +328,8 @@
 <a href="#328" id="328">328</a>
 <a href="#329" id="329">329</a>
 <a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     fs::{<span class="self">self</span>, File},
     io::{stdout, Read, Write},
@@ -491,29 +493,31 @@
     ) -&gt; std::io::Result&lt;()&gt; {
         <span class="kw">let </span>CoverageReport {
             parsed_positives,
-
-            <span class="comment">// passed_positives,
-            // passed_negatives,
-            </span>all_positives,
-            <span class="comment">// all_negatives,
-            </span>..
+            passed_positives,
+            passed_negatives,
+            all_positives,
+            all_negatives,
+            ..
         } = report;
 
         <span class="kw">let </span>parsed_diff = (<span class="kw-2">*</span>parsed_positives <span class="kw">as </span>f64 / <span class="kw-2">*</span>all_positives <span class="kw">as </span>f64) * <span class="number">100.0</span>;
-        <span class="comment">// let positive_diff = (*passed_positives as f64 / *all_positives as f64) * 100.0;
-        // let negative_diff = (*passed_negatives as f64 / *all_negatives as f64) * 100.0;
-        </span>writer.write_all(<span class="macro">format!</span>(<span class="string">&quot;{name} Summary:\n&quot;</span>).as_bytes())<span class="question-mark">?</span>;
+        <span class="kw">let </span>positive_diff = (<span class="kw-2">*</span>passed_positives <span class="kw">as </span>f64 / <span class="kw-2">*</span>all_positives <span class="kw">as </span>f64) * <span class="number">100.0</span>;
+        <span class="kw">let </span>negative_diff = (<span class="kw-2">*</span>passed_negatives <span class="kw">as </span>f64 / <span class="kw-2">*</span>all_negatives <span class="kw">as </span>f64) * <span class="number">100.0</span>;
+        writer.write_all(<span class="macro">format!</span>(<span class="string">&quot;{name} Summary:\n&quot;</span>).as_bytes())<span class="question-mark">?</span>;
         <span class="kw">let </span>msg =
             <span class="macro">format!</span>(<span class="string">&quot;AST Parsed     : {parsed_positives}/{all_positives} ({parsed_diff:.2}%)\n&quot;</span>);
         writer.write_all(msg.as_bytes())<span class="question-mark">?</span>;
-        <span class="comment">// let msg =
-        // format!(&quot;Positive Passed: {passed_positives}/{all_positives} ({positive_diff:.2}%)\n&quot;);
-        // writer.write_all(msg.as_bytes())?;
-        // let msg =
-        // format!(&quot;Negative Passed: {passed_negatives}/{all_negatives} ({negative_diff:.2}%)\n&quot;);
-        // writer.write_all(msg.as_bytes())?;
+        <span class="kw">let </span>msg =
+            <span class="macro">format!</span>(<span class="string">&quot;Positive Passed: {passed_positives}/{all_positives} ({positive_diff:.2}%)\n&quot;</span>);
+        writer.write_all(msg.as_bytes())<span class="question-mark">?</span>;
+        <span class="kw">if </span><span class="kw-2">*</span>all_negatives &gt; <span class="number">0 </span>{
+            <span class="kw">let </span>msg = <span class="macro">format!</span>(
+                <span class="string">&quot;Negative Passed: {passed_negatives}/{all_negatives} ({negative_diff:.2}%)\n&quot;
+            </span>);
+            writer.write_all(msg.as_bytes())<span class="question-mark">?</span>;
+        }
 
-        </span><span class="kw">if </span>args.should_print_detail() {
+        <span class="kw">if </span>args.should_print_detail() {
             <span class="kw">for </span>case <span class="kw">in </span><span class="kw-2">&amp;</span>report.failed_negatives {
                 case.print(args, writer)<span class="question-mark">?</span>;
             }
@@ -630,10 +634,10 @@
                     <span class="macro">println!</span>(<span class="string">&quot;Mismatch: {:?}&quot;</span>, <span class="self">self</span>.path());
                 }
             }
-            <span class="comment">// TestResult::IncorrectlyPassed =&gt; {
-            // writer.write_all(format!(&quot;Expect Syntax Error: {:?}\n&quot;, self.path()).as_bytes())?;
-            // }
-            </span><span class="kw">_ </span>=&gt; {}
+            TestResult::IncorrectlyPassed =&gt; {
+                writer.write_all(<span class="macro">format!</span>(<span class="string">&quot;Expect Syntax Error: {:?}\n&quot;</span>, <span class="self">self</span>.path()).as_bytes())<span class="question-mark">?</span>;
+            }
+            <span class="kw">_ </span>=&gt; {}
         }
         <span class="prelude-val">Ok</span>(())
     }

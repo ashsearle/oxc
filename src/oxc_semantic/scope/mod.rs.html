@@ -126,47 +126,47 @@
 
 <span class="kw">impl </span>Scope {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new(flags: ScopeFlags, strict_mode: bool) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(flags: ScopeFlags, strict_mode: bool) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ strict_mode, flags }
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>strict_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>strict_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.strict_mode
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_top(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_top(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.flags.intersects(ScopeFlags::Top)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_ts_module(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_ts_module(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.flags.intersects(ScopeFlags::TsModuleBlock)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_function(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_function(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.flags.intersects(ScopeFlags::Function)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_static_block(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_static_block(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.flags.intersects(ScopeFlags::ClassStaticBlock)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_constructor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_constructor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.flags.intersects(ScopeFlags::Constructor)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_get_accessor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_get_accessor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.flags.intersects(ScopeFlags::GetAccessor)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_set_accessor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_set_accessor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.flags.intersects(ScopeFlags::SetAccessor)
     }
 }

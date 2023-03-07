@@ -1824,7 +1824,7 @@
     <span class="doccomment">/// `PrimaryExpression`
     /// [tc39/ecma262#prod-PrimaryExpression](https://tc39.es/ecma262/#prod-PrimaryExpression)
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_primary_expression(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_primary_expression(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.is_literal_expression()
             || <span class="macro">matches!</span>(
                 <span class="self">self</span>,
@@ -1839,7 +1839,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_literal_expression(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_literal_expression(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
             <span class="self">self</span>,
             <span class="self">Self</span>::BooleanLiteral(<span class="kw">_</span>)
@@ -1852,13 +1852,13 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_string_literal(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_string_literal(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::StringLiteral(<span class="kw">_</span>) | <span class="self">Self</span>::TemplateLiteral(<span class="kw">_</span>))
     }
 
     <span class="doccomment">/// Determines whether the given expr is a `null` literal
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_null(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_null(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, Expression::NullLiteral(<span class="kw">_</span>))
     }
 
@@ -1908,7 +1908,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_function(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_function(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, Expression::FunctionExpression(<span class="kw">_</span>) | Expression::ArrowFunctionExpression(<span class="kw">_</span>))
     }
 }
@@ -2026,7 +2026,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_private_identifier(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_private_identifier(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::PrivateIdentifier(<span class="kw">_</span>))
     }
 }
@@ -2106,7 +2106,7 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MemberExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>optional(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>optional(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">match </span><span class="self">self </span>{
             MemberExpression::ComputedMemberExpression(expr) =&gt; expr.optional,
             MemberExpression::StaticMemberExpression(expr) =&gt; expr.optional,
@@ -2115,7 +2115,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub fn </span>object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             MemberExpression::ComputedMemberExpression(expr) =&gt; <span class="kw-2">&amp;</span>expr.object,
             MemberExpression::StaticMemberExpression(expr) =&gt; <span class="kw-2">&amp;</span>expr.object,
@@ -2353,7 +2353,7 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; AssignmentTarget&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_destructuring_pattern(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_destructuring_pattern(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::AssignmentTargetPattern(<span class="kw">_</span>))
     }
 }
@@ -2617,12 +2617,12 @@
 
 <span class="kw">impl </span>VariableDeclarationKind {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_const(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_const(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::Const)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_lexical(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_lexical(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::Const | <span class="self">Self</span>::Let)
     }
 }
@@ -2873,12 +2873,12 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; BindingPatternKind&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_destructuring_pattern(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_destructuring_pattern(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::ObjectPattern(<span class="kw">_</span>) | <span class="self">Self</span>::ArrayPattern(<span class="kw">_</span>))
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_rest_element(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_rest_element(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::RestElement(<span class="kw">_</span>))
     }
 }
@@ -2959,17 +2959,17 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_function_declaration(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_function_declaration(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>.r#type, FunctionType::FunctionDeclaration)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_ts_declare_function(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_ts_declare_function(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>.r#type, FunctionType::TSDeclareFunction)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_declaration(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_declaration(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>.r#type, FunctionType::FunctionDeclaration | FunctionType::TSDeclareFunction)
     }
 }
@@ -3277,7 +3277,7 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ModuleDeclarationKind&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_export(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_export(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
             <span class="self">self</span>,
             <span class="self">Self</span>::ExportAllDeclaration(<span class="kw">_</span>)
@@ -3477,7 +3477,7 @@
 
 <span class="kw">impl </span>ModuleExportName {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Atom {
+    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Atom {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Identifier(identifier) =&gt; <span class="kw-2">&amp;</span>identifier.name,
             <span class="self">Self</span>::StringLiteral(literal) =&gt; <span class="kw-2">&amp;</span>literal.value,

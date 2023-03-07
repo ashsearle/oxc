@@ -403,17 +403,17 @@
 <span class="kw">impl </span>Span {
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub const fn </span>new(start: u32, end: u32) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(start: u32, end: u32) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ start, end }
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.end - <span class="self">self</span>.start
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.len() == <span class="number">0
     </span>}
 }

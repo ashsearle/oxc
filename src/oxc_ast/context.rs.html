@@ -256,61 +256,61 @@
 <span class="kw">impl </span>Context {
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub const fn </span>has_in(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>has_in(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.contains(<span class="self">Self</span>::In)
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub const fn </span>has_yield(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>has_yield(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.contains(<span class="self">Self</span>::Yield)
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub const fn </span>has_await(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>has_await(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.contains(<span class="self">Self</span>::Await)
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub const fn </span>has_return(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>has_return(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.contains(<span class="self">Self</span>::Return)
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub const fn </span>has_disallow_conditional_types(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>has_disallow_conditional_types(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.contains(<span class="self">Self</span>::DisallowConditionalTypes)
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub const fn </span>has_ambient(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>has_ambient(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.contains(<span class="self">Self</span>::Ambient)
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub const fn </span>has_decorator(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>has_decorator(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.contains(<span class="self">Self</span>::Decorator)
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub const fn </span>union_await_if(<span class="self">self</span>, include: bool) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>union_await_if(<span class="self">self</span>, include: bool) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.union_if(<span class="self">Self</span>::Await, include)
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub const fn </span>union_yield_if(<span class="self">self</span>, include: bool) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>union_yield_if(<span class="self">self</span>, include: bool) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.union_if(<span class="self">Self</span>::Yield, include)
     }
 
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">const fn </span>union_if(<span class="self">self</span>, other: <span class="self">Self</span>, include: bool) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>union_if(<span class="self">self</span>, other: <span class="self">Self</span>, include: bool) -&gt; <span class="self">Self </span>{
         <span class="kw">if </span>include { <span class="self">self</span>.union(other) } <span class="kw">else </span>{ <span class="self">self </span>}
     }
 
@@ -386,7 +386,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_iteration(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_iteration(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::For | <span class="self">Self</span>::While | <span class="self">Self</span>::Do)
     }
 }

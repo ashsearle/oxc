@@ -443,7 +443,7 @@
 
 <span class="kw">impl </span>BooleanLiteral {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">pub fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
         <span class="kw">if </span><span class="self">self</span>.value { <span class="string">&quot;true&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;false&quot; </span>}
     }
 }
@@ -493,7 +493,7 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; NumberLiteral&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new(span: Span, value: f64, raw: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, base: NumberBase) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(span: Span, value: f64, raw: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, base: NumberBase) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>value = <span class="kw">unsafe </span>{ NotNan::new_unchecked(value) };
         <span class="self">Self </span>{ span, value, raw, base }
     }

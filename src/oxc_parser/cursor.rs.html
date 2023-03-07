@@ -336,13 +336,13 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Parser&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>start_span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
+    </span><span class="kw">pub fn </span>start_span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
         <span class="kw">let </span>token = <span class="self">self</span>.cur_token();
         Span::new(token.start, <span class="number">0</span>)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>end_span(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; Span {
+    </span><span class="kw">pub fn </span>end_span(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; Span {
         <span class="kw">let </span><span class="kw-2">mut </span>span = span;
         span.end = <span class="self">self</span>.prev_token_end;
         span
@@ -350,13 +350,13 @@
 
     <span class="doccomment">/// Get current token
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>cur_token(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Token {
+    </span><span class="kw">pub fn </span>cur_token(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Token {
         <span class="kw-2">&amp;</span><span class="self">self</span>.token
     }
 
     <span class="doccomment">/// Get current Kind
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>cur_kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Kind {
+    </span><span class="kw">pub fn </span>cur_kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Kind {
         <span class="self">self</span>.token.kind
     }
 
@@ -369,7 +369,7 @@
 
     <span class="doccomment">/// Get current atom
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>cur_atom(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Atom&gt; {
+    </span><span class="kw">pub fn </span>cur_atom(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Atom&gt; {
         <span class="self">self</span>.cur_token().value.get_atom()
     }
 
@@ -493,7 +493,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>current_range(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
+    </span><span class="kw">pub fn </span>current_range(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
         <span class="kw">let </span>cur_token = <span class="self">self</span>.cur_token();
         <span class="kw">match </span><span class="self">self</span>.cur_kind() {
             Kind::Eof =&gt; {

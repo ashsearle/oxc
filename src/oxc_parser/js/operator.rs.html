@@ -176,7 +176,7 @@
 </span>}
 
 <span class="kw">impl </span>BindingPower {
-    <span class="kw">pub const fn </span>lowest() -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>lowest() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::Comma
     }
 
@@ -184,7 +184,7 @@
         binding_power == <span class="self">Self</span>::Exponential
     }
 
-    <span class="kw">pub const fn </span>value(kind: Kind) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">pub fn </span>value(kind: Kind) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>kind {
             Kind::Question2 =&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::Coalesce),
             Kind::Pipe2 =&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::LogicalOr),

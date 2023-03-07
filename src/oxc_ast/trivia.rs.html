@@ -70,7 +70,7 @@
 
 <span class="kw">impl </span>Comment {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new(end: u32, kind: CommentKind) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(end: u32, kind: CommentKind) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ kind, end }
     }
 }

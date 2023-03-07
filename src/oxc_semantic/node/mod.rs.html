@@ -91,26 +91,26 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; SemanticNode&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new(kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;, scope_id: ScopeId, flags: NodeFlags) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;, scope_id: ScopeId, flags: NodeFlags) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ kind, scope_id, flags }
     }
 
-    <span class="kw">pub const fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AstKind&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AstKind&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="self">self</span>.kind
     }
 
-    <span class="kw">pub const fn </span>scope_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScopeId {
+    <span class="kw">pub fn </span>scope_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScopeId {
         <span class="self">self</span>.scope_id
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>strict_mode(<span class="kw-2">&amp;</span><span class="self">self</span>, scope: <span class="kw-2">&amp;</span>Scope) -&gt; bool {
+    </span><span class="kw">pub fn </span>strict_mode(<span class="kw-2">&amp;</span><span class="self">self</span>, scope: <span class="kw-2">&amp;</span>Scope) -&gt; bool {
         <span class="comment">// All parts of a ClassDeclaration or a ClassExpression are strict mode code.
         </span>scope.strict_mode() || <span class="self">self</span>.in_class()
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>in_class(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>in_class(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.flags.contains(NodeFlags::Class)
     }
 }

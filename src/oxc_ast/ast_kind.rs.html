@@ -515,7 +515,7 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; AstKind&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
     #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>is_statement(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_statement(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.is_iteration_statement()
             || <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::BlockStatement(<span class="kw">_</span>) | <span class="self">Self</span>::BreakStatement(<span class="kw">_</span>) | <span class="self">Self</span>::ContinueStatement(<span class="kw">_</span>)
                     | <span class="self">Self</span>::DebuggerStatement(<span class="kw">_</span>) | <span class="self">Self</span>::EmptyStatement(<span class="kw">_</span>) | <span class="self">Self</span>::ExpressionStatement(<span class="kw">_</span>)
@@ -526,7 +526,7 @@
 
     <span class="attr">#[must_use]
     #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>is_declaration(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_declaration(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
             <span class="self">self</span>,
             <span class="self">Self</span>::ModuleDeclaration(<span class="kw">_</span>) | <span class="self">Self</span>::TSEnumDeclaration(<span class="kw">_</span>) | <span class="self">Self</span>::TSModuleDeclaration(<span class="kw">_</span>)
@@ -537,21 +537,21 @@
 
     <span class="attr">#[must_use]
     #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>is_iteration_statement(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_iteration_statement(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::DoWhileStatement(<span class="kw">_</span>) | <span class="self">Self</span>::WhileStatement(<span class="kw">_</span>) | <span class="self">Self</span>::ForInStatement(<span class="kw">_</span>)
                 | <span class="self">Self</span>::ForOfStatement(<span class="kw">_</span>) | <span class="self">Self</span>::ForStatement(<span class="kw">_</span>))
     }
 
     <span class="attr">#[must_use]
     #[rustfmt::skip]
-    </span><span class="kw">pub const fn </span>is_identifier(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_identifier(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::BindingIdentifier(<span class="kw">_</span>)
                 | <span class="self">Self</span>::IdentifierReference(<span class="kw">_</span>)
                 | <span class="self">Self</span>::LabelIdentifier(<span class="kw">_</span>))
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_type(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_type(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
             <span class="self">self</span>,
             <span class="self">Self</span>::TSIntersectionType(<span class="kw">_</span>)
@@ -562,7 +562,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_literal(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_literal(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
             <span class="self">self</span>,
             <span class="self">Self</span>::NumberLiteral(<span class="kw">_</span>)
@@ -576,7 +576,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_function_like(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_function_like(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::Function(<span class="kw">_</span>) | <span class="self">Self</span>::ArrowExpression(<span class="kw">_</span>))
     }
 
@@ -592,7 +592,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_jsx(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_jsx(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::JSXOpeningElement(<span class="kw">_</span>) | <span class="self">Self</span>::JSXElementName(<span class="kw">_</span>))
     }
 }

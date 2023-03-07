@@ -1167,7 +1167,7 @@
 }
 
 <span class="kw">impl </span>ModifierFlags {
-    <span class="kw">pub const fn </span>accessibility(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;TSAccessibility&gt; {
+    <span class="kw">pub fn </span>accessibility(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;TSAccessibility&gt; {
         <span class="kw">if </span><span class="self">self</span>.contains(<span class="self">Self</span>::PUBLIC) {
             <span class="kw">return </span><span class="prelude-val">Some</span>(TSAccessibility::Public);
         }
@@ -1181,27 +1181,27 @@
         <span class="prelude-val">None
     </span>}
 
-    <span class="kw">pub const fn </span>readonly(<span class="self">self</span>) -&gt; bool {
+    <span class="kw">pub fn </span>readonly(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.contains(<span class="self">Self</span>::READONLY)
     }
 
-    <span class="kw">pub const fn </span>declare(<span class="self">self</span>) -&gt; bool {
+    <span class="kw">pub fn </span>declare(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.contains(<span class="self">Self</span>::DECLARE)
     }
 
-    <span class="kw">pub const fn </span>r#async(<span class="self">self</span>) -&gt; bool {
+    <span class="kw">pub fn </span>r#async(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.contains(<span class="self">Self</span>::ASYNC)
     }
 
-    <span class="kw">pub const fn </span>r#override(<span class="self">self</span>) -&gt; bool {
+    <span class="kw">pub fn </span>r#override(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.contains(<span class="self">Self</span>::OVERRIDE)
     }
 
-    <span class="kw">pub const fn </span>r#abstract(<span class="self">self</span>) -&gt; bool {
+    <span class="kw">pub fn </span>r#abstract(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.contains(<span class="self">Self</span>::ABSTRACT)
     }
 
-    <span class="kw">pub const fn </span>r#static(<span class="self">self</span>) -&gt; bool {
+    <span class="kw">pub fn </span>r#static(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.contains(<span class="self">Self</span>::STATIC)
     }
 }

@@ -466,12 +466,12 @@
 
 <span class="kw">impl </span>AssignmentOperator {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_logical_operator(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_logical_operator(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::LogicalAnd | <span class="self">Self</span>::LogicalOr | <span class="self">Self</span>::LogicalNullish)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_arithmetic(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_arithmetic(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
             <span class="self">self</span>,
             <span class="self">Self</span>::Addition
@@ -484,12 +484,12 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_bitwise(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_bitwise(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::BitwiseOR | <span class="self">Self</span>::BitwiseXOR | <span class="self">Self</span>::BitwiseAnd)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">pub fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Assign =&gt; <span class="string">&quot;=&quot;</span>,
             <span class="self">Self</span>::Addition =&gt; <span class="string">&quot;+=&quot;</span>,
@@ -568,7 +568,7 @@
 
 <span class="kw">impl </span>BinaryOperator {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_equality(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_equality(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
             <span class="self">self</span>,
             <span class="self">Self</span>::Equality | <span class="self">Self</span>::Inequality | <span class="self">Self</span>::StrictEquality | <span class="self">Self</span>::StrictInequality
@@ -576,7 +576,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_compare(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_compare(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
             <span class="self">self</span>,
             <span class="self">Self</span>::LessThan | <span class="self">Self</span>::LessEqualThan | <span class="self">Self</span>::GreaterThan | <span class="self">Self</span>::GreaterEqualThan
@@ -584,7 +584,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_arithmetic(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_arithmetic(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
             <span class="self">self</span>,
             <span class="self">Self</span>::Addition
@@ -597,12 +597,12 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_relational(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_relational(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::In | <span class="self">Self</span>::Instanceof)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_bitwise(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_bitwise(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
             <span class="self">self</span>,
             <span class="self">Self</span>::BitwiseOR
@@ -615,17 +615,17 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_numeric_or_string_binary_operator(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_numeric_or_string_binary_operator(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.is_arithmetic() || <span class="self">self</span>.is_bitwise()
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_keyword(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_keyword(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::In | <span class="self">Self</span>::Instanceof)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">pub fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Equality =&gt; <span class="string">&quot;==&quot;</span>,
             <span class="self">Self</span>::Inequality =&gt; <span class="string">&quot;!=&quot;</span>,
@@ -672,7 +672,7 @@
 
 <span class="kw">impl </span>LogicalOperator {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">pub fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Or =&gt; <span class="string">&quot;||&quot;</span>,
             <span class="self">Self</span>::And =&gt; <span class="string">&quot;&amp;&amp;&quot;</span>,
@@ -708,27 +708,27 @@
 
 <span class="kw">impl </span>UnaryOperator {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>operator(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Operator {
+    </span><span class="kw">pub fn </span>operator(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Operator {
         Operator::UnaryOperator(<span class="kw-2">*</span><span class="self">self</span>)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_arithmetic(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_arithmetic(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::UnaryNegation | <span class="self">Self</span>::UnaryPlus)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_bitwise(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_bitwise(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::BitwiseNot)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_keyword(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_keyword(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::Typeof | <span class="self">Self</span>::Void | <span class="self">Self</span>::Delete)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">pub fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::UnaryNegation =&gt; <span class="string">&quot;-&quot;</span>,
             <span class="self">Self</span>::UnaryPlus =&gt; <span class="string">&quot;+&quot;</span>,
@@ -758,7 +758,7 @@
 
 <span class="kw">impl </span>UpdateOperator {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">pub fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Increment =&gt; <span class="string">&quot;++&quot;</span>,
             <span class="self">Self</span>::Decrement =&gt; <span class="string">&quot;--&quot;</span>,

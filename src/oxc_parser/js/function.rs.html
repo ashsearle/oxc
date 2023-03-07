@@ -556,7 +556,7 @@
 }
 
 <span class="kw">impl </span>FunctionKind {
-    <span class="kw">pub const fn </span>is_id_required(<span class="self">self</span>) -&gt; bool {
+    <span class="kw">pub fn </span>is_id_required(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::Declaration { single_statement: <span class="bool-val">true </span>})
     }
 

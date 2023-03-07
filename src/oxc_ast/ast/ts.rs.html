@@ -1319,12 +1319,12 @@
     </span>}
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_identifier(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_identifier(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::IdentifierName(<span class="kw">_</span>))
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_qualified_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_qualified_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::QualifiedName(<span class="kw">_</span>))
     }
 }
@@ -1582,7 +1582,7 @@
 
 <span class="kw">impl </span>TSModuleDeclarationName {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Atom {
+    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Atom {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Identifier(ident) =&gt; <span class="kw-2">&amp;</span>ident.name,
             <span class="self">Self</span>::StringLiteral(lit) =&gt; <span class="kw-2">&amp;</span>lit.value,
@@ -1793,17 +1793,17 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Modifiers&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new(modifiers: Vec&lt;<span class="lifetime">&#39;a</span>, Modifier&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(modifiers: Vec&lt;<span class="lifetime">&#39;a</span>, Modifier&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>(<span class="prelude-val">Some</span>(modifiers))
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>empty() -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>empty() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>(<span class="prelude-val">None</span>)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_none(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_none(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.<span class="number">0</span>.is_none()
     }
 
@@ -1849,12 +1849,12 @@
 
 <span class="kw">impl </span>ImportOrExportKind {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::Value)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::Type)
     }
 }

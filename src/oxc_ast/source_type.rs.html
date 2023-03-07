@@ -312,22 +312,22 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>module_kind(<span class="self">self</span>) -&gt; ModuleKind {
+    </span><span class="kw">pub fn </span>module_kind(<span class="self">self</span>) -&gt; ModuleKind {
         <span class="self">self</span>.module_kind
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_javascript(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_javascript(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>.language, Language::JavaScript)
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_typescript(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_typescript(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>.language, Language::TypeScript { .. })
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>is_typescript_definition(<span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_typescript_definition(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>.language, Language::TypeScript { is_definition_file: <span class="bool-val">true </span>})
     }
 
@@ -385,41 +385,41 @@
 
 <span class="kw">impl </span>SourceTypeBuilder {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>build(<span class="self">self</span>) -&gt; SourceType {
+    </span><span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; SourceType {
         <span class="self">self</span>.source_type
     }
 
     <span class="doccomment">/// turn on `ModuleKind::Module`
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>module(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>module(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.source_type.module_kind = ModuleKind::Module;
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// turn on `ModuleKind::Script`
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>script(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>script(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.source_type.module_kind = ModuleKind::Script;
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// turn on `LanguageVariant::JSX`
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>jsx(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>jsx(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.source_type.variant = LanguageVariant::Jsx;
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// turn on `Language::TypeScript { is_definition_file: false }`
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>typescript(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>typescript(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.source_type.language = Language::TypeScript { is_definition_file: <span class="bool-val">false </span>};
         <span class="self">self
     </span>}
 
     <span class="attr">#[must_use]
     </span><span class="doccomment">/// turn on `Language::TypeScript { is_definition_file: true }`
-    </span><span class="kw">pub const fn </span>typescript_definition(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>typescript_definition(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.source_type.language = Language::TypeScript { is_definition_file: <span class="bool-val">true </span>};
         <span class="self">self
     </span>}

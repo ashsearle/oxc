@@ -93,7 +93,17 @@
 <a href="#93" id="93">93</a>
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
-</pre><pre class="rust"><code><span class="kw">mod </span>eq_eq_eq;
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+</pre><pre class="rust"><code><span class="kw">mod </span>constructor_super;
+<span class="kw">mod </span>eq_eq_eq;
 <span class="kw">mod </span>for_direction;
 <span class="kw">mod </span>no_array_constructor;
 <span class="kw">mod </span>no_debugger;
@@ -103,6 +113,7 @@
     <span class="kw">pub mod </span>uninvoked_array_callback;
 }
 
+<span class="kw">pub use </span>constructor_super::ConstructorSuper;
 <span class="kw">pub use </span>deepscan::uninvoked_array_callback::UninvokedArrayCallback;
 <span class="kw">pub use </span>eq_eq_eq::EqEqEq;
 <span class="kw">pub use </span>for_direction::ForDirection;
@@ -116,6 +127,7 @@
 <span class="macro">lazy_static::lazy_static! </span>{
     <span class="kw">pub static </span><span class="kw-2">ref </span>RULES: Vec&lt;RuleEnum&gt; = <span class="macro">vec!</span>[
         RuleEnum::EqEqEq(EqEqEq::default()),
+        RuleEnum::ConstructorSuper(ConstructorSuper::default()),
         RuleEnum::NoDebugger(NoDebugger::default()),
         RuleEnum::NoEmpty(NoEmpty::default()),
         RuleEnum::NoArrayConstructor(NoArrayConstructor::default()),
@@ -129,6 +141,7 @@
 #[allow(clippy::enum_variant_names)]
 </span><span class="kw">pub enum </span>RuleEnum {
     EqEqEq(EqEqEq),
+    ConstructorSuper(ConstructorSuper),
     NoDebugger(NoDebugger),
     NoEmpty(NoEmpty),
     NoArrayConstructor(NoArrayConstructor),
@@ -141,6 +154,7 @@
     <span class="kw">pub const fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::EqEqEq(<span class="kw">_</span>) =&gt; EqEqEq::NAME,
+            <span class="self">Self</span>::ConstructorSuper(<span class="kw">_</span>) =&gt; ConstructorSuper::NAME,
             <span class="self">Self</span>::NoDebugger(<span class="kw">_</span>) =&gt; NoDebugger::NAME,
             <span class="self">Self</span>::NoEmpty(<span class="kw">_</span>) =&gt; NoEmpty::NAME,
             <span class="self">Self</span>::NoArrayConstructor(<span class="kw">_</span>) =&gt; NoArrayConstructor::NAME,
@@ -155,6 +169,9 @@
             <span class="self">Self</span>::EqEqEq(<span class="kw">_</span>) =&gt; {
                 <span class="self">Self</span>::EqEqEq(maybe_value.map(EqEqEq::from_configuration).unwrap_or_default())
             }
+            <span class="self">Self</span>::ConstructorSuper(<span class="kw">_</span>) =&gt; <span class="self">Self</span>::ConstructorSuper(
+                maybe_value.map(ConstructorSuper::from_configuration).unwrap_or_default(),
+            ),
             <span class="self">Self</span>::NoDebugger(<span class="kw">_</span>) =&gt; <span class="self">Self</span>::NoDebugger(
                 maybe_value.map(NoDebugger::from_configuration).unwrap_or_default(),
             ),
@@ -179,6 +196,7 @@
     <span class="kw">pub fn </span>run&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;, ctx: <span class="kw-2">&amp;</span>LintContext&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::EqEqEq(rule) =&gt; rule.run(node, ctx),
+            <span class="self">Self</span>::ConstructorSuper(rule) =&gt; rule.run(node, ctx),
             <span class="self">Self</span>::NoDebugger(rule) =&gt; rule.run(node, ctx),
             <span class="self">Self</span>::NoEmpty(rule) =&gt; rule.run(node, ctx),
             <span class="self">Self</span>::NoArrayConstructor(rule) =&gt; rule.run(node, ctx),

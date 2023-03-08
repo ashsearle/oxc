@@ -173,7 +173,7 @@
             <span class="kw-2">&amp;</span>path.segments.iter().last().unwrap().ident.to_string().to_case(Case::Pascal),
         )
         .unwrap();
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ path, name })
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ name, path })
     }
 }
 
@@ -195,8 +195,8 @@
 <span class="kw">pub fn </span>declare_all_lint_rules(metadata: AllLintRulesMeta) -&gt; TokenStream {
     <span class="kw">let </span>AllLintRulesMeta { rules } = metadata;
 
-    <span class="kw">let </span>mod_stmts = rules.iter().map(|rule| rule.mod_stmt());
-    <span class="kw">let </span>use_stmts = rules.iter().map(|rule| rule.use_stmt());
+    <span class="kw">let </span>mod_stmts = rules.iter().map(LintRuleMeta::mod_stmt);
+    <span class="kw">let </span>use_stmts = rules.iter().map(LintRuleMeta::use_stmt);
     <span class="kw">let </span>struct_names = rules.iter().map(|rule| <span class="kw-2">&amp;</span>rule.name).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
     <span class="macro">quote! </span>{

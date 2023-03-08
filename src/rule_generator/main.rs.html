@@ -176,13 +176,67 @@
 <a href="#176" id="176">176</a>
 <a href="#177" id="177">177</a>
 <a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{borrow::Cow, fs::File, io::Write, path::Path, process::Command, rc::Rc};
 
 <span class="kw">use </span>convert_case::{Case, Casing};
+<span class="kw">use </span>lazy_static::lazy_static;
 <span class="kw">use </span>oxc_allocator::Allocator;
 <span class="kw">use </span>oxc_ast::{
     ast::{Argument, Expression, ObjectProperty, PropertyKey, PropertyValue},
-    AstKind, SourceType,
+    AstKind, GetSpan, SourceType,
 };
 <span class="kw">use </span>oxc_parser::Parser;
 <span class="kw">use </span>oxc_semantic::SemanticBuilder;
@@ -201,7 +255,7 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TestCase&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>to_code(test_case: <span class="kw-2">&amp;</span>TestCase) -&gt; String {
         <span class="kw">match </span>test_case {
-            TestCase::Valid(code) | TestCase::Invalid(code) =&gt; <span class="macro">format!</span>(<span class="string">r#&quot;(&quot;{code}&quot;, None)&quot;#</span>),
+            TestCase::Valid(code) | TestCase::Invalid(code) =&gt; code.clone().into_owned(),
         }
     }
 }
@@ -213,26 +267,40 @@
     fail_cases: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
 }
 
-<span class="kw">fn </span>parse_test_code&lt;<span class="lifetime">&#39;a</span>&gt;(expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Expression) -&gt; <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt; {
-    <span class="kw">match </span>expr {
-        Expression::StringLiteral(lit) =&gt; <span class="prelude-val">Some</span>(Cow::Borrowed(lit.value.as_str())),
-        Expression::TemplateLiteral(lit) =&gt; <span class="prelude-val">Some</span>(Cow::Borrowed(lit.quasi().unwrap().as_str())),
+<span class="kw">fn </span>parse_test_code&lt;<span class="lifetime">&#39;a</span>&gt;(source_text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, expr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Expression) -&gt; <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt; {
+    <span class="kw">let </span>(test_code, option_code) = <span class="kw">match </span>expr {
+        Expression::StringLiteral(lit) =&gt; (<span class="prelude-val">Some</span>(Cow::Borrowed(lit.value.as_str())), <span class="prelude-val">None</span>),
+        Expression::TemplateLiteral(lit) =&gt; {
+            (<span class="prelude-val">Some</span>(Cow::Borrowed(lit.quasi().unwrap().as_str())), <span class="prelude-val">None</span>)
+        }
         Expression::ObjectExpression(obj_expr) =&gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>test_code = <span class="prelude-val">None</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>option_code: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;_</span>, str&gt;&gt; = <span class="prelude-val">None</span>;
             <span class="kw">for </span>obj_prop <span class="kw">in </span><span class="kw-2">&amp;</span>obj_expr.properties {
                 <span class="kw">match </span>obj_prop {
                     ObjectProperty::Property(prop) =&gt; <span class="kw">match </span><span class="kw-2">&amp;</span>prop.key {
                         PropertyKey::Identifier(ident) <span class="kw">if </span>ident.name == <span class="string">&quot;code&quot; </span>=&gt; <span class="kw">match </span><span class="kw-2">&amp;</span>prop.value
                         {
-                            PropertyValue::Expression(expr) =&gt; <span class="kw">return </span>parse_test_code(expr),
+                            PropertyValue::Expression(expr) =&gt; {
+                                <span class="kw">let </span>Expression::StringLiteral(s) = expr <span class="kw">else </span>{
+                                <span class="kw">return </span><span class="prelude-val">None</span>;
+                              };
+                                test_code = <span class="prelude-val">Some</span>(Cow::Borrowed(s.value.as_str()));
+                            }
                             PropertyValue::Pattern(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
                         },
+                        PropertyKey::Identifier(ident) <span class="kw">if </span>ident.name == <span class="string">&quot;options&quot; </span>=&gt; {
+                            <span class="kw">let </span>span = prop.value.span();
+                            <span class="kw">let </span>option_text = <span class="kw-2">&amp;</span>source_text[span.start <span class="kw">as </span>usize..span.end <span class="kw">as </span>usize];
+                            option_code = <span class="prelude-val">Some</span>(Cow::Owned(wrap_property_in_quotes(option_text)));
+                        }
                         <span class="kw">_ </span>=&gt; <span class="kw">continue</span>,
                     },
                     ObjectProperty::SpreadProperty(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
                 }
             }
-            <span class="prelude-val">None
-        </span>}
+            (test_code, option_code)
+        }
         Expression::CallExpression(call_expr) =&gt; <span class="kw">match </span><span class="kw-2">&amp;</span>call_expr.callee {
             Expression::MemberExpression(member_expr) =&gt; <span class="kw">match </span><span class="kw-2">&amp;</span>member_expr.object() {
                 <span class="comment">// [&#39;class A {&#39;, &#39;}&#39;].join(&#39;\n&#39;)
@@ -243,14 +311,52 @@
                         code.push_str(lit.value.as_str());
                         code.push(<span class="string">&#39;\n&#39;</span>);
                     }
-                    <span class="prelude-val">Some</span>(Cow::Owned(code))
+                    (<span class="prelude-val">Some</span>(Cow::Owned(code)), <span class="prelude-val">None</span>)
                 }
-                <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+                <span class="kw">_ </span>=&gt; (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>),
             },
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+            <span class="kw">_ </span>=&gt; (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>),
         },
-        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        <span class="kw">_ </span>=&gt; (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>),
+    };
+
+    test_code.map(|test_code| {
+        <span class="kw">let </span>option_code = option_code.map_or(Cow::Borrowed(<span class="string">&quot;None&quot;</span>), |option_code| {
+            Cow::Owned(<span class="macro">format!</span>(<span class="string">&quot;Some(serde_json::json!({option_code}))&quot;</span>))
+        });
+        Cow::Owned(<span class="macro">format!</span>(<span class="string">r#&quot;(&quot;{test_code}&quot;, {option_code})&quot;#</span>))
+    })
+}
+
+<span class="doccomment">/// Convert a javascript object literal to JSON by wrapping the property keys in double quote
+</span><span class="kw">fn </span>wrap_property_in_quotes(object: <span class="kw-2">&amp;</span>str) -&gt; String {
+    <span class="kw">use </span>regex::{Captures, Regex};
+
+    <span class="macro">lazy_static! </span>{
+        <span class="kw">static </span><span class="kw-2">ref </span>IDENT_MATCHER: Regex = Regex::new(<span class="string">r&quot;(?P&lt;ident&gt;[[:alpha:]]\w*)&quot;</span>).unwrap();
+        <span class="kw">static </span><span class="kw-2">ref </span>DUP_QUOTE_MATCHER: Regex =
+            Regex::new(<span class="string">r#&quot;(?P&lt;outer&gt;&quot;(?P&lt;inner&gt;&quot;\w+&quot;)&quot;)&quot;#</span>).unwrap();
     }
+
+    <span class="kw">let </span>add_quote = IDENT_MATCHER
+        .replace_all(object, |capture: <span class="kw-2">&amp;</span>Captures| {
+            <span class="comment">// don&#39;t replace true and false, which are json boolean values
+            </span><span class="kw">let </span>ident = <span class="kw-2">&amp;</span>capture[<span class="string">&quot;ident&quot;</span>];
+            <span class="kw">if </span>ident == <span class="string">&quot;true&quot; </span>|| ident == <span class="string">&quot;false&quot; </span>{
+                Cow::Owned(ident.to_string())
+            } <span class="kw">else </span>{
+                Cow::Owned(<span class="macro">format!</span>(<span class="string">r#&quot;&quot;{ident}&quot;&quot;#</span>))
+            }
+        })
+        .into_owned();
+
+    <span class="comment">// After the above step, valid json strings will have duplicate quotes now
+    // This step removes duplicate quotes.
+    </span><span class="kw">let </span>remove_dup_quote = DUP_QUOTE_MATCHER
+        .replace_all(<span class="kw-2">&amp;</span>add_quote, |capture: <span class="kw-2">&amp;</span>Captures| Cow::Owned(capture[<span class="string">&quot;inner&quot;</span>].to_string()))
+        .into_owned();
+
+    remove_dup_quote
 }
 
 <span class="kw">fn </span>main() {
@@ -318,14 +424,14 @@
     <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="prelude-val">Some</span>(valid), <span class="prelude-val">Some</span>(invalid))) = tests_object {
         <span class="kw">for </span>arg <span class="kw">in </span>(<span class="kw-2">&amp;</span>valid.elements).into_iter().flatten() {
             <span class="kw">if let </span>Argument::Expression(expr) = arg {
-                <span class="kw">let </span><span class="prelude-val">Some</span>(code) = parse_test_code(expr) <span class="kw">else </span>{ <span class="kw">continue </span>};
+                <span class="kw">let </span><span class="prelude-val">Some</span>(code) = parse_test_code(<span class="kw-2">&amp;</span>body, expr) <span class="kw">else </span>{ <span class="kw">continue </span>};
                 pass_cases.push(TestCase::Valid(code));
             }
         }
 
         <span class="kw">for </span>arg <span class="kw">in </span>(<span class="kw-2">&amp;</span>invalid.elements).into_iter().flatten() {
             <span class="kw">if let </span>Argument::Expression(expr) = arg {
-                <span class="kw">let </span><span class="prelude-val">Some</span>(code) = parse_test_code(expr) <span class="kw">else </span>{ <span class="kw">continue </span>};
+                <span class="kw">let </span><span class="prelude-val">Some</span>(code) = parse_test_code(<span class="kw-2">&amp;</span>body, expr) <span class="kw">else </span>{ <span class="kw">continue </span>};
                 fail_cases.push(TestCase::Invalid(code));
             }
         }

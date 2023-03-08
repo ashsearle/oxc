@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["ESLINT_TEST_PATH",""],["RULE_TEMPLATE",""]],"enum":[["TestCase",""]],"fn":[["main",""],["parse_test_code",""]],"struct":[["Context",""]]};
+window.SIDEBAR_ITEMS = {"constant":[["ESLINT_TEST_PATH",""],["RULE_TEMPLATE",""]],"enum":[["TestCase",""]],"fn":[["main",""],["parse_test_code",""],["wrap_property_in_quotes","Convert a javascript object literal to JSON by wrapping the property keys in double quote"]],"struct":[["Context",""]]};

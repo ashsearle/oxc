@@ -97,24 +97,22 @@
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
 </pre><pre class="rust"><code><span class="attr">#![feature(let_chains, is_some_and)]
 
 #[cfg(test)]
 </span><span class="kw">mod </span>tester;
 
-<span class="kw">mod </span>autofix;
 <span class="kw">mod </span>context;
+<span class="kw">mod </span>fixer;
 <span class="kw">pub mod </span>rule;
 <span class="kw">mod </span>rules;
 
 <span class="kw">use </span>std::{fs, rc::Rc};
 
-<span class="kw">use </span>autofix::Message;
+<span class="kw">pub use </span>fixer::{Fixer, Message};
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>oxc_semantic::AstNode;
 <span class="kw">use </span>oxc_semantic::Semantic;
 
-<span class="kw">pub use </span><span class="kw">crate</span>::autofix::Fixer;
 <span class="kw">use crate</span>::{
     context::LintContext,
     rules::{RuleEnum, RULES},

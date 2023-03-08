@@ -58,7 +58,7 @@
 };
 <span class="kw">use </span>oxc_macros::declare_oxc_lint;
 
-<span class="kw">use crate</span>::{autofix::Fix, context::LintContext, rule::Rule, AstNode};
+<span class="kw">use crate</span>::{context::LintContext, fixer::Fix, rule::Rule, AstNode};
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
 #[error(<span class="string">&quot;eslint(no-debugger): `debugger` statement is not allowed&quot;</span>)]

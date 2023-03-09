@@ -68,7 +68,6 @@
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_ast::{AstKind, SourceType};
 
 <span class="kw">use super</span>::{Scope, ScopeFlags, ScopeId, ScopeTree};
@@ -84,7 +83,7 @@
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>new(source_type: SourceType) -&gt; <span class="self">Self </span>{
         <span class="comment">// Module code is always strict mode code.
-        </span><span class="kw">let </span>strict_mode = source_type.is_module();
+        </span><span class="kw">let </span>strict_mode = source_type.is_module() || source_type.always_strict();
         <span class="kw">let </span>scopes = ScopeTree::new(strict_mode);
         <span class="kw">let </span>current_scope_id = scopes.root_scope_id();
         <span class="self">Self </span>{ scopes, current_scope_id }
@@ -107,8 +106,7 @@
         };
 
         <span class="kw">let </span>scope = Scope::new(flags, strict_mode);
-        <span class="kw">let </span>new_scope_id = <span class="self">self</span>.scopes.new_node(scope);
-        <span class="self">self</span>.current_scope_id.append(new_scope_id, <span class="kw-2">&amp;mut </span><span class="self">self</span>.scopes);
+        <span class="kw">let </span>new_scope_id = <span class="self">self</span>.current_scope_id.append_value(scope, <span class="kw-2">&amp;mut </span><span class="self">self</span>.scopes);
         <span class="self">self</span>.current_scope_id = new_scope_id.into();
     }
 

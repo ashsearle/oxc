@@ -256,6 +256,9 @@
 <a href="#256" id="256">256</a>
 <a href="#257" id="257">257</a>
 <a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     collections::HashMap,
     fs,
@@ -270,7 +273,7 @@
     suite::{Case, Suite, TestResult},
 };
 
-<span class="kw">const </span>TESTS_PATH: <span class="kw-2">&amp;</span>str = <span class="string">&quot;tasks/coverage/typescript/tests/cases/conformance&quot;</span>;
+<span class="kw">const </span>TESTS_ROOT: <span class="kw-2">&amp;</span>str = <span class="string">&quot;tasks/coverage/typescript/tests/&quot;</span>;
 
 <span class="macro">lazy_static::lazy_static! </span>{
     <span class="comment">// Returns a match for a test option. Test options have the form `// @name: value`
@@ -292,7 +295,10 @@
 <span class="kw">impl</span>&lt;T: Case&gt; TypeScriptSuite&lt;T&gt; {
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ test_root: project_root().join(TESTS_PATH), test_cases: <span class="macro">vec!</span>[] }
+        <span class="self">Self </span>{
+            test_root: project_root().join(TESTS_ROOT).join(<span class="string">&quot;cases/conformance&quot;</span>),
+            test_cases: <span class="macro">vec!</span>[],
+        }
     }
 }
 
@@ -444,7 +450,7 @@
     //   * `filename.errors.txt`
     </span><span class="kw">fn </span>get_error_files(path: <span class="kw-2">&amp;</span>Path, options: <span class="kw-2">&amp;</span>CompilerOptions) -&gt; Vec&lt;String&gt; {
         <span class="kw">let </span>file_name = path.file_stem().unwrap().to_string_lossy();
-        <span class="kw">let </span>root = project_root().join(TESTS_PATH).join(<span class="string">&quot;baselines/reference&quot;</span>);
+        <span class="kw">let </span>root = project_root().join(TESTS_ROOT).join(<span class="string">&quot;baselines/reference&quot;</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>suffixes = <span class="macro">vec!</span>[String::new()];
         <span class="kw">let </span>modules = <span class="kw-2">&amp;</span>options.modules;
         <span class="kw">let </span>targets = <span class="kw-2">&amp;</span>options.targets;

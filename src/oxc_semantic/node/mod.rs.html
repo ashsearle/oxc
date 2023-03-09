@@ -56,6 +56,8 @@
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
 </pre><pre class="rust"><code><span class="attr">#![allow(non_upper_case_globals)] </span><span class="comment">// for bitflags
 
 </span><span class="kw">mod </span>id;
@@ -95,11 +97,13 @@
         <span class="self">Self </span>{ kind, scope_id, flags }
     }
 
-    <span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AstKind&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AstKind&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="self">self</span>.kind
     }
 
-    <span class="kw">pub fn </span>scope_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScopeId {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>scope_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScopeId {
         <span class="self">self</span>.scope_id
     }
 

@@ -97,11 +97,31 @@
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
 </pre><pre class="rust"><code><span class="attr">#![feature(let_chains, is_some_and, const_trait_impl, const_slice_index)]
 
 #[cfg(test)]
 </span><span class="kw">mod </span>tester;
 
+<span class="kw">mod </span>ast_util;
 <span class="kw">mod </span>context;
 <span class="kw">mod </span>fixer;
 <span class="kw">pub mod </span>rule;
@@ -112,15 +132,18 @@
 <span class="kw">pub use </span>fixer::{Fixer, Message};
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>oxc_semantic::AstNode;
 <span class="kw">use </span>oxc_semantic::Semantic;
+<span class="kw">use </span>rule::Rule;
 
 <span class="kw">use crate</span>::{
     context::LintContext,
-    rules::{RuleEnum, RULES},
+    rules::{early_error::javascript::EarlyErrorJavaScript, RuleEnum, RULES},
 };
 
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Linter {
     rules: Vec&lt;RuleEnum&gt;,
+
+    early_error_javascript: EarlyErrorJavaScript,
 }
 
 <span class="kw">impl </span>Linter {
@@ -140,7 +163,12 @@
                     .collect()
             },
         );
-        <span class="self">Self </span>{ rules }
+        <span class="self">Self</span>::from_rules(rules)
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>from_rules(rules: Vec&lt;RuleEnum&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ rules, early_error_javascript: EarlyErrorJavaScript }
     }
 
     <span class="attr">#[must_use]
@@ -162,12 +190,7 @@
                 },
             );
 
-        <span class="self">Self </span>{ rules }
-    }
-
-    <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>from_rules(rules: Vec&lt;RuleEnum&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ rules }
+        <span class="self">Self</span>::from_rules(rules)
     }
 
     <span class="attr">#[must_use]
@@ -180,11 +203,26 @@
         <span class="kw">let </span>ctx = LintContext::new(source_text, semantic.clone(), fix);
 
         <span class="kw">for </span>node <span class="kw">in </span>semantic.nodes().iter() {
+            <span class="self">self</span>.early_error_javascript.run(node, <span class="kw-2">&amp;</span>ctx);
             <span class="kw">for </span>rule <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.rules {
                 rule.run(node, <span class="kw-2">&amp;</span>ctx);
             }
         }
 
+        ctx.into_message()
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>run_early_error&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        semantic: <span class="kw-2">&amp;</span>Rc&lt;Semantic&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+        source_text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        fix: bool,
+    ) -&gt; Vec&lt;Message&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="kw">let </span>ctx = LintContext::new(source_text, semantic.clone(), fix);
+        <span class="kw">for </span>node <span class="kw">in </span>semantic.nodes().iter() {
+            <span class="self">self</span>.early_error_javascript.run(node, <span class="kw-2">&amp;</span>ctx);
+        }
         ctx.into_message()
     }
 

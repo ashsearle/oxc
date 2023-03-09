@@ -69,11 +69,52 @@
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, rc::Rc};
 
-<span class="kw">use </span>oxc_ast::AstKind;
+<span class="kw">use </span>indextree::{Ancestors, NodeId};
+<span class="kw">use </span>oxc_ast::{AstKind, SourceType};
 <span class="kw">use </span>oxc_diagnostics::Error;
-<span class="kw">use </span>oxc_semantic::{AstNodes, Semantic};
+<span class="kw">use </span>oxc_semantic::{AstNodes, Scope, ScopeTree, Semantic, SemanticNode};
 
 <span class="kw">use crate</span>::{
     fixer::{Fix, Message},
@@ -96,11 +137,24 @@
         <span class="self">Self </span>{ source_text, semantic, diagnostics: RefCell::new(<span class="macro">vec!</span>[]), fix }
     }
 
-    <span class="kw">pub fn </span>source_text(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>semantic(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Semantic&lt;<span class="lifetime">&#39;a</span>&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.semantic
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>source_text(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
         <span class="self">self</span>.source_text
     }
 
-    <span class="kw">pub fn </span>into_message(<span class="self">self</span>) -&gt; Vec&lt;Message&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>source_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>SourceType {
+        <span class="self">self</span>.semantic().source_type()
+    }
+
+    <span class="comment">/* Diagnostics */
+
+    </span><span class="kw">pub fn </span>into_message(<span class="self">self</span>) -&gt; Vec&lt;Message&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.diagnostics.into_inner()
     }
 
@@ -120,24 +174,50 @@
         }
     }
 
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>semantic(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Semantic&lt;<span class="lifetime">&#39;a</span>&gt; {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.semantic
-    }
+    <span class="comment">/* Nodes */
 
-    <span class="attr">#[inline]
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>nodes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AstNodes&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="self">self</span>.semantic().nodes()
     }
 
-    <span class="attr">#[inline]
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>, node_id: NodeId) -&gt; AstKind&lt;<span class="lifetime">&#39;a</span>&gt; {
+        <span class="self">self</span>.nodes().kind(node_id)
+    }
+
+    <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>parent_kind(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; AstKind&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="self">self</span>.nodes().parent_kind(node)
     }
 
-    <span class="attr">#[inline]
+    <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>parent_node(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         node.parent().and_then(|node_id| <span class="self">self</span>.nodes().get(node_id))
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>ancestors(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Ancestors&lt;<span class="lifetime">&#39;_</span>, SemanticNode&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="kw">let </span>node_id = <span class="self">self</span>.nodes().get_node_id(node).unwrap();
+        node_id.ancestors(<span class="self">self</span>.nodes())
+    }
+
+    <span class="comment">/* Scopes */
+
+    </span><span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>scopes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ScopeTree {
+        <span class="self">self</span>.semantic().scopes()
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>scope(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>AstNode) -&gt; <span class="kw-2">&amp;</span>Scope {
+        <span class="self">self</span>.semantic().scopes().node_scope(node)
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>strict_mode(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>AstNode) -&gt; bool {
+        <span class="kw">let </span>scope = <span class="self">self</span>.scope(node);
+        node.get().strict_mode(scope)
     }
 }
 </code></pre></div>

@@ -330,11 +330,26 @@
 <a href="#330" id="330">330</a>
 <a href="#331" id="331">331</a>
 <a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     fs::{<span class="self">self</span>, File},
     io::{stdout, Read, Write},
     panic::{catch_unwind, UnwindSafe},
     path::{Path, PathBuf},
+    rc::Rc,
     result::Result,
 };
 
@@ -344,7 +359,9 @@
 <span class="kw">use </span>oxc_allocator::Allocator;
 <span class="kw">use </span>oxc_ast::SourceType;
 <span class="kw">use </span>oxc_diagnostics::miette::{GraphicalReportHandler, GraphicalTheme, NamedSource};
+<span class="kw">use </span>oxc_linter::Linter;
 <span class="kw">use </span>oxc_parser::Parser;
+<span class="kw">use </span>oxc_semantic::SemanticBuilder;
 <span class="kw">use </span>rayon::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>similar::{ChangeTag, TextDiff};
 <span class="kw">use </span>walkdir::WalkDir;
@@ -454,7 +471,7 @@
             tests.iter().partition(|case| case.should_fail());
 
         <span class="kw">let </span>all_positives = positives.len();
-        <span class="kw">let </span>not_parsed_positives = positives.iter().filter(|case| !case.test_parsed()).count();
+        <span class="kw">let </span>parsed_positives = positives.iter().filter(|case| case.test_parsed()).count();
 
         <span class="kw">let </span><span class="kw-2">mut </span>failed_positives =
             positives.into_iter().filter(|case| !case.test_passed()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
@@ -462,7 +479,6 @@
         failed_positives.sort_by_key(|case| case.path().to_string_lossy().to_string());
 
         <span class="kw">let </span>passed_positives = all_positives - failed_positives.len();
-        <span class="kw">let </span>parsed_positives = all_positives - not_parsed_positives;
 
         <span class="kw">let </span>all_negatives = negatives.len();
         <span class="kw">let </span><span class="kw-2">mut </span>failed_negatives =
@@ -583,7 +599,10 @@
     <span class="kw">fn </span>test_parsed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">let </span>result = <span class="self">self</span>.test_result();
         <span class="macro">assert!</span>(!<span class="macro">matches!</span>(result, TestResult::ToBeRun), <span class="string">&quot;test should be run&quot;</span>);
-        <span class="macro">matches!</span>(result, TestResult::Passed | TestResult::Mismatch(<span class="kw">_</span>, <span class="kw">_</span>))
+        <span class="macro">matches!</span>(
+            result,
+            TestResult::Passed | TestResult::CorrectError(<span class="kw">_</span>) | TestResult::IncorrectlyPassed
+        )
     }
 
     <span class="doccomment">/// Run a single test case, this is responsible for saving the test result
@@ -594,12 +613,21 @@
         <span class="kw">let </span>allocator = Allocator::default();
         <span class="kw">let </span>source_text = <span class="self">self</span>.code();
         <span class="kw">let </span>ret = Parser::new(<span class="kw-2">&amp;</span>allocator, source_text, source_type).parse();
-        <span class="kw">let </span>result = <span class="kw">if </span>ret.errors.is_empty() {
+        <span class="kw">let </span>program = allocator.alloc(ret.program);
+        <span class="kw">let </span>trivias = Rc::new(ret.trivias);
+        <span class="kw">let </span>semantic = SemanticBuilder::new(source_type).build(program, trivias);
+        <span class="kw">let </span>result = Linter::new().run_early_error(<span class="kw-2">&amp;</span>Rc::new(semantic), source_text, <span class="bool-val">false</span>);
+        <span class="kw">let </span>errors = result
+            .into_iter()
+            .map(|msg| msg.error)
+            .chain(ret.errors.into_iter())
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let </span>result = <span class="kw">if </span>errors.is_empty() {
             <span class="prelude-val">Ok</span>(String::new())
         } <span class="kw">else </span>{
             <span class="kw">let </span>handler = GraphicalReportHandler::new_themed(GraphicalTheme::unicode_nocolor());
             <span class="kw">let </span><span class="kw-2">mut </span>output = String::new();
-            <span class="kw">for </span>error <span class="kw">in </span>ret.errors {
+            <span class="kw">for </span>error <span class="kw">in </span>errors {
                 <span class="kw">let </span>error = error.with_source_code(NamedSource::new(
                     <span class="self">self</span>.path().to_string_lossy(),
                     source_text.to_string(),

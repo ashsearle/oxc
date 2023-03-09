@@ -196,7 +196,6 @@
 <a href="#196" id="196">196</a>
 <a href="#197" id="197">197</a>
 <a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     io,
     path::{Path, PathBuf},
@@ -369,7 +368,6 @@
     // To run in strict mode, the test contents must be modified prior to execution--
     // a &quot;use strict&quot; directive must be inserted as the initial character sequence of the file
     // https://github.com/tc39/test262/blob/main/INTERPRETING.md#strict-mode
-    </span><span class="attr">#[allow(clippy::if_same_then_else)]
     </span><span class="kw">fn </span>run(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span>flags = <span class="kw-2">&amp;</span><span class="self">self</span>.meta.flags;
 
@@ -377,19 +375,19 @@
         source_type.set_script();
 
         <span class="self">self</span>.result = <span class="kw">if </span>flags.contains(<span class="kw-2">&amp;</span>TestFlag::OnlyStrict) {
-            <span class="comment">// always_strict = true;
-            </span><span class="self">self</span>.execute(source_type)
+            source_type.set_always_strict(<span class="bool-val">true</span>);
+            <span class="self">self</span>.execute(source_type)
         } <span class="kw">else if </span>flags.contains(<span class="kw-2">&amp;</span>TestFlag::Module) {
             source_type.set_module();
             <span class="self">self</span>.execute(source_type)
         } <span class="kw">else if </span>flags.contains(<span class="kw-2">&amp;</span>TestFlag::NoStrict) || flags.contains(<span class="kw-2">&amp;</span>TestFlag::Raw) {
             <span class="self">self</span>.execute(source_type)
         } <span class="kw">else </span>{
-            <span class="comment">// always_strict = true;
-            </span><span class="kw">let </span>res = <span class="self">self</span>.execute(source_type);
+            source_type.set_always_strict(<span class="bool-val">true</span>);
+            <span class="kw">let </span>res = <span class="self">self</span>.execute(source_type);
             <span class="kw">if </span><span class="macro">matches!</span>(res, TestResult::Passed) {
-                <span class="comment">// always_strict = false;
-                </span><span class="self">self</span>.execute(source_type)
+                source_type.set_always_strict(<span class="bool-val">false</span>);
+                <span class="self">self</span>.execute(source_type)
             } <span class="kw">else </span>{
                 res
             }

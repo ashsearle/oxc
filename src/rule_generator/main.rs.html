@@ -324,7 +324,7 @@
         <span class="kw">let </span>option_code = option_code.map_or(Cow::Borrowed(<span class="string">&quot;None&quot;</span>), |option_code| {
             Cow::Owned(<span class="macro">format!</span>(<span class="string">&quot;Some(serde_json::json!({option_code}))&quot;</span>))
         });
-        Cow::Owned(<span class="macro">format!</span>(<span class="string">r#&quot;(&quot;{test_code}&quot;, {option_code})&quot;#</span>))
+        Cow::Owned(<span class="macro">format!</span>(<span class="string">r#&quot;({test_code:?}, {option_code})&quot;#</span>))
     })
 }
 

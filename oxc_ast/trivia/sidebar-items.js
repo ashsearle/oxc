@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["CommentKind",""]],"struct":[["Comment",""],["Trivias",""]]};
+window.SIDEBAR_ITEMS = {"enum":["CommentKind"],"struct":["Comment","Trivias"]};

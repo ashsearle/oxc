@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["ESLINT_TEST_PATH",""]],"fn":[["main",""]],"mod":[["json",""],["template",""]],"struct":[["Context",""],["State",""],["TestCase",""]]};
+window.SIDEBAR_ITEMS = {"constant":["ESLINT_TEST_PATH"],"fn":["main"],"mod":["json","template"],"struct":["Context","State","TestCase"]};

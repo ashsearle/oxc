@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Language",""]],"fn":[["main",""]],"struct":[["Options",""]]};
+window.SIDEBAR_ITEMS = {"enum":["Language"],"fn":["main"],"struct":["Options"]};

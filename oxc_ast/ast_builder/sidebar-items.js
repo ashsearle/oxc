@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["AstBuilder",""]]};
+window.SIDEBAR_ITEMS = {"struct":["AstBuilder"]};

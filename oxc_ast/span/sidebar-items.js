@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Span","Newtype for working with text sizes/ranges. See the `text-size` crate for details. Utility methods can be copied from the `text-size` crate if they are needed. NOTE: `u32` is sufficient for “all” reasonable programs. Larger than u32 is a 4GB JS file."]],"trait":[["GetSpan",""]]};
+window.SIDEBAR_ITEMS = {"struct":["Span"],"trait":["GetSpan"]};

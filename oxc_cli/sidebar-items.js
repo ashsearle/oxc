@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["CliRunResult",""]],"struct":[["Cli",""],["CliOptions",""],["Command",""],["Walk",""]]};
+window.SIDEBAR_ITEMS = {"enum":["CliRunResult"],"struct":["Cli","CliOptions","Command","Walk"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["RULE_TEMPLATE",""]],"fn":[["format_rule_output",""]],"struct":[["Template",""]]};
+window.SIDEBAR_ITEMS = {"constant":["RULE_TEMPLATE"],"fn":["format_rule_output"],"struct":["Template"]};

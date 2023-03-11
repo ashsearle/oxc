@@ -167,6 +167,11 @@
 <a href="#167" id="167">167</a>
 <a href="#168" id="168">168</a>
 <a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
 <span class="comment">// mod git;
 </span><span class="kw">mod </span>options;
@@ -185,7 +190,7 @@
 <span class="kw">use </span>oxc_allocator::Allocator;
 <span class="kw">use </span>oxc_ast::SourceType;
 <span class="kw">use </span>oxc_diagnostics::{Error, Severity};
-<span class="kw">use </span>oxc_linter::{Fixer, Linter};
+<span class="kw">use </span>oxc_linter::Linter;
 <span class="kw">use </span>oxc_parser::Parser;
 <span class="kw">use </span>oxc_semantic::SemanticBuilder;
 
@@ -298,8 +303,9 @@
         <span class="kw">let </span>source_type = SourceType::from_path(path).expect(<span class="string">&quot;incorrect {path:?}&quot;</span>);
         <span class="kw">let </span>parser_source_text = source_text.clone();
         <span class="kw">let </span>ret = Parser::new(<span class="kw-2">&amp;</span>allocator, <span class="kw-2">&amp;</span>parser_source_text, source_type).parse();
+
         <span class="kw">if </span>!ret.errors.is_empty() {
-            <span class="kw">return </span>ret.errors;
+            <span class="kw">return </span><span class="self">Self</span>::wrap_diagnostics(path, <span class="kw-2">&amp;</span>source_text, ret.errors);
         };
 
         <span class="kw">let </span>program = allocator.alloc(ret.program);
@@ -307,7 +313,7 @@
         <span class="kw">let </span>semantic_ret = SemanticBuilder::new(source_type).build(program, trivias);
 
         <span class="kw">if </span>!semantic_ret.errors.is_empty() {
-            <span class="kw">return </span>ret.errors;
+            <span class="kw">return </span><span class="self">Self</span>::wrap_diagnostics(path, <span class="kw-2">&amp;</span>source_text, ret.errors);
         };
 
         <span class="kw">let </span>result = Linter::new().run(<span class="kw-2">&amp;</span>Rc::new(semantic_ret.semantic), <span class="kw-2">&amp;</span>source_text, fix);
@@ -316,23 +322,27 @@
             <span class="kw">return </span><span class="macro">vec!</span>[];
         }
 
-        <span class="kw">let </span>path_cow = path.to_string_lossy();
-        <span class="kw">let </span>source = Arc::new(NamedSource::new(path_cow, source_text.clone()));
+        <span class="comment">// if fix {
+        // let fix_result = Fixer::new(&amp;source_text, result).fix();
+        // fs::write(path, fix_result.fixed_code.as_bytes())
+        // .unwrap_or_else(|_| panic!(&quot;{path:?} not found&quot;));
+        // return fix_result
+        // .messages
+        // .into_iter()
+        // .map(|m| m.error.with_source_code(source.clone()))
+        // .collect();
+        // }
 
-        <span class="kw">if </span>fix {
-            <span class="kw">let </span>fix_result = Fixer::new(<span class="kw-2">&amp;</span>source_text, result).fix();
-            fs::write(path, fix_result.fixed_code.as_bytes())
-                .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;{path:?} not found&quot;</span>));
-            <span class="kw">return </span>fix_result
-                .messages
-                .into_iter()
-                .map(|m| m.error.with_source_code(source.clone()))
-                .collect();
-        }
+        </span><span class="kw">let </span>errors = result.into_iter().map(|diagnostic| diagnostic.error).collect();
+        <span class="self">Self</span>::wrap_diagnostics(path, <span class="kw-2">&amp;</span>source_text, errors)
+    }
 
-        result
+    <span class="kw">fn </span>wrap_diagnostics(path: <span class="kw-2">&amp;</span>Path, source_text: <span class="kw-2">&amp;</span>str, diagnostics: Vec&lt;Error&gt;) -&gt; Vec&lt;Error&gt; {
+        <span class="kw">let </span>path = path.to_string_lossy();
+        <span class="kw">let </span>source = Arc::new(NamedSource::new(path, source_text.to_owned()));
+        diagnostics
             .into_iter()
-            .map(|diagnostic| diagnostic.error.with_source_code(source.clone()))
+            .map(|diagnostic| diagnostic.with_source_code(source.clone()))
             .collect()
     }
 }

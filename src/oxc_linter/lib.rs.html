@@ -116,7 +116,6 @@
 <a href="#116" id="116">116</a>
 <a href="#117" id="117">117</a>
 <a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
 </pre><pre class="rust"><code><span class="attr">#![feature(let_chains, is_some_and, const_trait_impl, const_slice_index)]
 
 #[cfg(test)]
@@ -134,7 +133,7 @@
 <span class="kw">pub use </span>fixer::{Fixer, Message};
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>oxc_semantic::AstNode;
 <span class="kw">use </span>oxc_semantic::Semantic;
-<span class="kw">use </span>rule::Rule;
+<span class="kw">use </span>rule::{Rule, RuleCategory};
 
 <span class="kw">use crate</span>::{
     context::LintContext,
@@ -152,20 +151,18 @@
     <span class="attr">#[must_use]
     #[allow(clippy::new_without_default)]
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>rules_config = <span class="self">Self</span>::read_rules_configuration();
-        <span class="kw">let </span>rules = rules_config.map_or_else(
-            || RULES.to_vec(),
-            |rules_config| {
-                RULES
-                    .iter()
-                    .map(|rule| {
-                        <span class="kw">let </span>value = rules_config.get(rule.name());
-                        rule.read_json(value.cloned())
-                    })
-                    .collect()
-            },
-        );
-        <span class="self">Self</span>::from_rules(rules)
+        <span class="comment">// let rules_config = Self::read_rules_configuration();
+        // let rules = rules_config.map_or_else(
+        // || RULES.to_vec(),
+        // |rules_config| {
+        </span><span class="kw">let </span>rules = RULES
+            .iter()
+            .cloned()
+            .filter(|rule| rule.category() == RuleCategory::Correctness)
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="comment">// },
+        // );
+        </span><span class="self">Self</span>::from_rules(rules)
     }
 
     <span class="attr">#[must_use]
@@ -228,7 +225,8 @@
         ctx.into_message()
     }
 
-    <span class="kw">fn </span>read_rules_configuration() -&gt; <span class="prelude-ty">Option</span>&lt;serde_json::Map&lt;String, serde_json::Value&gt;&gt; {
+    <span class="attr">#[allow(unused)]
+    </span><span class="kw">fn </span>read_rules_configuration() -&gt; <span class="prelude-ty">Option</span>&lt;serde_json::Map&lt;String, serde_json::Value&gt;&gt; {
         fs::read_to_string(<span class="string">&quot;.eslintrc.json&quot;</span>)
             .ok()
             .and_then(|s| serde_json::from_str(<span class="kw-2">&amp;</span>s).ok())

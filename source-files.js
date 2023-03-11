@@ -5,7 +5,7 @@ var sourcesIndex = JSON.parse('{\
 "oxc_cli":["",[],["command.rs","lib.rs","options.rs","result.rs","walk.rs"]],\
 "oxc_coverage":["",[],["babel.rs","lib.rs","printer.rs","suite.rs","test262.rs","typescript.rs"]],\
 "oxc_diagnostics":["",[],["lib.rs"]],\
-"oxc_linter":["",[["rules",[["deepscan",[],["uninvoked_array_callback.rs"]],["early_error",[],["javascript.rs"]]],["constructor_super.rs","eq_eq_eq.rs","for_direction.rs","no_array_constructor.rs","no_constant_binary_expression.rs","no_debugger.rs","no_empty.rs","no_empty_pattern.rs","no_mixed_operators.rs","use_isnan.rs"]]],["ast_util.rs","context.rs","fixer.rs","globals.rs","lib.rs","rule.rs","rules.rs"]],\
+"oxc_linter":["",[["rules",[["deepscan",[],["uninvoked_array_callback.rs"]],["early_error",[],["javascript.rs"]]],["constructor_super.rs","eq_eq_eq.rs","for_direction.rs","no_array_constructor.rs","no_constant_binary_expression.rs","no_debugger.rs","no_empty.rs","no_empty_pattern.rs","no_mixed_operators.rs","no_self_compare.rs","use_isnan.rs"]]],["ast_util.rs","context.rs","fixer.rs","globals.rs","lib.rs","rule.rs","rules.rs"]],\
 "oxc_macros":["",[],["declare_all_lint_rules.rs","declare_oxc_lint.rs","lib.rs"]],\
 "oxc_parser":["",[["js",[],["binding.rs","class.rs","declaration.rs","expression.rs","function.rs","grammar.rs","list.rs","mod.rs","module.rs","object.rs","operator.rs","statement.rs"]],["jsx",[],["mod.rs"]],["lexer",[],["constants.rs","kind.rs","mod.rs","number.rs","simd.rs","string_builder.rs","token.rs","trivia_builder.rs"]],["ts",[],["declaration.rs","list.rs","mod.rs","statement.rs","types.rs"]]],["cursor.rs","diagnostics.rs","lib.rs","list.rs","state.rs"]],\
 "oxc_printer":["",[],["gen.rs","lib.rs"]],\

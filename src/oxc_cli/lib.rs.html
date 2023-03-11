@@ -162,6 +162,11 @@
 <a href="#162" id="162">162</a>
 <a href="#163" id="163">163</a>
 <a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
 <span class="comment">// mod git;
 </span><span class="kw">mod </span>options;
@@ -299,8 +304,13 @@
 
         <span class="kw">let </span>program = allocator.alloc(ret.program);
         <span class="kw">let </span>trivias = Rc::new(ret.trivias);
-        <span class="kw">let </span>semantic = SemanticBuilder::new(source_type).build(program, trivias);
-        <span class="kw">let </span>result = Linter::new().run(<span class="kw-2">&amp;</span>Rc::new(semantic), <span class="kw-2">&amp;</span>source_text, fix);
+        <span class="kw">let </span>semantic_ret = SemanticBuilder::new(source_type).build(program, trivias);
+
+        <span class="kw">if </span>!semantic_ret.errors.is_empty() {
+            <span class="kw">return </span>ret.errors;
+        };
+
+        <span class="kw">let </span>result = Linter::new().run(<span class="kw-2">&amp;</span>Rc::new(semantic_ret.semantic), <span class="kw-2">&amp;</span>source_text, fix);
 
         <span class="kw">if </span>result.is_empty() {
             <span class="kw">return </span><span class="macro">vec!</span>[];

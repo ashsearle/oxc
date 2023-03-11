@@ -757,15 +757,6 @@
 <a href="#757" id="757">757</a>
 <a href="#758" id="758">758</a>
 <a href="#759" id="759">759</a>
-<a href="#760" id="760">760</a>
-<a href="#761" id="761">761</a>
-<a href="#762" id="762">762</a>
-<a href="#763" id="763">763</a>
-<a href="#764" id="764">764</a>
-<a href="#765" id="765">765</a>
-<a href="#766" id="766">766</a>
-<a href="#767" id="767">767</a>
-<a href="#768" id="768">768</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_ast::{Atom, Span};
 <span class="kw">use </span>oxc_diagnostics::{
     miette::{<span class="self">self</span>, Diagnostic},
@@ -965,15 +956,6 @@
 #[error(<span class="string">&quot;The keyword &#39;{0:?}&#39; is reserved&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>ReservedKeyword(Atom, <span class="attr">#[label(<span class="string">&quot;{0} is reserved&quot;</span>)] </span><span class="kw">pub </span>Span);
-
-<span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;Identifier `{0:?}` has already been declared&quot;</span>)]
-#[diagnostic()]
-</span><span class="kw">pub struct </span>Redeclaration(
-    <span class="kw">pub </span>Atom,
-    <span class="attr">#[label(<span class="string">&quot;`{0}` has already been declared here&quot;</span>)] </span><span class="kw">pub </span>Span,
-    <span class="attr">#[label(<span class="string">&quot;It can not be redeclared here&quot;</span>)] </span><span class="kw">pub </span>Span,
-);
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
 #[error(<span class="string">&quot;{0:?} is disallowed as a lexically bound name&quot;</span>)]

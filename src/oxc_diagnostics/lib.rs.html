@@ -30,13 +30,28 @@
 <a href="#30" id="30">30</a>
 <a href="#31" id="31">31</a>
 <a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
+<a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
+<a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a>
+<a href="#41" id="41">41</a>
+<a href="#42" id="42">42</a>
+<a href="#43" id="43">43</a>
+<a href="#44" id="44">44</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Diagnostics Wrapper
 //! Exports `thiserror` and `miette`
 
 </span><span class="kw">use </span>std::{cell::RefCell, ops::Deref, rc::Rc};
 
 <span class="kw">pub use </span>miette;
+<span class="kw">use </span>miette::Diagnostic;
+<span class="kw">use </span>oxc_ast::{Atom, Span};
 <span class="kw">pub use </span>thiserror;
+<span class="kw">use </span>thiserror::Error;
 
 <span class="kw">pub type </span>Error = miette::Error;
 <span class="kw">pub type </span>Severity = miette::Severity;
@@ -62,5 +77,14 @@
         Rc::try_unwrap(<span class="self">self</span>.<span class="number">0</span>).unwrap().into_inner()
     }
 }
+
+<span class="attr">#[derive(Debug, Error, Diagnostic)]
+#[error(<span class="string">&quot;Identifier `{0:?}` has already been declared&quot;</span>)]
+#[diagnostic()]
+</span><span class="kw">pub struct </span>Redeclaration(
+    <span class="kw">pub </span>Atom,
+    <span class="attr">#[label(<span class="string">&quot;`{0}` has already been declared here&quot;</span>)] </span><span class="kw">pub </span>Span,
+    <span class="attr">#[label(<span class="string">&quot;It can not be redeclared here&quot;</span>)] </span><span class="kw">pub </span>Span,
+);
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oxc_diagnostics" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0-nightly (900c35403 2023-03-08)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

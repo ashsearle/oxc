@@ -60,6 +60,7 @@
 <a href="#60" id="60">60</a>
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{rc::Rc, sync::Arc};
 
 <span class="kw">use </span>miette::NamedSource;
@@ -95,17 +96,18 @@
         <span class="kw">let </span>program = <span class="self">self</span>.allocator.alloc(ret.program);
 
         <span class="kw">let </span>diagnostics = Diagnostics::default();
-        <span class="kw">let </span>semantic = SemanticBuilder::new(source_type).build(program, Rc::new(ret.trivias));
+        <span class="kw">let </span>semantic_ret = SemanticBuilder::new(source_type).build(program, Rc::new(ret.trivias));
         <span class="kw">let </span><span class="kw-2">mut </span>diagnostics = diagnostics.into_inner();
 
         <span class="kw">let </span>source = Arc::new(NamedSource::new(path, source_text.to_string()));
 
         diagnostics.extend(
             Linter::from_json_str(eslintrc)
-                .run(<span class="kw-2">&amp;</span>Rc::new(semantic), source_text, <span class="bool-val">false</span>)
+                .run(<span class="kw-2">&amp;</span>Rc::new(semantic_ret.semantic), source_text, <span class="bool-val">false</span>)
                 .into_iter()
                 .map(|m| m.error.with_source_code(source.clone()))
-                .chain(ret.errors),
+                .chain(ret.errors)
+                .chain(semantic_ret.errors),
         );
 
         <span class="kw">if </span>diagnostics.is_empty() {

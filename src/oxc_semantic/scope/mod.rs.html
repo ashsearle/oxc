@@ -84,6 +84,23 @@
 <a href="#84" id="84">84</a>
 <a href="#85" id="85">85</a>
 <a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
 </pre><pre class="rust"><code><span class="doccomment">//! ECMAScript Scope Tree
 //! See [Scope Analysis](https://tc39.es/ecma262/#sec-syntax-directed-operations-scope-analysis)
 //! Code Adapted from [acorn](https://github.com/acornjs/acorn/blob/master/acorn/src/scope.js)
@@ -94,10 +111,11 @@
 <span class="kw">mod </span>tree;
 
 <span class="kw">use </span>bitflags::bitflags;
-<span class="kw">pub use </span>builder::<span class="kw-2">*</span>;
-<span class="kw">pub use </span>tree::ScopeTree;
+<span class="kw">use </span>oxc_ast::Atom;
+<span class="kw">use </span>rustc_hash::FxHashMap;
 
-<span class="kw">pub use </span><span class="self">self</span>::id::ScopeId;
+<span class="kw">pub use </span><span class="self">self</span>::{builder::ScopeBuilder, id::ScopeId, tree::ScopeTree};
+<span class="kw">use </span><span class="kw">crate</span>::symbol::{Reference, SymbolId};
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>Scope {
@@ -106,6 +124,12 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) strict_mode: bool,
 
     <span class="kw">pub </span>flags: ScopeFlags,
+
+    <span class="doccomment">/// Variables declared in this scope
+    </span><span class="kw">pub </span>variables: FxHashMap&lt;Atom, SymbolId&gt;,
+
+    <span class="doccomment">/// Unsolved references in this scope
+    </span><span class="kw">pub </span>unresolved_references: FxHashMap&lt;Atom, Vec&lt;Reference&gt;&gt;,
 }
 
 <span class="macro">bitflags! </span>{
@@ -127,7 +151,17 @@
 <span class="kw">impl </span>Scope {
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>new(flags: ScopeFlags, strict_mode: bool) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ strict_mode, flags }
+        <span class="self">Self </span>{
+            strict_mode,
+            flags,
+            variables: FxHashMap::default(),
+            unresolved_references: FxHashMap::default(),
+        }
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>get_variable_symbol_id(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>Atom) -&gt; <span class="prelude-ty">Option</span>&lt;SymbolId&gt; {
+        <span class="self">self</span>.variables.get(name).copied()
     }
 
     <span class="attr">#[must_use]

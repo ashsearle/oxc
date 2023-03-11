@@ -344,6 +344,8 @@
 <a href="#344" id="344">344</a>
 <a href="#345" id="345">345</a>
 <a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     fs::{<span class="self">self</span>, File},
     io::{stdout, Read, Write},
@@ -612,15 +614,17 @@
     </span><span class="kw">fn </span>execute(<span class="kw-2">&amp;mut </span><span class="self">self</span>, source_type: SourceType) -&gt; TestResult {
         <span class="kw">let </span>allocator = Allocator::default();
         <span class="kw">let </span>source_text = <span class="self">self</span>.code();
-        <span class="kw">let </span>ret = Parser::new(<span class="kw-2">&amp;</span>allocator, source_text, source_type).parse();
-        <span class="kw">let </span>program = allocator.alloc(ret.program);
-        <span class="kw">let </span>trivias = Rc::new(ret.trivias);
-        <span class="kw">let </span>semantic = SemanticBuilder::new(source_type).build(program, trivias);
-        <span class="kw">let </span>result = Linter::new().run_early_error(<span class="kw-2">&amp;</span>Rc::new(semantic), source_text, <span class="bool-val">false</span>);
+        <span class="kw">let </span>parser_ret = Parser::new(<span class="kw-2">&amp;</span>allocator, source_text, source_type).parse();
+        <span class="kw">let </span>program = allocator.alloc(parser_ret.program);
+        <span class="kw">let </span>trivias = Rc::new(parser_ret.trivias);
+        <span class="kw">let </span>semantic_ret = SemanticBuilder::new(source_type).build(program, trivias);
+        <span class="kw">let </span>result =
+            Linter::new().run_early_error(<span class="kw-2">&amp;</span>Rc::new(semantic_ret.semantic), source_text, <span class="bool-val">false</span>);
         <span class="kw">let </span>errors = result
             .into_iter()
             .map(|msg| msg.error)
-            .chain(ret.errors.into_iter())
+            .chain(parser_ret.errors.into_iter())
+            .chain(semantic_ret.errors.into_iter())
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="kw">let </span>result = <span class="kw">if </span>errors.is_empty() {
             <span class="prelude-val">Ok</span>(String::new())

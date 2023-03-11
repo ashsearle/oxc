@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Diagnostics"],"type":["Error","Report","Result","Severity"]};
+window.SIDEBAR_ITEMS = {"struct":["Diagnostics","Redeclaration"],"type":["Error","Report","Result","Severity"]};

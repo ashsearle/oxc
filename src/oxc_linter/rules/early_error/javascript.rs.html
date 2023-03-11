@@ -448,7 +448,7 @@
 </span><span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, AstKind, Atom, Span};
 <span class="kw">use </span>oxc_diagnostics::{
     miette::{<span class="self">self</span>, Diagnostic},
-    thiserror::Error,
+    thiserror::{<span class="self">self</span>, Error},
     Redeclaration,
 };
 
@@ -484,7 +484,7 @@
 }
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;The keyword &#39;{0:?}&#39; is reserved&quot;</span>)]
+#[error(<span class="string">&quot;The keyword &#39;{0}&#39; is reserved&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">struct </span>ReservedKeyword(Atom, <span class="attr">#[label] </span>Span);
 
@@ -533,7 +533,7 @@
                 AstKind::VariableDeclaration(decl) <span class="kw">if </span>decl.kind.is_lexical() =&gt; {
                     <span class="attr">#[derive(Debug, Error, Diagnostic)]
                     #[error(
-                        <span class="string">&quot;`let` cannot be declared as a variable name inside of a `{0:?}` declaration&quot;
+                        <span class="string">&quot;`let` cannot be declared as a variable name inside of a `{0}` declaration&quot;
                     </span>)]
                     #[diagnostic()]
                     </span><span class="kw">struct </span>InvalidLetDeclaration(String, <span class="attr">#[label] </span>Span);
@@ -555,12 +555,12 @@
     ctx: <span class="kw-2">&amp;</span>LintContext&lt;<span class="lifetime">&#39;a</span>&gt;,
 ) {
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
-    #[error(<span class="string">&quot;Cannot assign to &#39;{0:?}&#39; in strict mode&quot;</span>)]
+    #[error(<span class="string">&quot;Cannot assign to &#39;{0}&#39; in strict mode&quot;</span>)]
     #[diagnostic()]
     </span><span class="kw">struct </span>UnexpectedIdentifierAssign(Atom, <span class="attr">#[label] </span>Span);
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
-    #[error(<span class="string">&quot;&#39;arguments&#39; is not allowed in {0:?}&quot;</span>)]
+    #[error(<span class="string">&quot;&#39;arguments&#39; is not allowed in {0}&quot;</span>)]
     #[diagnostic()]
     </span><span class="kw">struct </span>UnexpectedArguments(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label] </span>Span);
 
@@ -631,7 +631,7 @@
 
     <span class="kw">if </span>classes.is_empty() {
         <span class="attr">#[derive(Debug, Error, Diagnostic)]
-        #[error(<span class="string">&quot;Private identifier &#39;#{0:?}&#39; is not allowed outside class bodies&quot;</span>)]
+        #[error(<span class="string">&quot;Private identifier &#39;#{0}&#39; is not allowed outside class bodies&quot;</span>)]
         #[diagnostic()]
         </span><span class="kw">struct </span>PrivateNotInClass(Atom, <span class="attr">#[label] </span>Span);
         <span class="kw">return </span>ctx.diagnostic(PrivateNotInClass(ident.name.clone(), ident.span));
@@ -658,7 +658,7 @@
 
     <span class="kw">if </span>!found_private_ident {
         <span class="attr">#[derive(Debug, Error, Diagnostic)]
-        #[error(<span class="string">&quot;Private field &#39;{0:?}&#39; must be declared in an enclosing class&quot;</span>)]
+        #[error(<span class="string">&quot;Private field &#39;{0}&#39; must be declared in an enclosing class&quot;</span>)]
         #[diagnostic()]
         </span><span class="kw">struct </span>PrivateFieldUndeclared(Atom, <span class="attr">#[label] </span>Span);
         ctx.diagnostic(PrivateFieldUndeclared(ident.name.clone(), ident.span));
@@ -822,7 +822,7 @@
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(
-        <span class="string">&quot;A `{0:?}` statement can only jump to a label of an enclosing `for`, `while` or `do while` statement.&quot;
+        <span class="string">&quot;A `{0}` statement can only jump to a label of an enclosing `for`, `while` or `do while` statement.&quot;
     </span>)]
     #[diagnostic()]
     </span><span class="kw">struct </span>InvalidLabelNonIteration(

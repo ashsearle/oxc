@@ -760,7 +760,7 @@
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_ast::{Atom, Span};
 <span class="kw">use </span>oxc_diagnostics::{
     miette::{<span class="self">self</span>, Diagnostic},
-    thiserror::Error,
+    thiserror::{<span class="self">self</span>, Error},
 };
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
@@ -797,7 +797,7 @@
 </span><span class="kw">pub struct </span>UnicodeEscapeSequence(<span class="attr">#[label(<span class="string">&quot;Invalid Unicode escape sequence&quot;</span>)] </span><span class="kw">pub </span>Span);
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;Invalid Character `{0:?}`&quot;</span>)]
+#[error(<span class="string">&quot;Invalid Character `{0}`&quot;</span>)]
 </span><span class="kw">pub struct </span>InvalidCharacter(<span class="kw">pub </span>char, <span class="attr">#[label(<span class="string">&quot;Invalid Character `{0}`&quot;</span>)] </span><span class="kw">pub </span>Span);
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
@@ -813,14 +813,14 @@
 </span><span class="kw">pub struct </span>UnterminatedString(<span class="attr">#[label(<span class="string">&quot;Unterminated string&quot;</span>)] </span><span class="kw">pub </span>Span);
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;Unexpected flag {0:?} in regular expression literal&quot;</span>)]
+#[error(<span class="string">&quot;Unexpected flag {0} in regular expression literal&quot;</span>)]
 </span><span class="kw">pub struct </span>RegExpFlag(
     <span class="kw">pub </span>char,
     <span class="attr">#[label(<span class="string">&quot;Unexpected flag {0} in regular expression literal&quot;</span>)] </span><span class="kw">pub </span>Span,
 );
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;Flag {0:?} is mentioned twice in regular expression literal&quot;</span>)]
+#[error(<span class="string">&quot;Flag {0} is mentioned twice in regular expression literal&quot;</span>)]
 </span><span class="kw">pub struct </span>RegExpFlagTwice(
     <span class="kw">pub </span>char,
     <span class="attr">#[label(<span class="string">&quot;Flag {0} is mentioned twice in regular expression literal&quot;</span>)] </span><span class="kw">pub </span>Span,
@@ -920,7 +920,7 @@
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
 #[error(
-    <span class="string">&quot;A `{0:?}` statement can only jump to a label of an enclosing `for`, `while` or `do while` statement.&quot;
+    <span class="string">&quot;A `{0}` statement can only jump to a label of an enclosing `for`, `while` or `do while` statement.&quot;
 </span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>InvalidLabelNonIteration(
@@ -940,7 +940,7 @@
 </span><span class="kw">pub struct </span>InvalidLabelJumpTarget(<span class="attr">#[label(<span class="string">&quot;Jump target cannot cross function boundary.&quot;</span>)] </span><span class="kw">pub </span>Span);
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;Unexpected &#39;{0:?}&#39; strict mode&quot;</span>)]
+#[error(<span class="string">&quot;Unexpected &#39;{0}&#39; strict mode&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>UnexpectedIdentifierAssign(
     Atom,
@@ -953,12 +953,12 @@
 </span><span class="kw">pub struct </span>UnexpectedLhsAssign(<span class="attr">#[label(<span class="string">&quot;Invalid left-hand side in assignment&quot;</span>)] </span><span class="kw">pub </span>Span);
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;The keyword &#39;{0:?}&#39; is reserved&quot;</span>)]
+#[error(<span class="string">&quot;The keyword &#39;{0}&#39; is reserved&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>ReservedKeyword(Atom, <span class="attr">#[label(<span class="string">&quot;{0} is reserved&quot;</span>)] </span><span class="kw">pub </span>Span);
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;{0:?} is disallowed as a lexically bound name&quot;</span>)]
+#[error(<span class="string">&quot;{0} is disallowed as a lexically bound name&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>DisallowedLexicalName(
     <span class="kw">pub </span>Atom,
@@ -966,7 +966,7 @@
 );
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;`let` cannot be declared as a variable name inside of a `{0:?}` declaration&quot;</span>)]
+#[error(<span class="string">&quot;`let` cannot be declared as a variable name inside of a `{0}` declaration&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>InvalidLetDeclaration(String, <span class="attr">#[label(<span class="string">&quot;Rename the let identifier here&quot;</span>)] </span><span class="kw">pub </span>Span);
 
@@ -988,11 +988,11 @@
 </span><span class="kw">pub struct </span>FunctionsCannotBeLabelled(<span class="attr">#[label(<span class="string">&quot;Functions cannot be labelled&quot;</span>)] </span><span class="kw">pub </span>Span);
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;Cannot use {0:?} outside a method&quot;</span>)]
+#[error(<span class="string">&quot;Cannot use {0} outside a method&quot;</span>)]
 </span><span class="kw">pub struct </span>MethodCode(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;Cannot use {0} outside a method&quot;</span>)] </span><span class="kw">pub </span>Span);
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;Cannot use {0:?} outside a module&quot;</span>)]
+#[error(<span class="string">&quot;Cannot use {0} outside a module&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>ModuleCode(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;Cannot use {0} outside a module&quot;</span>)] </span><span class="kw">pub </span>Span);
 
@@ -1119,7 +1119,7 @@
 </span><span class="kw">pub struct </span>NewDynamicImport(<span class="attr">#[label(<span class="string">&quot;Cannot use new with dynamic import&quot;</span>)] </span><span class="kw">pub </span>Span);
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;&#39;{0:?}&#39; declaration can only be used at the top level of a module&quot;</span>)]
+#[error(<span class="string">&quot;&#39;{0}&#39; declaration can only be used at the top level of a module&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>TopLevel(
     <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
@@ -1127,7 +1127,7 @@
 );
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;Duplicated export &#39;{0:?}&#39;&quot;</span>)]
+#[error(<span class="string">&quot;Duplicated export &#39;{0}&#39;&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>DuplicateExport(
     Atom,
@@ -1150,7 +1150,7 @@
 );
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;Private field &#39;{0:?}&#39; must be declared in an enclosing class&quot;</span>)]
+#[error(<span class="string">&quot;Private field &#39;{0}&#39; must be declared in an enclosing class&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>PrivateFieldUndeclared(
     Atom,
@@ -1183,12 +1183,12 @@
 </span><span class="kw">pub struct </span>ConstructorAsync(<span class="attr">#[label(<span class="string">&quot;Constructor can&#39;t be an async method&quot;</span>)] </span><span class="kw">pub </span>Span);
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;Cannot use `{0:?}` as an identifier in an async context&quot;</span>)]
+#[error(<span class="string">&quot;Cannot use `{0}` as an identifier in an async context&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>IdentifierAsync(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;{0} cannot be used here&quot;</span>)] </span><span class="kw">pub </span>Span);
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;Cannot use `{0:?}` as an identifier in a generator context&quot;</span>)]
+#[error(<span class="string">&quot;Cannot use `{0}` as an identifier in a generator context&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>IdentifierGenerator(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;{0} cannot be used here&quot;</span>)] </span><span class="kw">pub </span>Span);
 
@@ -1266,7 +1266,7 @@
 );
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;&#39;Unexpected `{0:?}`&quot;</span>)]
+#[error(<span class="string">&quot;&#39;Unexpected `{0}`&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>UnexpectedKeyword(
     <span class="kw">pub </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
@@ -1274,7 +1274,7 @@
 );
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;{0:?} loop variable declaration may not have an initializer&quot;</span>)]
+#[error(<span class="string">&quot;{0} loop variable declaration may not have an initializer&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>UnexpectedInitializerInForLoopHead(
     <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
@@ -1282,7 +1282,7 @@
 );
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;Only a single declaration is allowed in a `for...{0:?}` statement&quot;</span>)]
+#[error(<span class="string">&quot;Only a single declaration is allowed in a `for...{0}` statement&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>MultipleDeclarationInForLoopHead(
     <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
@@ -1290,7 +1290,7 @@
 );
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;Illegal newline after {0:?}&quot;</span>)]
+#[error(<span class="string">&quot;Illegal newline after {0}&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>IllegalNewline(
     <span class="kw">pub </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
@@ -1313,7 +1313,7 @@
 );
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;&#39;arguments&#39; is not allowed in {0:?}&quot;</span>)]
+#[error(<span class="string">&quot;&#39;arguments&#39; is not allowed in {0}&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>UnexpectedArguments(
     <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
@@ -1321,7 +1321,7 @@
 );
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;Unexpected {0:?} expression&quot;</span>)]
+#[error(<span class="string">&quot;Unexpected {0} expression&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>UnexpectedExpression(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;Unexpected {0} expression&quot;</span>)] </span><span class="kw">pub </span>Span);
 
@@ -1360,7 +1360,7 @@
 );
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;{0:?} expression not allowed in formal parameter&quot;</span>)]
+#[error(<span class="string">&quot;{0} expression not allowed in formal parameter&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>AwaitOrYieldInParameter(
     <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
@@ -1430,7 +1430,7 @@
 </span><span class="kw">pub struct </span>ExpectCatchFinally(<span class="attr">#[label(<span class="string">&quot;Expected `catch` or `finally` here&quot;</span>)] </span><span class="kw">pub </span>Span);
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;Cannot assign to &#39;{0:?}&#39; because it is a {1:?}&quot;</span>)]
+#[error(<span class="string">&quot;Cannot assign to &#39;{0}&#39; because it is a {1}&quot;</span>)]
 #[diagnostic()]
 </span><span class="kw">pub struct </span>CannotAssignTo(
     Atom,

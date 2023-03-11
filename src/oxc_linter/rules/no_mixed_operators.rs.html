@@ -337,7 +337,7 @@
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_ast::{AstKind, GetSpan, Span};
 <span class="kw">use </span>oxc_diagnostics::{
     miette::{<span class="self">self</span>, Diagnostic},
-    thiserror::Error,
+    thiserror::{<span class="self">self</span>, Error},
 };
 <span class="kw">use </span>oxc_macros::declare_oxc_lint;
 <span class="kw">use </span>oxc_semantic::AstNode;
@@ -345,7 +345,7 @@
 <span class="kw">use crate</span>::{context::LintContext, rule::Rule};
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
-#[error(<span class="string">&quot;eslint(no-mixed-operators): Unexpected mix of {0:?} with {1:?}&quot;</span>)]
+#[error(<span class="string">&quot;eslint(no-mixed-operators): Unexpected mix of {0} with {1}&quot;</span>)]
 #[diagnostic(
     severity(warning),
     help(<span class="string">&quot;Use parentheses to clarify the intended order of operations.&quot;</span>)

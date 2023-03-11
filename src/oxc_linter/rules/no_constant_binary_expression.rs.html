@@ -678,7 +678,7 @@
 </span><span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, AstKind, Span};
 <span class="kw">use </span>oxc_diagnostics::{
     miette::{<span class="self">self</span>, Diagnostic},
-    thiserror::Error,
+    thiserror::{<span class="self">self</span>, Error},
 };
 <span class="kw">use </span>oxc_macros::declare_oxc_lint;
 
@@ -735,7 +735,7 @@
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
 #[error(
-    <span class="string">&quot;eslint(no-constant-binary-expression): Unexpected constant {0:?} on the left-hand side of a `{1:?}` expression&quot;
+    <span class="string">&quot;eslint(no-constant-binary-expression): Unexpected constant {0} on the left-hand side of a `{1}` expression&quot;
 </span>)]
 #[diagnostic(severity(warning))]
 </span><span class="kw">struct </span>ConstantShortCircuit(

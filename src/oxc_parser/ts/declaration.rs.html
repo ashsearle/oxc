@@ -136,6 +136,7 @@
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
 </pre><pre class="rust"><code><span class="kw">use crate</span>::{lexer::Kind, Parser};
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Parser&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -221,7 +222,8 @@
 
     <span class="kw">fn </span>run_check(source: <span class="kw-2">&amp;</span>str, expected: bool) {
         <span class="kw">let </span>alloc = Allocator::default();
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = Parser::new(<span class="kw-2">&amp;</span>alloc, source, SourceType::builder().typescript().build());
+        <span class="kw">let </span>source_type = <span class="kw-2">*</span>SourceType::default().with_typescript(<span class="bool-val">true</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = Parser::new(<span class="kw-2">&amp;</span>alloc, source, source_type);
         <span class="comment">// Get the parser to the first token.
         </span>parser.bump_any();
         <span class="macro">assert_eq!</span>(expected, parser.at_start_of_ts_declaration());

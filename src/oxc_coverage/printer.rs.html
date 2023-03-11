@@ -68,11 +68,6 @@
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::path::{Path, PathBuf};
 
 <span class="kw">use </span>oxc_allocator::Allocator;
@@ -130,13 +125,8 @@
     <span class="kw">fn </span>get_result(<span class="kw-2">&amp;</span><span class="self">self</span>, options: PrinterOptions) -&gt; TestResult {
         <span class="kw">let </span>allocator = Allocator::default();
         <span class="kw">let </span>source_text = <span class="self">self</span>.base.code().to_string();
-        <span class="kw">let </span>source_type = {
-            <span class="kw">let </span><span class="kw-2">mut </span>builder = SourceType::builder();
-            <span class="kw">if </span><span class="self">self</span>.base.meta().flags.contains(<span class="kw-2">&amp;</span>TestFlag::Module) {
-                builder = builder.module();
-            }
-            builder.build()
-        };
+        <span class="kw">let </span>is_module = <span class="self">self</span>.base.meta().flags.contains(<span class="kw-2">&amp;</span>TestFlag::Module);
+        <span class="kw">let </span>source_type = <span class="kw-2">*</span>SourceType::default().with_module(is_module);
         <span class="kw">let </span>program1 = Parser::new(<span class="kw-2">&amp;</span>allocator, <span class="kw-2">&amp;</span>source_text, source_type).parse().program;
         <span class="kw">let </span>source_text1 = Printer::new(source_text.len(), options).build(<span class="kw-2">&amp;</span>program1);
         <span class="kw">let </span>program2 = Parser::new(<span class="kw-2">&amp;</span>allocator, <span class="kw-2">&amp;</span>source_text1, source_type).parse().program;

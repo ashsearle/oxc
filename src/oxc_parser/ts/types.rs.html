@@ -1140,9 +1140,9 @@
   }
 }
 
-<span class="doccomment">/// It is the caller&#39;s savety to always check by `Kind::is_modifier_kind`
+<span class="doccomment">/// It is the caller&#39;s safety to always check by `Kind::is_modifier_kind`
 /// before converting [`Kind`] to [`ModifierFlags`] so that we can assume here that
-/// the convertion always succeeds.
+/// the conversion always succeeds.
 </span><span class="kw">impl </span>From&lt;Kind&gt; <span class="kw">for </span>ModifierFlags {
     <span class="kw">fn </span>from(value: Kind) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>value {

@@ -111,8 +111,8 @@
     <span class="doccomment">/// Close element, e.g.. `}` `]` `)`
     </span><span class="kw">fn </span>close(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Kind;
 
-    <span class="doccomment">/// Seperator element, e.g. `,`
-    </span><span class="kw">fn </span>seperator(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Kind {
+    <span class="doccomment">/// Separator element, e.g. `,`
+    </span><span class="kw">fn </span>separator(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Kind {
         Kind::Comma
     }
 
@@ -132,7 +132,7 @@
             <span class="kw">if </span>first {
                 first = <span class="bool-val">false</span>;
             } <span class="kw">else </span>{
-                p.expect(<span class="self">self</span>.seperator())<span class="question-mark">?</span>;
+                p.expect(<span class="self">self</span>.separator())<span class="question-mark">?</span>;
                 <span class="kw">if </span>p.at(<span class="self">self</span>.close()) {
                     <span class="kw">break</span>;
                 }

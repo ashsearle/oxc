@@ -237,8 +237,8 @@
 
 <span class="attr">#[derive(Debug, Error)]
 </span><span class="kw">pub enum </span>SourceTypeError {
-    <span class="attr">#[error(<span class="string">&quot;Unkown Extension: {0}&quot;</span>)]
-    </span>UnkownExtension(String),
+    <span class="attr">#[error(<span class="string">&quot;Unknown Extension: {0}&quot;</span>)]
+    </span>UnknownExtension(String),
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>SourceType {
@@ -352,14 +352,14 @@
     </span>}
 
     <span class="doccomment">/// Converts file path to `SourceType`
-    /// returns `SourceTypeError::UnkownExtension` if:
+    /// returns `SourceTypeError::UnknownExtension` if:
     ///   * there is no file name
     ///   * the file extension is not one of &quot;js&quot;, &quot;mjs&quot;, &quot;cjs&quot;, &quot;jsx&quot;, &quot;ts&quot;, &quot;mts&quot;, &quot;cts&quot;, &quot;tsx&quot;
     /// # Errors
     </span><span class="kw">pub fn </span>from_path&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, SourceTypeError&gt; {
         <span class="kw">let </span>file_name =
             path.as_ref().file_name().and_then(std::ffi::OsStr::to_str).ok_or_else(|| {
-                SourceTypeError::UnkownExtension(<span class="string">&quot;Please provide a valid file name.&quot;</span>.to_string())
+                SourceTypeError::UnknownExtension(<span class="string">&quot;Please provide a valid file name.&quot;</span>.to_string())
             })<span class="question-mark">?</span>;
 
         <span class="kw">let </span>extension = path
@@ -369,7 +369,7 @@
             .filter(|s| VALID_EXTENSIONS.contains(s))
             .ok_or_else(|| {
                 <span class="kw">let </span>path = path.as_ref().to_string_lossy();
-                SourceTypeError::UnkownExtension(
+                SourceTypeError::UnknownExtension(
                     <span class="macro">format!</span>(<span class="string">&quot;Please provide a valid file extension for {path}: .js, .mjs, .jsx or .cjs for JavaScript, or .ts, .mts, .cts or .tsx for TypeScript&quot;</span>),
                 )
             })<span class="question-mark">?</span>;

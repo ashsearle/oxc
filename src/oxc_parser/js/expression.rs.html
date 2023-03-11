@@ -1171,7 +1171,7 @@
             </span>Kind::LBrack =&gt; <span class="self">self</span>.parse_array_expression(),
             <span class="comment">// ObjectLiteral
             </span>Kind::LCurly =&gt; <span class="self">self</span>.parse_object_expression(),
-            <span class="comment">// FunctionExpession, GeneratorExpression
+            <span class="comment">// FunctionExpression, GeneratorExpression
             </span>Kind::Function =&gt; <span class="self">self</span>.parse_function_expression(span, <span class="bool-val">false</span>),
             <span class="comment">// ClassExpression
             </span>Kind::Class =&gt; <span class="self">self</span>.parse_class_expression(),
@@ -1826,7 +1826,7 @@
             // This is need for jsx `&lt;div&gt;=&lt;/div&gt;` case
             </span><span class="kw">let </span>kind = <span class="self">self</span>.re_lex_right_angle();
 
-            <span class="comment">// Omit the In keyword for the grammer in 13.10 Relational Operators
+            <span class="comment">// Omit the In keyword for the grammar in 13.10 Relational Operators
             // RelationalExpression[In, Yield, Await] :
             // [+In] RelationalExpression[+In, ?Yield, ?Await] in ShiftExpression[?Yield, ?Await]
             </span><span class="kw">if </span>kind == Kind::In &amp;&amp; !<span class="self">self</span>.ctx.has_in()

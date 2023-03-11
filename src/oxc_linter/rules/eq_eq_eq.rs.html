@@ -158,10 +158,10 @@
 
         <span class="kw">if </span>!is_valid_comparison {
             <span class="kw">let </span>operator = binary_expr.operator.as_str();
-            <span class="kw">let </span>prefered_operator = to_strict_operator(binary_expr.operator).as_str();
+            <span class="kw">let </span>preferred_operator = to_strict_operator(binary_expr.operator).as_str();
             ctx.diagnostic_with_fix(
-                EqEqEqDiagnostic(operator, prefered_operator, binary_expr.span),
-                || Fix::new(prefered_operator, binary_expr.span),
+                EqEqEqDiagnostic(operator, preferred_operator, binary_expr.span),
+                || Fix::new(preferred_operator, binary_expr.span),
             );
         }
     }

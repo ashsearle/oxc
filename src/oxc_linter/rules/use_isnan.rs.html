@@ -502,7 +502,7 @@
 </span><span class="kw">enum </span>UseIsnanDiagnostic {
     <span class="attr">#[error(<span class="string">&quot;eslint(use-isnan): Requires calls to isNaN() when checking for NaN&quot;</span>)]
     #[diagnostic(severity(warning), help(<span class="string">&quot;Use the isNaN function to compare with NaN.&quot;</span>))]
-    </span>ComparisinWithNaN(<span class="attr">#[label] </span>Span),
+    </span>ComparisonWithNaN(<span class="attr">#[label] </span>Span),
     <span class="attr">#[error(<span class="string">&quot;eslint(use-isnan): Requires calls to isNaN() when checking for NaN&quot;</span>)]
     #[diagnostic(
         severity(warning),
@@ -569,10 +569,10 @@
         <span class="kw">match </span>node.get().kind() {
             AstKind::BinaryExpression(expr) <span class="kw">if </span>expr.operator.is_compare() || expr.operator.is_equality() =&gt; {
                 <span class="kw">if </span>is_nan_identifier(<span class="kw-2">&amp;</span>expr.left) {
-                    ctx.diagnostic(UseIsnanDiagnostic::ComparisinWithNaN(expr.left.span()));
+                    ctx.diagnostic(UseIsnanDiagnostic::ComparisonWithNaN(expr.left.span()));
                 }
                 <span class="kw">if </span>is_nan_identifier(<span class="kw-2">&amp;</span>expr.right) {
-                    ctx.diagnostic(UseIsnanDiagnostic::ComparisinWithNaN(expr.right.span()));
+                    ctx.diagnostic(UseIsnanDiagnostic::ComparisonWithNaN(expr.right.span()));
                 }
             }
             AstKind::SwitchCase(case) <span class="kw">if </span><span class="self">self</span>.enforce_for_switch_case =&gt; {

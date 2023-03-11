@@ -257,7 +257,7 @@
                         <span class="kw">if </span>i == len - <span class="number">1 </span>{
                             rest = <span class="prelude-val">Some</span>(AssignmentTarget::cover(elem.unbox().argument, p)<span class="question-mark">?</span>);
                             <span class="kw">if let </span><span class="prelude-val">Some</span>(span) = expr.trailing_comma {
-                                p.error(diagnostics::RestElementTraillingComma(span));
+                                p.error(diagnostics::RestElementTrailingComma(span));
                             }
                         } <span class="kw">else </span>{
                             <span class="kw">return </span><span class="prelude-val">Err</span>(diagnostics::SpreadLastElement(elem.span).into());

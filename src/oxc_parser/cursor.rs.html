@@ -319,6 +319,23 @@
 <a href="#319" id="319">319</a>
 <a href="#320" id="320">320</a>
 <a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Code related to navigating `Token`s from the lexer
 
 </span><span class="kw">use </span>oxc_ast::{context::Context, Atom, Span};
@@ -415,18 +432,31 @@
         <span class="self">self</span>.cur_kind() == kind
     }
 
-    <span class="doccomment">/// Move to the next token
-    /// Checks if the current token is escaped if it is a keyword
-    </span><span class="kw">fn </span>advance(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) {
-        <span class="comment">// StringValue of IdentifierName normalizes any Unicode escape sequences
-        // in IdentifierName hence such escapes cannot be used to write an Identifier
-        // whose code point sequence is the same as a ReservedWord.
-        </span><span class="kw">if </span><span class="self">self</span>.cur_token().escaped &amp;&amp; kind.is_all_keyword() {
+    <span class="doccomment">/// StringValue of IdentifierName normalizes any Unicode escape sequences
+    /// in IdentifierName hence such escapes cannot be used to write an Identifier
+    /// whose code point sequence is the same as a ReservedWord.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">fn </span>test_escaped_keyword(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) {
+        <span class="kw">if </span><span class="self">self</span>.cur_token().escaped &amp;&amp; kind.is_all_keyword() {
             <span class="kw">let </span>span = <span class="self">self</span>.cur_token().span();
             <span class="self">self</span>.error(diagnostics::EscapedKeyword(span));
         }
+    }
+
+    <span class="doccomment">/// Move to the next token
+    /// Checks if the current token is escaped if it is a keyword
+    </span><span class="kw">fn </span>advance(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) {
+        <span class="self">self</span>.test_escaped_keyword(kind);
         <span class="self">self</span>.prev_token_end = <span class="self">self</span>.token.end;
         <span class="self">self</span>.token = <span class="self">self</span>.lexer.next_token();
+    }
+
+    <span class="doccomment">/// Move to the next JSXChild
+    /// Checks if the current token is escaped if it is a keyword
+    </span><span class="kw">fn </span>advance_for_jsx_child(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) {
+        <span class="self">self</span>.test_escaped_keyword(kind);
+        <span class="self">self</span>.prev_token_end = <span class="self">self</span>.token.end;
+        <span class="self">self</span>.token = <span class="self">self</span>.lexer.next_jsx_child();
     }
 
     <span class="doccomment">/// Advance and return true if we are at `Kind`, return false otherwise
@@ -479,15 +509,20 @@
         kind == Kind::RCurly || kind == Kind::Eof || <span class="self">self</span>.cur_token().is_on_new_line
     }
 
-    <span class="doccomment">/// Expect a `Kind` or return error
-    /// # Errors
-    </span><span class="kw">pub fn </span>expect(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">pub fn </span>expect_without_advance(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.at(kind) {
             <span class="kw">let </span>range = <span class="self">self</span>.current_range();
             <span class="kw">return </span><span class="prelude-val">Err</span>(
                 diagnostics::ExpectToken(kind.to_str(), <span class="self">self</span>.cur_kind().to_str(), range).into()
             );
         }
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Expect a `Kind` or return error
+    /// # Errors
+    </span><span class="kw">pub fn </span>expect(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.expect_without_advance(kind)<span class="question-mark">?</span>;
         <span class="self">self</span>.advance(kind);
         <span class="prelude-val">Ok</span>(())
     }
@@ -510,9 +545,8 @@
     <span class="doccomment">/// Expect the next next token to be a `JsxChild`, i.e. `&lt;` or `{` or `JSXText`
     /// # Errors
     </span><span class="kw">pub fn </span>expect_jsx_child(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.lexer.set_context(LexerContext::JsxChild);
-        <span class="self">self</span>.expect(kind)<span class="question-mark">?</span>;
-        <span class="self">self</span>.lexer.set_context(LexerContext::Regular);
+        <span class="self">self</span>.expect_without_advance(kind)<span class="question-mark">?</span>;
+        <span class="self">self</span>.advance_for_jsx_child(kind);
         <span class="prelude-val">Ok</span>(())
     }
 

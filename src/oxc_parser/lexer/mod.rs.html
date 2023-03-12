@@ -1467,8 +1467,6 @@
 <a href="#1467" id="1467">1467</a>
 <a href="#1468" id="1468">1468</a>
 <a href="#1469" id="1469">1469</a>
-<a href="#1470" id="1470">1470</a>
-<a href="#1471" id="1471">1471</a>
 </pre><pre class="rust"><code><span class="doccomment">//! An Ecma-262 Lexer / Tokenizer
 //! Prior Arts:
 //!     * [jsparagus](https://github.com/mozilla-spidermonkey/jsparagus/blob/master/crates/parser/src)
@@ -1518,8 +1516,6 @@
 <span class="attr">#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 </span><span class="kw">pub enum </span>LexerContext {
     Regular,
-    <span class="doccomment">/// Lex the next token, returns `&lt;` or `{` or `JSXText`
-    </span>JsxChild,
     <span class="doccomment">/// Lex the next token, returns `JsxString` or any other token
     </span>JsxAttributeValue,
 }
@@ -1642,6 +1638,11 @@
             <span class="kw">return </span>checkpoint.token;
         }
         <span class="kw">let </span>kind = <span class="self">self</span>.read_next_token();
+        <span class="self">self</span>.finish_next(kind)
+    }
+
+    <span class="kw">pub fn </span>next_jsx_child(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Token {
+        <span class="kw">let </span>kind = <span class="self">self</span>.read_jsx_child();
         <span class="self">self</span>.finish_next(kind)
     }
 
@@ -1810,10 +1811,6 @@
     /// Whitespace and line terminators are skipped
     </span><span class="kw">fn </span>read_next_token(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Kind {
         <span class="self">self</span>.current.token.start = <span class="self">self</span>.offset();
-
-        <span class="kw">if </span><span class="self">self</span>.context == LexerContext::JsxChild {
-            <span class="kw">return </span><span class="self">self</span>.read_jsx_child();
-        }
 
         <span class="kw">loop </span>{
             <span class="self">self</span>.skip_whitespace();
@@ -2498,8 +2495,7 @@
 
         <span class="kw">while let </span>ch @ (<span class="string">&#39;$&#39; </span>| <span class="string">&#39;_&#39; </span>| <span class="string">&#39;a&#39;</span>..=<span class="string">&#39;z&#39; </span>| <span class="string">&#39;A&#39;</span>..=<span class="string">&#39;Z&#39; </span>| <span class="string">&#39;0&#39;</span>..=<span class="string">&#39;9&#39;</span>) = <span class="self">self</span>.peek() {
             <span class="self">self</span>.current.chars.next();
-            <span class="comment">// dbg!(ch);
-            </span><span class="kw">if </span>!ch.is_ascii_lowercase() {
+            <span class="kw">if </span>!ch.is_ascii_lowercase() {
                 <span class="self">self</span>.error(diagnostics::RegExpFlag(ch, <span class="self">self</span>.current_offset()));
                 <span class="kw">continue</span>;
             }

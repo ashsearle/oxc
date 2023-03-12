@@ -51,6 +51,8 @@
 <a href="#51" id="51">51</a>
 <a href="#52" id="52">52</a>
 <a href="#53" id="53">53</a>
+<a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     path::PathBuf,
     process::{ExitCode, Termination},
@@ -87,18 +89,20 @@
                 duration,
             } =&gt; {
                 <span class="kw">let </span>ms = duration.as_millis();
-                <span class="macro">println!</span>(<span class="string">&quot;Checked {number_of_files} files in {ms}ms.&quot;</span>);
+                <span class="kw">let </span>cpus = num_cpus::get();
+                <span class="macro">println!</span>(<span class="string">&quot;Checked {number_of_files} files in {ms}ms using {cpus} cores.&quot;</span>);
 
                 <span class="kw">if </span>max_warnings_exceeded {
                     <span class="macro">println!</span>(<span class="string">&quot;Exceeded maximum number of warnings. Found {number_of_warnings}.&quot;</span>);
                     <span class="kw">return </span>ExitCode::from(<span class="number">1</span>);
                 }
 
-                <span class="kw">if </span>number_of_files &gt; <span class="number">0 </span>{
-                    <span class="macro">println!</span>(<span class="string">&quot;Found {number_of_diagnostics} diagnostics.&quot;</span>);
+                <span class="kw">if </span>number_of_diagnostics &gt; <span class="number">0 </span>{
+                    <span class="macro">println!</span>(<span class="string">&quot;Found {number_of_diagnostics} errors.&quot;</span>);
                     <span class="kw">return </span>ExitCode::from(<span class="number">1</span>);
                 }
 
+                <span class="macro">println!</span>(<span class="string">&quot;Found no errors.&quot;</span>);
                 ExitCode::from(<span class="number">0</span>)
             }
         }

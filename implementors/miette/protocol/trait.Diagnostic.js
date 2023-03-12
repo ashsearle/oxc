@@ -1,3 +1,3 @@
 (function() {var implementors = {
-"oxc_diagnostics":[["impl Diagnostic for <a class=\"struct\" href=\"oxc_diagnostics/struct.Redeclaration.html\" title=\"struct oxc_diagnostics::Redeclaration\">Redeclaration</a>"]]
+"oxc_diagnostics":[["impl Diagnostic for <a class=\"struct\" href=\"oxc_diagnostics/struct.MinifiedFileError.html\" title=\"struct oxc_diagnostics::MinifiedFileError\">MinifiedFileError</a>"],["impl Diagnostic for <a class=\"struct\" href=\"oxc_diagnostics/struct.Redeclaration.html\" title=\"struct oxc_diagnostics::Redeclaration\">Redeclaration</a>"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

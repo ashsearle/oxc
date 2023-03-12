@@ -172,6 +172,16 @@
 <a href="#172" id="172">172</a>
 <a href="#173" id="173">173</a>
 <a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>command;
 <span class="comment">// mod git;
 </span><span class="kw">mod </span>options;
@@ -181,7 +191,7 @@
 <span class="kw">use </span>std::{
     fs,
     io::{BufWriter, Write},
-    path::Path,
+    path::{Path, PathBuf},
     rc::Rc,
     sync::{mpsc, Arc},
 };
@@ -189,7 +199,7 @@
 <span class="kw">use </span>miette::NamedSource;
 <span class="kw">use </span>oxc_allocator::Allocator;
 <span class="kw">use </span>oxc_ast::SourceType;
-<span class="kw">use </span>oxc_diagnostics::{Error, Severity};
+<span class="kw">use </span>oxc_diagnostics::{Error, MinifiedFileError, Severity};
 <span class="kw">use </span>oxc_linter::Linter;
 <span class="kw">use </span>oxc_parser::Parser;
 <span class="kw">use </span>oxc_semantic::SemanticBuilder;
@@ -213,7 +223,7 @@
     </span><span class="kw">pub fn </span>lint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CliRunResult {
         <span class="kw">let </span>now = std::time::Instant::now();
 
-        <span class="kw">let </span>(tx_error, rx_error) = mpsc::channel::&lt;Error&gt;();
+        <span class="kw">let </span>(tx_error, rx_error) = mpsc::channel::&lt;(PathBuf, Vec&lt;Error&gt;)&gt;();
         <span class="kw">let </span>(tx_path, rx_path) = mpsc::channel::&lt;Box&lt;Path&gt;&gt;();
 
         <span class="kw">let </span><span class="kw-2">mut </span>number_of_files = <span class="number">0</span>;
@@ -246,9 +256,8 @@
                 <span class="kw">while let </span><span class="prelude-val">Ok</span>(path) = rx_path.recv() {
                     <span class="kw">let </span>tx_error = tx_error.clone();
                     rayon::spawn(<span class="kw">move </span>|| {
-                        <span class="kw">let </span>diagnostics = <span class="self">Self</span>::lint_path(<span class="kw-2">&amp;</span>path, fix);
-                        <span class="kw">for </span>d <span class="kw">in </span>diagnostics {
-                            tx_error.send(d).unwrap();
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(diagnostics) = <span class="self">Self</span>::lint_path(<span class="kw-2">&amp;</span>path, fix) {
+                            tx_error.send(diagnostics).unwrap();
                         }
                         drop(tx_error);
                     });
@@ -260,27 +269,33 @@
         <span class="kw">let </span><span class="kw-2">mut </span>number_of_warnings = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>number_of_diagnostics = <span class="number">0</span>;
 
-        <span class="kw">while let </span><span class="prelude-val">Ok</span>(diagnostic) = rx_error.recv() {
-            number_of_diagnostics += <span class="number">1</span>;
-
-            <span class="kw">if </span>diagnostic.severity() == <span class="prelude-val">Some</span>(Severity::Warning) {
-                number_of_warnings += <span class="number">1</span>;
-                <span class="comment">// The --quiet flag follows ESLint&#39;s --quiet behavior as documented here: https://eslint.org/docs/latest/use/command-line-interface#--quiet
-                // Note that it does not disable ALL diagnostics, only Warning diagnostics
-                </span><span class="kw">if </span><span class="self">self</span>.cli_options.quiet {
-                    <span class="kw">continue</span>;
-                }
-
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(max_warnings) = <span class="self">self</span>.cli_options.max_warnings {
-                    <span class="kw">if </span>number_of_warnings &gt; max_warnings {
+        <span class="kw">while let </span><span class="prelude-val">Ok</span>((path, diagnostics)) = rx_error.recv() {
+            number_of_diagnostics += diagnostics.len();
+            <span class="kw">for </span>diagnostic <span class="kw">in </span>diagnostics {
+                <span class="kw">if </span>diagnostic.severity() == <span class="prelude-val">Some</span>(Severity::Warning) {
+                    number_of_warnings += <span class="number">1</span>;
+                    <span class="comment">// The --quiet flag follows ESLint&#39;s --quiet behavior as documented here: https://eslint.org/docs/latest/use/command-line-interface#--quiet
+                    // Note that it does not disable ALL diagnostics, only Warning diagnostics
+                    </span><span class="kw">if </span><span class="self">self</span>.cli_options.quiet {
                         <span class="kw">continue</span>;
                     }
-                }
-            }
 
-            buf_writer
-                .write_all(<span class="macro">format!</span>(<span class="string">&quot;{diagnostic:?}&quot;</span>).as_bytes())
-                .expect(<span class="string">&quot;Failed to write diagnostic.&quot;</span>);
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(max_warnings) = <span class="self">self</span>.cli_options.max_warnings {
+                        <span class="kw">if </span>number_of_warnings &gt; max_warnings {
+                            <span class="kw">continue</span>;
+                        }
+                    }
+                }
+
+                <span class="kw">let </span>output = <span class="macro">format!</span>(<span class="string">&quot;{diagnostic:?}&quot;</span>);
+                <span class="comment">// Skip large output and print only once
+                </span><span class="kw">if </span>output.lines().any(|line| line.len() &gt;= <span class="number">400</span>) {
+                    <span class="kw">let </span>minified_diagnostic = Error::new(MinifiedFileError(path.clone()));
+                    buf_writer.write_all(<span class="macro">format!</span>(<span class="string">&quot;{minified_diagnostic:?}&quot;</span>).as_bytes()).unwrap();
+                    <span class="kw">break</span>;
+                }
+                buf_writer.write_all(output.as_bytes()).unwrap();
+            }
         }
 
         buf_writer.flush().unwrap();
@@ -297,15 +312,16 @@
         }
     }
 
-    <span class="kw">fn </span>lint_path(path: <span class="kw-2">&amp;</span>Path, fix: bool) -&gt; Vec&lt;Error&gt; {
-        <span class="kw">let </span>source_text = fs::read_to_string(path).expect(<span class="string">&quot;{name} not found&quot;</span>);
+    <span class="kw">fn </span>lint_path(path: <span class="kw-2">&amp;</span>Path, fix: bool) -&gt; <span class="prelude-ty">Option</span>&lt;(PathBuf, Vec&lt;Error&gt;)&gt; {
+        <span class="kw">let </span>source_text = fs::read_to_string(path).unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;{path:?} not found&quot;</span>));
         <span class="kw">let </span>allocator = Allocator::default();
-        <span class="kw">let </span>source_type = SourceType::from_path(path).expect(<span class="string">&quot;incorrect {path:?}&quot;</span>);
+        <span class="kw">let </span>source_type =
+            SourceType::from_path(path).unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;incorrect {path:?}&quot;</span>));
         <span class="kw">let </span>parser_source_text = source_text.clone();
         <span class="kw">let </span>ret = Parser::new(<span class="kw-2">&amp;</span>allocator, <span class="kw-2">&amp;</span>parser_source_text, source_type).parse();
 
         <span class="kw">if </span>!ret.errors.is_empty() {
-            <span class="kw">return </span><span class="self">Self</span>::wrap_diagnostics(path, <span class="kw-2">&amp;</span>source_text, ret.errors);
+            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">Self</span>::wrap_diagnostics(path, <span class="kw-2">&amp;</span>source_text, ret.errors));
         };
 
         <span class="kw">let </span>program = allocator.alloc(ret.program);
@@ -313,13 +329,13 @@
         <span class="kw">let </span>semantic_ret = SemanticBuilder::new(source_type).build(program, trivias);
 
         <span class="kw">if </span>!semantic_ret.errors.is_empty() {
-            <span class="kw">return </span><span class="self">Self</span>::wrap_diagnostics(path, <span class="kw-2">&amp;</span>source_text, ret.errors);
+            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">Self</span>::wrap_diagnostics(path, <span class="kw-2">&amp;</span>source_text, ret.errors));
         };
 
         <span class="kw">let </span>result = Linter::new().run(<span class="kw-2">&amp;</span>Rc::new(semantic_ret.semantic), <span class="kw-2">&amp;</span>source_text, fix);
 
         <span class="kw">if </span>result.is_empty() {
-            <span class="kw">return </span><span class="macro">vec!</span>[];
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
         <span class="comment">// if fix {
@@ -334,16 +350,20 @@
         // }
 
         </span><span class="kw">let </span>errors = result.into_iter().map(|diagnostic| diagnostic.error).collect();
-        <span class="self">Self</span>::wrap_diagnostics(path, <span class="kw-2">&amp;</span>source_text, errors)
+        <span class="prelude-val">Some</span>(<span class="self">Self</span>::wrap_diagnostics(path, <span class="kw-2">&amp;</span>source_text, errors))
     }
 
-    <span class="kw">fn </span>wrap_diagnostics(path: <span class="kw-2">&amp;</span>Path, source_text: <span class="kw-2">&amp;</span>str, diagnostics: Vec&lt;Error&gt;) -&gt; Vec&lt;Error&gt; {
-        <span class="kw">let </span>path = path.to_string_lossy();
-        <span class="kw">let </span>source = Arc::new(NamedSource::new(path, source_text.to_owned()));
-        diagnostics
+    <span class="kw">fn </span>wrap_diagnostics(
+        path: <span class="kw-2">&amp;</span>Path,
+        source_text: <span class="kw-2">&amp;</span>str,
+        diagnostics: Vec&lt;Error&gt;,
+    ) -&gt; (PathBuf, Vec&lt;Error&gt;) {
+        <span class="kw">let </span>source = Arc::new(NamedSource::new(path.to_string_lossy(), source_text.to_owned()));
+        <span class="kw">let </span>diagnostics = diagnostics
             .into_iter()
             .map(|diagnostic| diagnostic.with_source_code(source.clone()))
-            .collect()
+            .collect();
+        (path.to_path_buf(), diagnostics)
     }
 }
 </code></pre></div>

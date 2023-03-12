@@ -336,6 +336,7 @@
 <a href="#336" id="336">336</a>
 <a href="#337" id="337">337</a>
 <a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Code related to navigating `Token`s from the lexer
 
 </span><span class="kw">use </span>oxc_ast::{context::Context, Atom, Span};
@@ -432,9 +433,9 @@
         <span class="self">self</span>.cur_kind() == kind
     }
 
-    <span class="doccomment">/// StringValue of IdentifierName normalizes any Unicode escape sequences
-    /// in IdentifierName hence such escapes cannot be used to write an Identifier
-    /// whose code point sequence is the same as a ReservedWord.
+    <span class="doccomment">/// `StringValue` of `IdentifierName` normalizes any Unicode escape sequences
+    /// in `IdentifierName` hence such escapes cannot be used to write an Identifier
+    /// whose code point sequence is the same as a `ReservedWord`.
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>test_escaped_keyword(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) {
         <span class="kw">if </span><span class="self">self</span>.cur_token().escaped &amp;&amp; kind.is_all_keyword() {
@@ -451,7 +452,7 @@
         <span class="self">self</span>.token = <span class="self">self</span>.lexer.next_token();
     }
 
-    <span class="doccomment">/// Move to the next JSXChild
+    <span class="doccomment">/// Move to the next `JSXChild`
     /// Checks if the current token is escaped if it is a keyword
     </span><span class="kw">fn </span>advance_for_jsx_child(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) {
         <span class="self">self</span>.test_escaped_keyword(kind);
@@ -509,7 +510,8 @@
         kind == Kind::RCurly || kind == Kind::Eof || <span class="self">self</span>.cur_token().is_on_new_line
     }
 
-    <span class="kw">pub fn </span>expect_without_advance(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="doccomment">/// # Errors
+    </span><span class="kw">pub fn </span>expect_without_advance(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.at(kind) {
             <span class="kw">let </span>range = <span class="self">self</span>.current_range();
             <span class="kw">return </span><span class="prelude-val">Err</span>(

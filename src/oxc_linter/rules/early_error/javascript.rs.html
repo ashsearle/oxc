@@ -958,11 +958,32 @@
 <a href="#958" id="958">958</a>
 <a href="#959" id="959">959</a>
 <a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
 </pre><pre class="rust"><code><span class="attr">#[allow(clippy::wildcard_imports)]
 </span><span class="kw">use </span>oxc_ast::{
     ast::<span class="kw-2">*</span>,
     syntax_directed_operations::{BoundNames, IsSimpleParameterList, PropName},
-    AstKind, Atom, ModuleKind, Span,
+    AstKind, Atom, GetSpan, ModuleKind, Span,
 };
 <span class="kw">use </span>oxc_diagnostics::{
     miette::{<span class="self">self</span>, Diagnostic},
@@ -1014,6 +1035,7 @@
 
             AstKind::FormalParameters(params) =&gt; check_formal_parameters(params, node, ctx),
             AstKind::FormalParameter(param) =&gt; check_formal_parameter(param, ctx),
+            AstKind::ArrayPattern(pat) =&gt; check_array_pattern(pat, ctx),
 
             AstKind::ObjectExpression(expr) =&gt; check_object_expression(expr, ctx),
             AstKind::BinaryExpression(expr) =&gt; check_binary_expression(expr, ctx),
@@ -1776,6 +1798,26 @@
             ctx.diagnostic(ARestParameterCannotHaveAnInitializer(param.span));
         }
         <span class="kw">_ </span>=&gt; {}
+    }
+}
+
+<span class="kw">fn </span>check_array_pattern(pattern: <span class="kw-2">&amp;</span>ArrayPattern, ctx: <span class="kw-2">&amp;</span>LintContext) {
+    <span class="attr">#[derive(Debug, Error, Diagnostic)]
+    #[error(<span class="string">&quot;A rest parameter cannot have an initializer&quot;</span>)]
+    #[diagnostic()]
+    </span><span class="kw">struct </span>ARestParameterCannotHaveAnInitializer(<span class="attr">#[label] </span>Span);
+
+    <span class="kw">for </span>elem <span class="kw">in </span>pattern.elements.iter().flatten() {
+        <span class="kw">match </span><span class="kw-2">&amp;</span>elem.kind {
+            <span class="comment">// function foo([...x = []]) { }
+            //                    ^^^^ A rest element cannot have an initializer
+            </span>BindingPatternKind::RestElement(pat)
+                <span class="kw">if </span><span class="macro">matches!</span>(pat.argument.kind, BindingPatternKind::AssignmentPattern(<span class="kw">_</span>)) =&gt;
+            {
+                ctx.diagnostic(ARestParameterCannotHaveAnInitializer(elem.span()));
+            }
+            <span class="kw">_ </span>=&gt; {}
+        }
     }
 }
 

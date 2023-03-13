@@ -1038,6 +1038,8 @@
 <a href="#1038" id="1038">1038</a>
 <a href="#1039" id="1039">1039</a>
 <a href="#1040" id="1040">1040</a>
+<a href="#1041" id="1041">1041</a>
+<a href="#1042" id="1042">1042</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Atom, Span};
 <span class="kw">use </span>oxc_diagnostics::Result;
@@ -1341,11 +1343,13 @@
             Kind::RegExp =&gt; <span class="self">self</span>.cur_token().value.as_regex(),
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="self">self</span>.unexpected(),
         };
+        <span class="kw">let </span>pattern = Atom::from(r.pattern);
+        <span class="kw">let </span>flags = r.flags;
         <span class="self">self</span>.bump_any();
         <span class="prelude-val">Ok</span>(RegExpLiteral {
             span: <span class="self">self</span>.end_span(span),
             value: EmptyObject {},
-            regex: RegExp { pattern: r.pattern, flags: r.flags },
+            regex: RegExp { pattern, flags },
         })
     }
 

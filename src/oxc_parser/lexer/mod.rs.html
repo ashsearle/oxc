@@ -1463,10 +1463,6 @@
 <a href="#1463" id="1463">1463</a>
 <a href="#1464" id="1464">1464</a>
 <a href="#1465" id="1465">1465</a>
-<a href="#1466" id="1466">1466</a>
-<a href="#1467" id="1467">1467</a>
-<a href="#1468" id="1468">1468</a>
-<a href="#1469" id="1469">1469</a>
 </pre><pre class="rust"><code><span class="doccomment">//! An Ecma-262 Lexer / Tokenizer
 //! Prior Arts:
 //!     * [jsparagus](https://github.com/mozilla-spidermonkey/jsparagus/blob/master/crates/parser/src)
@@ -1485,7 +1481,7 @@
 <span class="kw">use </span>std::{collections::VecDeque, str::Chars};
 
 <span class="kw">use </span>oxc_allocator::{Allocator, String};
-<span class="kw">use </span>oxc_ast::{ast::RegExpFlags, Atom, SourceType, Span};
+<span class="kw">use </span>oxc_ast::{ast::RegExpFlags, SourceType, Span};
 <span class="kw">use </span>oxc_diagnostics::{Diagnostics, Error};
 <span class="kw">use </span>simd::{SkipMultilineComment, SkipWhitespace};
 <span class="kw">pub use </span>token::{RegExp, Token, TokenValue};
@@ -1666,7 +1662,7 @@
                 Kind::SlashEq =&gt; <span class="number">2</span>,
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             };
-        <span class="kw">let </span>kind = <span class="self">self</span>.read_regex(kind);
+        <span class="kw">let </span>kind = <span class="self">self</span>.read_regex();
         <span class="self">self</span>.lookahead.clear();
         <span class="self">self</span>.finish_next(kind)
     }
@@ -2455,13 +2451,9 @@
     }
 
     <span class="doccomment">/// 12.8.5 Regular Expression Literals
-    </span><span class="kw">fn </span>read_regex(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; Kind {
-        <span class="kw">let </span>start = <span class="self">self</span>.current.chars.as_str();
-        <span class="kw">let </span><span class="kw-2">mut </span>pattern = String::new_in(<span class="self">self</span>.allocator);
-        <span class="kw">if </span>kind == Kind::SlashEq {
-            pattern.push(<span class="string">&#39;=&#39;</span>);
-        }
-        <span class="kw">let </span><span class="kw-2">mut </span>in_escape = <span class="bool-val">false</span>;
+    </span><span class="kw">fn </span>read_regex(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Kind {
+        <span class="kw">let </span>start = <span class="self">self</span>.current.token.start + <span class="number">1</span>; <span class="comment">// +1 to exclude `/`
+        </span><span class="kw">let </span><span class="kw-2">mut </span>in_escape = <span class="bool-val">false</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>in_character_class = <span class="bool-val">false</span>;
         <span class="kw">loop </span>{
             <span class="kw">match </span><span class="self">self</span>.current.chars.next() {
@@ -2489,7 +2481,8 @@
             }
         }
 
-        pattern.push_str(<span class="kw-2">&amp;</span>start[..start.len() - <span class="self">self</span>.current.chars.as_str().len() - <span class="number">1</span>]);
+        <span class="kw">let </span>end = <span class="self">self</span>.offset() - <span class="number">1</span>; <span class="comment">// -1 to exclude `/`
+        </span><span class="kw">let </span>pattern = <span class="kw-2">&amp;</span><span class="self">self</span>.source[start <span class="kw">as </span>usize..end <span class="kw">as </span>usize];
 
         <span class="kw">let </span><span class="kw-2">mut </span>flags = RegExpFlags::empty();
 
@@ -2520,8 +2513,7 @@
             flags |= flag;
         }
 
-        <span class="self">self</span>.current.token.value =
-            TokenValue::RegExp(RegExp { pattern: Atom::from(pattern.as_str()), flags });
+        <span class="self">self</span>.current.token.value = TokenValue::RegExp(RegExp { pattern, flags });
 
         Kind::RegExp
     }

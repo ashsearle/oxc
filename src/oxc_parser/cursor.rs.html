@@ -368,7 +368,7 @@
 
     <span class="doccomment">/// Get current token
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>cur_token(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Token {
+    </span><span class="kw">pub fn </span>cur_token(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.token
     }
 

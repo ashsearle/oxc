@@ -96,7 +96,7 @@
 </pre><pre class="rust"><code><span class="doccomment">//! Token
 
 </span><span class="kw">use </span>num_bigint::BigUint;
-<span class="kw">use </span>oxc_ast::{ast::RegExpFlags, Atom, Span};
+<span class="kw">use </span>oxc_ast::{ast::RegExpFlags, Span};
 
 <span class="kw">use </span><span class="kw">super</span>::kind::Kind;
 
@@ -124,7 +124,7 @@
 #[test]
 </span><span class="kw">fn </span>no_bloat_token() {
     <span class="kw">use </span>std::mem::size_of;
-    <span class="macro">assert_eq!</span>(size_of::&lt;Token&gt;(), <span class="number">56</span>);
+    <span class="macro">assert_eq!</span>(size_of::&lt;Token&gt;(), <span class="number">48</span>);
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Token&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -140,12 +140,12 @@
     Number(f64),
     BigInt(BigUint),
     String(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str),
-    RegExp(RegExp),
+    RegExp(RegExp&lt;<span class="lifetime">&#39;a</span>&gt;),
 }
 
 <span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>RegExp {
-    <span class="kw">pub </span>pattern: Atom,
+</span><span class="kw">pub struct </span>RegExp&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub </span>pattern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
     <span class="kw">pub </span>flags: RegExpFlags,
 }
 
@@ -173,9 +173,9 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>as_regex(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RegExp {
+    </span><span class="kw">pub fn </span>as_regex(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>RegExp&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::RegExp(regex) =&gt; regex.clone(),
+            <span class="self">Self</span>::RegExp(regex) =&gt; regex,
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected regex!&quot;</span>),
         }
     }

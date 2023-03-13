@@ -477,6 +477,16 @@
 <a href="#477" id="477">477</a>
 <a href="#478" id="478">478</a>
 <a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::{Box, Vec};
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::StatementContext, syntax_directed_operations::PropName, Span};
 <span class="kw">use </span>oxc_diagnostics::Result;
@@ -937,9 +947,19 @@
         <span class="kw">let </span>has_await = <span class="self">self</span>.ctx.has_await();
         <span class="kw">let </span>has_yield = <span class="self">self</span>.ctx.has_yield();
         <span class="kw">let </span>has_return = <span class="self">self</span>.ctx.has_return();
-        <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_await(<span class="bool-val">true</span>).and_yield(<span class="bool-val">false</span>).and_return(<span class="bool-val">false</span>);
+        <span class="self">self</span>.ctx = <span class="self">self
+            </span>.ctx
+            .and_await(<span class="bool-val">true</span>)
+            .and_yield(<span class="bool-val">false</span>)
+            .and_return(<span class="bool-val">false</span>)
+            .and_class_static_block(<span class="bool-val">true</span>);
         <span class="kw">let </span>block = <span class="self">self</span>.parse_block()<span class="question-mark">?</span>;
-        <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_await(has_await).and_yield(has_yield).and_return(has_return);
+        <span class="self">self</span>.ctx = <span class="self">self
+            </span>.ctx
+            .and_await(has_await)
+            .and_yield(has_yield)
+            .and_return(has_return)
+            .and_class_static_block(<span class="bool-val">false</span>);
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.static_block(<span class="self">self</span>.end_span(span), block.unbox().body))
     }
 

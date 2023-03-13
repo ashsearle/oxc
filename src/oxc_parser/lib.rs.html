@@ -229,7 +229,7 @@
     </span>errors: Diagnostics,
 
     <span class="doccomment">/// The current parsing token
-    </span>token: Token,
+    </span>token: Token&lt;<span class="lifetime">&#39;a</span>&gt;,
 
     <span class="doccomment">/// The end range of the previous token
     </span>prev_token_end: u32,

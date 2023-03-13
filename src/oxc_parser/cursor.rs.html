@@ -339,7 +339,7 @@
 <a href="#339" id="339">339</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Code related to navigating `Token`s from the lexer
 
-</span><span class="kw">use </span>oxc_ast::{context::Context, Atom, Span};
+</span><span class="kw">use </span>oxc_ast::{context::Context, Span};
 <span class="kw">use </span>oxc_diagnostics::Result;
 
 <span class="kw">use </span><span class="kw">crate</span>::lexer::{Kind, LexerCheckpoint, LexerContext, Token};
@@ -347,7 +347,7 @@
 
 <span class="kw">pub struct </span>ParserCheckpoint&lt;<span class="lifetime">&#39;a</span>&gt; {
     lexer: LexerCheckpoint&lt;<span class="lifetime">&#39;a</span>&gt;,
-    cur_token: Token,
+    cur_token: Token&lt;<span class="lifetime">&#39;a</span>&gt;,
     prev_span_end: u32,
     errors_pos: usize,
 }
@@ -385,10 +385,10 @@
         <span class="kw">unsafe </span>{ <span class="self">self</span>.source.get_unchecked(range.start <span class="kw">as </span>usize..range.end <span class="kw">as </span>usize) }
     }
 
-    <span class="doccomment">/// Get current atom
+    <span class="doccomment">/// Get current string
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>cur_atom(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Atom&gt; {
-        <span class="self">self</span>.cur_token().value.get_atom()
+    </span><span class="kw">pub fn </span>cur_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.cur_token().value.get_string()
     }
 
     <span class="doccomment">/// Peek next token, returns EOF for final peek

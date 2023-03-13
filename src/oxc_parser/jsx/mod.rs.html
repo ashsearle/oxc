@@ -368,7 +368,7 @@
 </span><span class="attr">#![allow(clippy::missing_errors_doc)]
 
 </span><span class="kw">use </span>oxc_allocator::{Box, Vec};
-<span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Span};
+<span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Atom, Span};
 <span class="kw">use </span>oxc_diagnostics::Result;
 
 <span class="kw">use </span><span class="kw">crate</span>::diagnostics;
@@ -716,14 +716,14 @@
         }
         <span class="comment">// we are at a valid normal Ident or Keyword, let&#39;s keep on lexing for `-`
         </span><span class="self">self</span>.re_lex_jsx_identifier();
-        <span class="kw">let </span>name = <span class="self">self</span>.cur_atom().unwrap().clone();
+        <span class="kw">let </span>name = Atom::from(<span class="self">self</span>.cur_string().unwrap());
         <span class="self">self</span>.bump_any();
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.jsx_identifier(<span class="self">self</span>.end_span(span), name))
     }
 
     <span class="kw">fn </span>parse_jsx_text(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; JSXText {
         <span class="kw">let </span>span = <span class="self">self</span>.start_span();
-        <span class="kw">let </span>value = <span class="self">self</span>.cur_atom().unwrap().clone();
+        <span class="kw">let </span>value = Atom::from(<span class="self">self</span>.cur_string().unwrap());
         <span class="self">self</span>.bump_any();
         <span class="self">self</span>.ast.jsx_text(<span class="self">self</span>.end_span(span), value)
     }

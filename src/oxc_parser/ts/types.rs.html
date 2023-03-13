@@ -1390,7 +1390,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>operator = <span class="prelude-val">None</span>;
 
         <span class="kw">if </span>!<span class="self">self</span>.at(Kind::Str) {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(atom) = <span class="self">self</span>.cur_atom() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(atom) = <span class="self">self</span>.cur_string() {
                 operator = TSTypeOperator::from_src(atom);
             }
         }

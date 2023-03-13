@@ -1112,8 +1112,8 @@
 
 <span class="kw">impl </span>TSTypeOperator {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>from_src(src: <span class="kw-2">&amp;</span>Atom) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">match </span>src.as_str() {
+    </span><span class="kw">pub fn </span>from_src(src: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">match </span>src {
             <span class="string">&quot;keyof&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::Keyof),
             <span class="string">&quot;unique&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::Unique),
             <span class="string">&quot;readonly&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::Readonly),

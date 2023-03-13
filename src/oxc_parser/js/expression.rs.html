@@ -1141,10 +1141,10 @@
         <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="kw">let </span>name = <span class="kw">match </span>std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.token.value) {
             TokenValue::String(value) =&gt; value,
-            <span class="kw">_ </span>=&gt; <span class="string">&quot;&quot;</span>.into(),
+            <span class="kw">_ </span>=&gt; <span class="string">&quot;&quot;</span>,
         };
         <span class="self">self</span>.bump_remap(kind);
-        (<span class="self">self</span>.end_span(span), name)
+        (<span class="self">self</span>.end_span(span), Atom::from(name))
     }
 
     <span class="kw">fn </span>check_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, span: Span, name: <span class="kw-2">&amp;</span>Atom) {
@@ -1164,7 +1164,7 @@
     /// # Panics
     </span><span class="kw">pub fn </span>parse_private_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; PrivateIdentifier {
         <span class="kw">let </span>span = <span class="self">self</span>.start_span();
-        <span class="kw">let </span>name = <span class="self">self</span>.cur_atom().unwrap().clone();
+        <span class="kw">let </span>name = Atom::from(<span class="self">self</span>.cur_string().unwrap());
         <span class="self">self</span>.bump_any();
         PrivateIdentifier { span: <span class="self">self</span>.end_span(span), name }
     }
@@ -1358,7 +1358,7 @@
         };
         <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any();
-        <span class="prelude-val">Ok</span>(StringLiteral { span: <span class="self">self</span>.end_span(span), value })
+        <span class="prelude-val">Ok</span>(StringLiteral { span: <span class="self">self</span>.end_span(span), value: value.into() })
     }
 
     <span class="doccomment">/// Section Array Expression `https://tc39.es/ecma262/#prod-ArrayLiteral`
@@ -1448,7 +1448,7 @@
         };
 
         <span class="comment">// cooked = None when template literal has invalid escape sequence
-        </span><span class="kw">let </span>cooked = <span class="self">self</span>.cur_atom().map(Clone::clone);
+        </span><span class="kw">let </span>cooked = <span class="self">self</span>.cur_string().map(Atom::from);
 
         <span class="kw">let </span>raw = <span class="kw-2">&amp;</span><span class="self">self</span>.cur_src()[<span class="number">1</span>..<span class="self">self</span>.cur_src().len() - end_offset <span class="kw">as </span>usize];
         <span class="kw">let </span>raw = Atom::from(<span class="kw">if </span>cooked.is_some() &amp;&amp; raw.contains(<span class="string">&#39;\r&#39;</span>) {

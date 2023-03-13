@@ -101,7 +101,7 @@
 <span class="kw">use </span><span class="kw">super</span>::kind::Kind;
 
 <span class="attr">#[derive(Debug, Clone, PartialEq, Default)]
-</span><span class="kw">pub struct </span>Token {
+</span><span class="kw">pub struct </span>Token&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Token Kind
     </span><span class="kw">pub </span>kind: Kind,
 
@@ -117,7 +117,7 @@
     <span class="doccomment">/// Is the original string escaped?
     </span><span class="kw">pub </span>escaped: bool,
 
-    <span class="kw">pub </span>value: TokenValue,
+    <span class="kw">pub </span>value: TokenValue&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
 <span class="attr">#[cfg(all(target_arch = <span class="string">&quot;x86_64&quot;</span>, target_pointer_width = <span class="string">&quot;64&quot;</span>))]
@@ -127,7 +127,7 @@
     <span class="macro">assert_eq!</span>(size_of::&lt;Token&gt;(), <span class="number">56</span>);
 }
 
-<span class="kw">impl </span>Token {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Token&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
         Span::new(<span class="self">self</span>.start, <span class="self">self</span>.end)
@@ -135,11 +135,11 @@
 }
 
 <span class="attr">#[derive(Debug, Clone, PartialEq)]
-</span><span class="kw">pub enum </span>TokenValue {
+</span><span class="kw">pub enum </span>TokenValue&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="prelude-val">None</span>,
     Number(f64),
     BigInt(BigUint),
-    String(Atom),
+    String(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str),
     RegExp(RegExp),
 }
 
@@ -149,13 +149,13 @@
     <span class="kw">pub </span>flags: RegExpFlags,
 }
 
-<span class="kw">impl </span>Default <span class="kw">for </span>TokenValue {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Default <span class="kw">for </span>TokenValue&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::None
     }
 }
 
-<span class="kw">impl </span>TokenValue {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TokenValue&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>as_number(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
         <span class="kw">match </span><span class="self">self </span>{
@@ -181,7 +181,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>get_atom(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Atom&gt; {
+    </span><span class="kw">pub fn </span>get_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::String(s) =&gt; <span class="prelude-val">Some</span>(s),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,

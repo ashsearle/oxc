@@ -1508,7 +1508,7 @@
     <span class="doccomment">/// Remaining chars to be tokenized
     </span>chars: Chars&lt;<span class="lifetime">&#39;a</span>&gt;,
 
-    token: Token,
+    token: Token&lt;<span class="lifetime">&#39;a</span>&gt;,
 
     errors_pos: usize,
 }
@@ -1591,7 +1591,7 @@
     }
 
     <span class="doccomment">/// Find the nth lookahead token lazily
-    </span><span class="kw">pub fn </span>lookahead(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: u8) -&gt; <span class="kw-2">&amp;</span>Token {
+    </span><span class="kw">pub fn </span>lookahead(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: u8) -&gt; <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="kw">let </span>n = n <span class="kw">as </span>usize;
         <span class="macro">debug_assert!</span>(n &gt; <span class="number">0</span>);
 
@@ -1631,7 +1631,7 @@
     }
 
     <span class="doccomment">/// Main entry point
-    </span><span class="kw">pub fn </span>next_token(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Token {
+    </span><span class="kw">pub fn </span>next_token(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Token&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(checkpoint) = <span class="self">self</span>.lookahead.pop_front() {
             <span class="self">self</span>.current.chars = checkpoint.chars;
             <span class="self">self</span>.current.errors_pos = checkpoint.errors_pos;
@@ -1641,12 +1641,12 @@
         <span class="self">self</span>.finish_next(kind)
     }
 
-    <span class="kw">pub fn </span>next_jsx_child(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Token {
+    <span class="kw">pub fn </span>next_jsx_child(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Token&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="kw">let </span>kind = <span class="self">self</span>.read_jsx_child();
         <span class="self">self</span>.finish_next(kind)
     }
 
-    <span class="kw">fn </span>finish_next(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; Token {
+    <span class="kw">fn </span>finish_next(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; Token&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="self">self</span>.current.token.kind = kind;
         <span class="self">self</span>.current.token.end = <span class="self">self</span>.offset();
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.current.token.start &lt;= <span class="self">self</span>.current.token.end);
@@ -1659,7 +1659,7 @@
     ///   where a `RegularExpressionLiteral` is permitted
     /// Which meams the parser needs to re-tokenize on `PrimaryExpression`,
     /// `RegularExpressionLiteral` only appear on the right hand side of `PrimaryExpression`
-    </span><span class="kw">pub fn </span>next_regex(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; Token {
+    </span><span class="kw">pub fn </span>next_regex(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; Token&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="self">self</span>.current.token.start = <span class="self">self</span>.offset()
             - <span class="kw">match </span>kind {
                 Kind::Slash =&gt; <span class="number">1</span>,
@@ -1671,7 +1671,7 @@
         <span class="self">self</span>.finish_next(kind)
     }
 
-    <span class="kw">pub fn </span>next_right_angle(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Token {
+    <span class="kw">pub fn </span>next_right_angle(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Token&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="kw">let </span>kind = <span class="self">self</span>.read_right_angle();
         <span class="self">self</span>.lookahead.clear();
         <span class="self">self</span>.finish_next(kind)
@@ -1679,7 +1679,7 @@
 
     <span class="doccomment">/// Re-tokenize the current `}` token for `TemplateSubstitutionTail`
     /// See Section 12, the parser needs to re-tokenize on `TemplateSubstitutionTail`,
-    </span><span class="kw">pub fn </span>next_template_substitution_tail(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Token {
+    </span><span class="kw">pub fn </span>next_template_substitution_tail(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Token&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="self">self</span>.current.token.start = <span class="self">self</span>.offset() - <span class="number">1</span>;
         <span class="kw">let </span>kind = <span class="self">self</span>.read_template_literal(Kind::TemplateMiddle, Kind::TemplateTail);
         <span class="self">self</span>.lookahead.clear();
@@ -1687,14 +1687,14 @@
     }
 
     <span class="doccomment">/// Expand the current token for `JSXIdentifier`
-    </span><span class="kw">pub fn </span>next_jsx_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, prev_len: u32) -&gt; Token {
+    </span><span class="kw">pub fn </span>next_jsx_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, prev_len: u32) -&gt; Token&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="kw">let </span>kind = <span class="self">self</span>.read_jsx_identifier(prev_len);
         <span class="self">self</span>.lookahead.clear();
         <span class="self">self</span>.finish_next(kind)
     }
 
     <span class="doccomment">/// Re-tokenize &#39;&lt;&lt;&#39; or &#39;&lt;=&#39; or &#39;&lt;&lt;=&#39; to &#39;&lt;&#39;
-    </span><span class="kw">pub fn </span>re_lex_as_typescript_l_angle(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; Token {
+    </span><span class="kw">pub fn </span>re_lex_as_typescript_l_angle(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; Token&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="kw">let </span>offset = <span class="kw">match </span>kind {
             Kind::ShiftLeft | Kind::LtEq =&gt; <span class="number">2</span>,
             Kind::ShiftLeftEq =&gt; <span class="number">3</span>,
@@ -1708,7 +1708,7 @@
     }
 
     <span class="doccomment">/// Re-tokenize &#39;&gt;&gt;&#39; or &#39;&gt;=&#39; or &#39;&gt;&gt;&gt;&#39; or &#39;&gt;&gt;=&#39; or &#39;&gt;&gt;&gt;=&#39; to &#39;&lt;&#39;
-    </span><span class="kw">pub fn </span>re_lex_as_typescript_r_angle(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; Token {
+    </span><span class="kw">pub fn </span>re_lex_as_typescript_r_angle(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind) -&gt; Token&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="kw">let </span>offset = <span class="kw">match </span>kind {
             Kind::ShiftRight | Kind::GtEq =&gt; <span class="number">2</span>,
             Kind::ShiftRightEq | Kind::ShiftRight3 =&gt; <span class="number">3</span>,
@@ -1778,8 +1778,8 @@
     }
 
     <span class="doccomment">/// Add string to `SourceAtomSet` and get `TokenValue::Atom`
-    </span><span class="kw">fn </span>string_to_token_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; TokenValue {
-        TokenValue::String(Atom::from(s))
+    </span><span class="kw">fn </span>string_to_token_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; TokenValue&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TokenValue::String(s)
     }
 
     <span class="kw">fn </span>set_numeric_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: Kind, src: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) {
@@ -2025,9 +2025,9 @@
 
     <span class="kw">fn </span>identifier_name_or_keyword(<span class="kw-2">&amp;mut </span><span class="self">self</span>, builder: AutoCow&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Kind {
         <span class="kw">let </span>(has_escape, text) = <span class="self">self</span>.identifier_name(builder);
-        <span class="kw">let </span>(kind, atom) = Kind::match_keyword(text);
+        <span class="kw">let </span>kind = Kind::match_keyword(text);
         <span class="self">self</span>.current.token.escaped = has_escape;
-        <span class="self">self</span>.current.token.value = TokenValue::String(atom);
+        <span class="self">self</span>.current.token.value = TokenValue::String(text);
         kind
     }
 

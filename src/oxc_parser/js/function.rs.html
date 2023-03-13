@@ -521,6 +521,10 @@
 <a href="#521" id="521">521</a>
 <a href="#522" id="522">522</a>
 <a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
 <span class="kw">use </span>oxc_ast::{
     ast::<span class="kw-2">*</span>,
@@ -829,7 +833,12 @@
         <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any(); <span class="comment">// advance `yield`
 
-        </span><span class="kw">let </span><span class="kw-2">mut </span>delegate = <span class="bool-val">false</span>;
+        </span><span class="kw">let </span>has_yield = <span class="self">self</span>.ctx.has_yield();
+        <span class="kw">if </span>!has_yield {
+            <span class="self">self</span>.error(diagnostics::YieldExpression(Span::new(span.start, span.start + <span class="number">5</span>)));
+        }
+
+        <span class="kw">let </span><span class="kw-2">mut </span>delegate = <span class="bool-val">false</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>argument = <span class="prelude-val">None</span>;
 
         <span class="kw">if </span>!<span class="self">self</span>.cur_token().is_on_new_line {
@@ -845,7 +854,6 @@
                     | Kind::Comma
             );
             <span class="kw">if </span>!not_assignment_expr || delegate {
-                <span class="kw">let </span>has_yield = <span class="self">self</span>.ctx.has_yield();
                 <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.union_yield_if(<span class="bool-val">true</span>);
                 argument = <span class="prelude-val">Some</span>(<span class="self">self</span>.parse_assignment_expression_base()<span class="question-mark">?</span>);
                 <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_yield(has_yield);

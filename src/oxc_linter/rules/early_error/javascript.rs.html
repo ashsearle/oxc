@@ -794,20 +794,6 @@
 <a href="#794" id="794">794</a>
 <a href="#795" id="795">795</a>
 <a href="#796" id="796">796</a>
-<a href="#797" id="797">797</a>
-<a href="#798" id="798">798</a>
-<a href="#799" id="799">799</a>
-<a href="#800" id="800">800</a>
-<a href="#801" id="801">801</a>
-<a href="#802" id="802">802</a>
-<a href="#803" id="803">803</a>
-<a href="#804" id="804">804</a>
-<a href="#805" id="805">805</a>
-<a href="#806" id="806">806</a>
-<a href="#807" id="807">807</a>
-<a href="#808" id="808">808</a>
-<a href="#809" id="809">809</a>
-<a href="#810" id="810">810</a>
 </pre><pre class="rust"><code><span class="attr">#[allow(clippy::wildcard_imports)]
 </span><span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, syntax_directed_operations::PropName, AstKind, Atom, ModuleKind, Span};
 <span class="kw">use </span>oxc_diagnostics::{
@@ -870,30 +856,21 @@
 </span><span class="kw">struct </span>ReservedKeyword(Atom, <span class="attr">#[label] </span>Span);
 
 <span class="kw">fn </span>check_identifier&lt;<span class="lifetime">&#39;a</span>&gt;(name: <span class="kw-2">&amp;</span>Atom, span: Span, node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;, ctx: <span class="kw-2">&amp;</span>LintContext&lt;<span class="lifetime">&#39;a</span>&gt;) {
-    <span class="comment">// if span.ctx.has_ambient() {
-    // return None;
-    // }
-
-    // It is a Syntax Error if this production has an [Await] parameter.
-    // if *name == &quot;await&quot; &amp;&amp; span.ctx.has_await() {
-    // return Some(Diagnostic::IdentifierAsync(&quot;await&quot;, span.range()));
-    // }
-
-    // It is a Syntax Error if the goal symbol of the syntactic grammar is Module and the StringValue of IdentifierName is &quot;await&quot;.
+    <span class="comment">// It is a Syntax Error if the goal symbol of the syntactic grammar is Module and the StringValue of IdentifierName is &quot;await&quot;.
     </span><span class="kw">if </span><span class="kw-2">*</span>name == <span class="string">&quot;await&quot; </span>&amp;&amp; ctx.source_type().is_module() {
         <span class="kw">return </span>ctx.diagnostic(ReservedKeyword(name.clone(), span));
     }
 
-    <span class="comment">// It is a Syntax Error if this production has a [Yield] parameter.
-    // if *name == &quot;yield&quot; &amp;&amp; span.ctx.has_yield() {
-    // return Some(Diagnostic::IdentifierGenerator(&quot;yield&quot;, span.range()));
-    // }
-
-    // It is a Syntax Error if this phrase is contained in strict mode code and the StringValue of IdentifierName is: &quot;implements&quot;, &quot;interface&quot;, &quot;let&quot;, &quot;package&quot;, &quot;private&quot;, &quot;protected&quot;, &quot;public&quot;, &quot;static&quot;, or &quot;yield&quot;.
+    <span class="comment">// It is a Syntax Error if this phrase is contained in strict mode code and the StringValue of IdentifierName is: &quot;implements&quot;, &quot;interface&quot;, &quot;let&quot;, &quot;package&quot;, &quot;private&quot;, &quot;protected&quot;, &quot;public&quot;, &quot;static&quot;, or &quot;yield&quot;.
     </span><span class="kw">if </span>ctx.strict_mode(node) &amp;&amp; STRICT_MODE_NAMES.contains(name.as_str()) {
         ctx.diagnostic(ReservedKeyword(name.clone(), span));
     }
 }
+
+<span class="attr">#[derive(Debug, Error, Diagnostic)]
+#[error(<span class="string">&quot;Cannot assign to &#39;{0}&#39; in strict mode&quot;</span>)]
+#[diagnostic()]
+</span><span class="kw">struct </span>UnexpectedIdentifierAssign(Atom, <span class="attr">#[label] </span>Span);
 
 <span class="kw">fn </span>check_binding_identifier&lt;<span class="lifetime">&#39;a</span>&gt;(
     ident: <span class="kw-2">&amp;</span>BindingIdentifier,
@@ -902,11 +879,11 @@
 ) {
     <span class="kw">let </span>strict_mode = ctx.strict_mode(node);
     <span class="comment">// It is a Diagnostic if the StringValue of a BindingIdentifier is &quot;eval&quot; or &quot;arguments&quot; within strict mode code.
-    // if strict_mode &amp;&amp; !span.ctx.has_ambient() &amp;&amp; matches!(name.as_str(), &quot;eval&quot; | &quot;arguments&quot;) {
-    // return Some(Diagnostic::UnexpectedIdentifierAssign(name.clone(), span.range()));
-    // }
+    </span><span class="kw">if </span>strict_mode &amp;&amp; <span class="macro">matches!</span>(ident.name.as_str(), <span class="string">&quot;eval&quot; </span>| <span class="string">&quot;arguments&quot;</span>) {
+        <span class="kw">return </span>ctx.diagnostic(UnexpectedIdentifierAssign(ident.name.clone(), ident.span));
+    }
 
-    // LexicalDeclaration : LetOrConst BindingList ;
+    <span class="comment">// LexicalDeclaration : LetOrConst BindingList ;
     // * It is a Syntax Error if the BoundNames of BindingList contains &quot;let&quot;.
     </span><span class="kw">if </span>!strict_mode &amp;&amp; ident.name == <span class="string">&quot;let&quot; </span>{
         <span class="kw">for </span>node_id <span class="kw">in </span>ctx.ancestors(node).skip(<span class="number">1</span>) {
@@ -935,11 +912,6 @@
     node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;,
     ctx: <span class="kw-2">&amp;</span>LintContext&lt;<span class="lifetime">&#39;a</span>&gt;,
 ) {
-    <span class="attr">#[derive(Debug, Error, Diagnostic)]
-    #[error(<span class="string">&quot;Cannot assign to &#39;{0}&#39; in strict mode&quot;</span>)]
-    #[diagnostic()]
-    </span><span class="kw">struct </span>UnexpectedIdentifierAssign(Atom, <span class="attr">#[label] </span>Span);
-
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;&#39;arguments&#39; is not allowed in {0}&quot;</span>)]
     #[diagnostic()]

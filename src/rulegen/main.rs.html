@@ -251,6 +251,7 @@
 <a href="#251" id="251">251</a>
 <a href="#252" id="252">252</a>
 <a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
 
 <span class="kw">use </span>convert_case::{Case, Casing};
@@ -475,10 +476,11 @@
     <span class="kw">let </span><span class="kw-2">mut </span>args = std::env::args();
     args.next();
 
-    <span class="kw">let </span>rule_name = args.next().expect(<span class="string">&quot;expected rule name&quot;</span>);
+    <span class="kw">let </span>rule_name = args.next().expect(<span class="string">&quot;expected rule name&quot;</span>).to_case(Case::Snake);
     <span class="kw">let </span>upper_rule_name = rule_name.to_case(Case::UpperCamel);
+    <span class="kw">let </span>kebab_rule_name = rule_name.to_case(Case::Kebab);
 
-    <span class="kw">let </span>rule_test_path = <span class="macro">format!</span>(<span class="string">&quot;{ESLINT_TEST_PATH}/{rule_name}.js&quot;</span>);
+    <span class="kw">let </span>rule_test_path = <span class="macro">format!</span>(<span class="string">&quot;{ESLINT_TEST_PATH}/{kebab_rule_name}.js&quot;</span>);
     <span class="kw">let </span>body = ureq::get(<span class="kw-2">&amp;</span>rule_test_path)
         .call()
         .expect(<span class="string">&quot;failed to fetch source&quot;</span>)

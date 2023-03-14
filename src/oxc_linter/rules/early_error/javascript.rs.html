@@ -1059,6 +1059,22 @@
 <a href="#1059" id="1059">1059</a>
 <a href="#1060" id="1060">1060</a>
 <a href="#1061" id="1061">1061</a>
+<a href="#1062" id="1062">1062</a>
+<a href="#1063" id="1063">1063</a>
+<a href="#1064" id="1064">1064</a>
+<a href="#1065" id="1065">1065</a>
+<a href="#1066" id="1066">1066</a>
+<a href="#1067" id="1067">1067</a>
+<a href="#1068" id="1068">1068</a>
+<a href="#1069" id="1069">1069</a>
+<a href="#1070" id="1070">1070</a>
+<a href="#1071" id="1071">1071</a>
+<a href="#1072" id="1072">1072</a>
+<a href="#1073" id="1073">1073</a>
+<a href="#1074" id="1074">1074</a>
+<a href="#1075" id="1075">1075</a>
+<a href="#1076" id="1076">1076</a>
+<a href="#1077" id="1077">1077</a>
 </pre><pre class="rust"><code><span class="attr">#[allow(clippy::wildcard_imports)]
 </span><span class="kw">use </span>oxc_ast::{
     ast::<span class="kw-2">*</span>,
@@ -1100,7 +1116,12 @@
             AstKind::RegExpLiteral(lit) =&gt; check_regexp_literal(lit, ctx),
 
             AstKind::Directive(dir) =&gt; check_directive(dir, node, ctx),
-            AstKind::ModuleDeclaration(decl) =&gt; check_module_declaration(decl, node, ctx),
+            AstKind::ModuleDeclaration(decl) =&gt; {
+                check_module_declaration(decl, node, ctx);
+                <span class="kw">if let </span>ModuleDeclarationKind::ImportDeclaration(import_decl) = <span class="kw-2">&amp;</span>decl.kind {
+                    check_import_declaration(import_decl, ctx);
+                }
+            }
             AstKind::MetaProperty(prop) =&gt; check_meta_property(prop, node, ctx),
 
             AstKind::WithStatement(stmt) =&gt; check_with_statement(stmt, node, ctx),
@@ -1127,6 +1148,18 @@
             AstKind::AwaitExpression(expr) =&gt; check_await_expression(expr, node, ctx),
             AstKind::YieldExpression(expr) =&gt; check_yield_expression(expr, node, ctx),
             <span class="kw">_ </span>=&gt; {}
+        }
+    }
+}
+
+<span class="kw">fn </span>check_duplicate_bound_names&lt;T: BoundNames&gt;(bound_names: <span class="kw-2">&amp;</span>T, ctx: <span class="kw-2">&amp;</span>LintContext) {
+    <span class="comment">// bound_names are usually small, a simple loop should be more performant checking with a hashmap
+    </span><span class="kw">let </span><span class="kw-2">mut </span>idents = bound_names.bound_names();
+    idents.sort_unstable_by_key(|ident| ident.name.as_str());
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..idents.len() {
+        <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>idents[i - <span class="number">1</span>];
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(found) = idents[i..].iter().find(|i| i.name == ident.name) {
+            ctx.diagnostic(Redeclaration(ident.name.clone(), ident.span, found.span));
         }
     }
 }
@@ -1452,6 +1485,13 @@
             ctx.diagnostic(TopLevel(text, span));
         }
     }
+}
+
+<span class="kw">fn </span>check_import_declaration(decl: <span class="kw-2">&amp;</span>ImportDeclaration, ctx: <span class="kw-2">&amp;</span>LintContext) {
+    <span class="comment">// ModuleItem : ImportDeclaration
+    // It is a Syntax Error if the BoundNames of ImportDeclaration contains any duplicate entries.
+    // bound_names are usually small, a simple loop should be more performant checking with a hashmap
+    </span>check_duplicate_bound_names(decl, ctx);
 }
 
 <span class="kw">fn </span>check_meta_property&lt;<span class="lifetime">&#39;a</span>&gt;(prop: <span class="kw-2">&amp;</span>MetaProperty, node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;, ctx: <span class="kw-2">&amp;</span>LintContext&lt;<span class="lifetime">&#39;a</span>&gt;) {
@@ -1929,15 +1969,7 @@
         <span class="kw">return</span>;
     }
 
-    <span class="comment">// bound_names are usually small, a simple loop should be more performant checking with a hashmap
-    </span><span class="kw">let </span><span class="kw-2">mut </span>idents = params.bound_names();
-    idents.sort_unstable_by_key(|ident| ident.name.as_str());
-    <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..idents.len() {
-        <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>idents[i - <span class="number">1</span>];
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(found) = idents[i..].iter().find(|i| i.name == ident.name) {
-            ctx.diagnostic(Redeclaration(ident.name.clone(), ident.span, found.span));
-        }
-    }
+    check_duplicate_bound_names(params, ctx);
 }
 
 <span class="kw">fn </span>check_formal_parameter(param: <span class="kw-2">&amp;</span>FormalParameter, ctx: <span class="kw-2">&amp;</span>LintContext) {

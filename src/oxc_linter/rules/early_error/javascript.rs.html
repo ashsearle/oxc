@@ -1055,6 +1055,10 @@
 <a href="#1055" id="1055">1055</a>
 <a href="#1056" id="1056">1056</a>
 <a href="#1057" id="1057">1057</a>
+<a href="#1058" id="1058">1058</a>
+<a href="#1059" id="1059">1059</a>
+<a href="#1060" id="1060">1060</a>
+<a href="#1061" id="1061">1061</a>
 </pre><pre class="rust"><code><span class="attr">#[allow(clippy::wildcard_imports)]
 </span><span class="kw">use </span>oxc_ast::{
     ast::<span class="kw-2">*</span>,
@@ -1421,12 +1425,13 @@
     #[diagnostic()]
     </span><span class="kw">struct </span>ModuleCode(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label] </span>Span);
 
-    <span class="kw">if </span>ctx.source_type().is_typescript_definition()
-        || ctx.scope(node).is_ts_module()
-        || <span class="macro">matches!</span>(ctx.parent_kind(node), AstKind::Program(<span class="kw">_</span>))
-    {
+    <span class="comment">// It is ambiguous between script and module for `TypeScript`, skipping this check for now.
+    // Basically we need to &quot;upgrade&quot; from script to module if we see any module syntax inside the
+    // semantic builder
+    </span><span class="kw">if </span>ctx.source_type().is_typescript() {
         <span class="kw">return</span>;
     }
+
     <span class="kw">let </span>text = <span class="kw">match </span>decl.kind {
         ModuleDeclarationKind::ImportDeclaration(<span class="kw">_</span>) =&gt; <span class="string">&quot;import statement&quot;</span>,
         ModuleDeclarationKind::ExportAllDeclaration(<span class="kw">_</span>)
@@ -1441,6 +1446,9 @@
             ctx.diagnostic(ModuleCode(text, span));
         }
         ModuleKind::Module =&gt; {
+            <span class="kw">if </span><span class="macro">matches!</span>(ctx.parent_kind(node), AstKind::Program(<span class="kw">_</span>)) {
+                <span class="kw">return</span>;
+            }
             ctx.diagnostic(TopLevel(text, span));
         }
     }

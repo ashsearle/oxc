@@ -2041,7 +2041,7 @@
         <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.bump_any();
         <span class="kw">let </span>has_await = <span class="self">self</span>.ctx.has_await();
-        <span class="kw">if </span>!has_await || <span class="self">self</span>.ctx.has_class_static_block() {
+        <span class="kw">if </span>!has_await {
             <span class="self">self</span>.error(diagnostics::AwaitExpression(Span::new(span.start, span.start + <span class="number">5</span>)));
         }
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_await(<span class="bool-val">true</span>);

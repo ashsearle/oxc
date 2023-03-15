@@ -1833,6 +1833,13 @@
 <a href="#1833" id="1833">1833</a>
 <a href="#1834" id="1834">1834</a>
 <a href="#1835" id="1835">1835</a>
+<a href="#1836" id="1836">1836</a>
+<a href="#1837" id="1837">1837</a>
+<a href="#1838" id="1838">1838</a>
+<a href="#1839" id="1839">1839</a>
+<a href="#1840" id="1840">1840</a>
+<a href="#1841" id="1841">1841</a>
+<a href="#1842" id="1842">1842</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::{Box, Vec};
 <span class="attr">#[allow(clippy::wildcard_imports)]
 </span><span class="kw">use </span>oxc_ast::ast::<span class="kw-2">*</span>;
@@ -2976,18 +2983,25 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Gen <span class="kw">for </span>BinaryExpression&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>gen(<span class="kw-2">&amp;</span><span class="self">self</span>, p: <span class="kw-2">&amp;mut </span>Printer) {
         <span class="self">self</span>.left.gen(p);
-        <span class="kw">let </span>operator = <span class="self">self</span>.operator.as_str().as_bytes();
-        <span class="kw">if </span><span class="self">self</span>.operator.is_keyword() {
+        <span class="self">self</span>.operator.gen(p);
+        <span class="self">self</span>.right.gen(p);
+    }
+}
+
+<span class="kw">impl </span>Gen <span class="kw">for </span>BinaryOperator {
+    <span class="kw">fn </span>gen(<span class="kw-2">&amp;</span><span class="self">self</span>, p: <span class="kw-2">&amp;mut </span>Printer) {
+        <span class="kw">let </span>operator = <span class="self">self</span>.as_str().as_bytes();
+        <span class="kw">if </span><span class="self">self</span>.is_keyword() {
             p.print(<span class="string">b&#39; &#39;</span>);
             p.print_str(operator);
             p.print(<span class="string">b&#39; &#39;</span>);
         } <span class="kw">else </span>{
-            p.print_space_before_operator(<span class="self">self</span>.operator.into());
+            <span class="kw">let </span>op: Operator = (<span class="kw-2">*</span><span class="self">self</span>).into();
+            p.print_space_before_operator(op);
             p.print_str(operator);
-            p.prev_op = <span class="prelude-val">Some</span>(<span class="self">self</span>.operator.into());
+            p.prev_op = <span class="prelude-val">Some</span>(op);
             p.prev_op_end = p.code().len();
         }
-        <span class="self">self</span>.right.gen(p);
     }
 }
 

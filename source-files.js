@@ -1,6 +1,6 @@
 var sourcesIndex = JSON.parse('{\
 "oxc_allocator":["",[],["arena.rs","lib.rs"]],\
-"oxc_ast":["",[["ast",[],["js.rs","jsdoc.rs","jsx.rs","literal.rs","mod.rs","operator.rs","ts.rs"]]],["ast_builder.rs","ast_kind.rs","context.rs","lib.rs","serialize.rs","source_type.rs","span.rs","syntax_directed_operations.rs","trivia.rs","visit.rs"]],\
+"oxc_ast":["",[["ast",[],["js.rs","jsdoc.rs","jsx.rs","literal.rs","mod.rs","operator.rs","ts.rs"]]],["ast_builder.rs","ast_kind.rs","context.rs","lib.rs","serialize.rs","source_type.rs","span.rs","syntax_directed_operations.rs","trivia.rs","visit.rs","visit_mut.rs"]],\
 "oxc_benchmark":["",[],["lib.rs"]],\
 "oxc_cli":["",[],["command.rs","lib.rs","options.rs","result.rs","walk.rs"]],\
 "oxc_coverage":["",[],["babel.rs","lib.rs","printer.rs","suite.rs","test262.rs","typescript.rs"]],\

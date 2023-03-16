@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["ast","ast_builder","ast_kind","context","source_type","span","syntax_directed_operations","trivia","visit","visit_mut"],"struct":["BigUint"],"type":["Atom"]};
+window.SIDEBAR_ITEMS = {"mod":["ast","ast_builder","ast_kind","context","module_record","source_type","span","syntax_directed_operations","trivia","visit","visit_mut"],"struct":["BigUint"],"type":["Atom"]};

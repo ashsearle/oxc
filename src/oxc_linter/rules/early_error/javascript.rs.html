@@ -1075,9 +1075,67 @@
 <a href="#1075" id="1075">1075</a>
 <a href="#1076" id="1076">1076</a>
 <a href="#1077" id="1077">1077</a>
+<a href="#1078" id="1078">1078</a>
+<a href="#1079" id="1079">1079</a>
+<a href="#1080" id="1080">1080</a>
+<a href="#1081" id="1081">1081</a>
+<a href="#1082" id="1082">1082</a>
+<a href="#1083" id="1083">1083</a>
+<a href="#1084" id="1084">1084</a>
+<a href="#1085" id="1085">1085</a>
+<a href="#1086" id="1086">1086</a>
+<a href="#1087" id="1087">1087</a>
+<a href="#1088" id="1088">1088</a>
+<a href="#1089" id="1089">1089</a>
+<a href="#1090" id="1090">1090</a>
+<a href="#1091" id="1091">1091</a>
+<a href="#1092" id="1092">1092</a>
+<a href="#1093" id="1093">1093</a>
+<a href="#1094" id="1094">1094</a>
+<a href="#1095" id="1095">1095</a>
+<a href="#1096" id="1096">1096</a>
+<a href="#1097" id="1097">1097</a>
+<a href="#1098" id="1098">1098</a>
+<a href="#1099" id="1099">1099</a>
+<a href="#1100" id="1100">1100</a>
+<a href="#1101" id="1101">1101</a>
+<a href="#1102" id="1102">1102</a>
+<a href="#1103" id="1103">1103</a>
+<a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
+<a href="#1106" id="1106">1106</a>
+<a href="#1107" id="1107">1107</a>
+<a href="#1108" id="1108">1108</a>
+<a href="#1109" id="1109">1109</a>
+<a href="#1110" id="1110">1110</a>
+<a href="#1111" id="1111">1111</a>
+<a href="#1112" id="1112">1112</a>
+<a href="#1113" id="1113">1113</a>
+<a href="#1114" id="1114">1114</a>
+<a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
+<a href="#1117" id="1117">1117</a>
+<a href="#1118" id="1118">1118</a>
+<a href="#1119" id="1119">1119</a>
+<a href="#1120" id="1120">1120</a>
+<a href="#1121" id="1121">1121</a>
+<a href="#1122" id="1122">1122</a>
+<a href="#1123" id="1123">1123</a>
+<a href="#1124" id="1124">1124</a>
+<a href="#1125" id="1125">1125</a>
+<a href="#1126" id="1126">1126</a>
+<a href="#1127" id="1127">1127</a>
+<a href="#1128" id="1128">1128</a>
+<a href="#1129" id="1129">1129</a>
+<a href="#1130" id="1130">1130</a>
+<a href="#1131" id="1131">1131</a>
+<a href="#1132" id="1132">1132</a>
+<a href="#1133" id="1133">1133</a>
+<a href="#1134" id="1134">1134</a>
 </pre><pre class="rust"><code><span class="attr">#[allow(clippy::wildcard_imports)]
 </span><span class="kw">use </span>oxc_ast::{
     ast::<span class="kw-2">*</span>,
+    module_record::ExportLocalName,
     syntax_directed_operations::{BoundNames, IsSimpleParameterList, PropName},
     AstKind, Atom, GetSpan, ModuleKind, Span,
 };
@@ -1094,12 +1152,12 @@
 </span><span class="kw">pub struct </span>EarlyErrorJavaScript;
 
 <span class="kw">impl </span>Rule <span class="kw">for </span>EarlyErrorJavaScript {
-    <span class="attr">#[allow(clippy::single_match)]
-    </span><span class="kw">fn </span>run&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;, ctx: <span class="kw-2">&amp;</span>LintContext&lt;<span class="lifetime">&#39;a</span>&gt;) {
+    <span class="kw">fn </span>run&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;, ctx: <span class="kw-2">&amp;</span>LintContext&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">let </span>kind = node.get().kind();
         check_function_declaration(kind, node, ctx);
 
         <span class="kw">match </span>kind {
+            AstKind::Program(<span class="kw">_</span>) =&gt; check_program(node, ctx),
             AstKind::BindingIdentifier(ident) =&gt; {
                 check_identifier(<span class="kw-2">&amp;</span>ident.name, ident.span, node, ctx);
                 check_binding_identifier(ident, node, ctx);
@@ -1149,6 +1207,62 @@
             AstKind::YieldExpression(expr) =&gt; check_yield_expression(expr, node, ctx),
             <span class="kw">_ </span>=&gt; {}
         }
+    }
+}
+
+<span class="kw">fn </span>check_program(node: <span class="kw-2">&amp;</span>AstNode, ctx: <span class="kw-2">&amp;</span>LintContext) {
+    <span class="attr">#[derive(Debug, Error, Diagnostic)]
+    #[error(<span class="string">&quot;Export &#39;{0}&#39; is not defined&quot;</span>)]
+    #[diagnostic()]
+    </span><span class="kw">struct </span>UndefinedExport(Atom, <span class="attr">#[label] </span>Span);
+
+    <span class="attr">#[derive(Debug, Error, Diagnostic)]
+    #[error(<span class="string">&quot;Duplicated export &#39;{0}&#39;&quot;</span>)]
+    #[diagnostic()]
+    </span><span class="kw">struct </span>DuplicateExport(
+        Atom,
+        <span class="attr">#[label(<span class="string">&quot;Export has already been declared here&quot;</span>)] </span>Span,
+        <span class="attr">#[label(<span class="string">&quot;It cannot be redeclared here&quot;</span>)] </span>Span,
+    );
+
+    <span class="comment">// Skip checkking for exports in TypeScript for now
+    </span><span class="kw">if </span>ctx.source_type().is_typescript() {
+        <span class="kw">return</span>;
+    }
+
+    <span class="kw">let </span>scope = ctx.scope(node);
+    <span class="kw">let </span>module_record = ctx.semantic().module_record();
+
+    <span class="comment">// It is a Syntax Error if any element of the ExportedBindings of ModuleItemList
+    // does not also occur in either the VarDeclaredNames of ModuleItemList, or the LexicallyDeclaredNames of ModuleItemList.
+    </span>module_record
+        .local_export_entries
+        .iter()
+        .filter_map(|export_entry| <span class="kw">match </span><span class="kw-2">&amp;</span>export_entry.local_name {
+            ExportLocalName::Name(name_span) =&gt; <span class="prelude-val">Some</span>(name_span),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        })
+        .filter(|name_span| scope.get_variable_symbol_id(name_span.name()).is_none())
+        .for_each(|name_span| {
+            ctx.diagnostic(UndefinedExport(name_span.name().clone(), name_span.span()));
+        });
+
+    <span class="comment">// It is a Syntax Error if the ExportedNames of ModuleItemList contains any duplicate entries.
+    </span><span class="kw">for </span>name_span <span class="kw">in </span><span class="kw-2">&amp;</span>module_record.exported_bindings_duplicated {
+        <span class="kw">let </span>old_span = module_record.exported_bindings.get(name_span.name()).unwrap();
+        ctx.diagnostic(DuplicateExport(name_span.name().clone(), name_span.span(), <span class="kw-2">*</span>old_span));
+    }
+
+    <span class="kw">for </span>span <span class="kw">in </span><span class="kw-2">&amp;</span>module_record.export_default_duplicated {
+        <span class="kw">let </span>old_span = module_record.export_default.unwrap();
+        ctx.diagnostic(DuplicateExport(<span class="string">&quot;default&quot;</span>.into(), <span class="kw-2">*</span>span, old_span));
+    }
+
+    <span class="comment">// `export default x;`
+    // `export { y as default };`
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(span) = module_record.exported_bindings.get(<span class="string">&quot;default&quot;</span>)
+        &amp;&amp; <span class="kw">let </span><span class="prelude-val">Some</span>(default_span) = <span class="kw-2">&amp;</span>module_record.export_default {
+            ctx.diagnostic(DuplicateExport(<span class="string">&quot;default&quot;</span>.into(), <span class="kw-2">*</span>default_span, <span class="kw-2">*</span>span));
     }
 }
 

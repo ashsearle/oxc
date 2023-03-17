@@ -183,24 +183,11 @@
 <a href="#183" id="183">183</a>
 <a href="#184" id="184">184</a>
 <a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Declare symbol for `BindingIdentifier`s
 
 </span><span class="attr">#[allow(clippy::wildcard_imports)]
 </span><span class="kw">use </span>oxc_ast::ast::<span class="kw-2">*</span>;
-<span class="kw">use </span>oxc_ast::{syntax_directed_operations::BoundNames, AstKind};
+<span class="kw">use </span>oxc_ast::{syntax_directed_operations::BoundNames, AstKind, SourceType};
 
 <span class="kw">use crate</span>::{
     scope::{Scope, ScopeFlags, ScopeId},
@@ -278,9 +265,9 @@
 // and the duplicate entries are only bound by FunctionDeclarations.
 // https://tc39.es/ecma262/#sec-block-level-function-declarations-web-legacy-compatibility-semantics
 </span><span class="attr">#[must_use]
-</span><span class="kw">fn </span>function_as_var(scope: <span class="kw-2">&amp;</span>Scope, is_script: bool) -&gt; bool {
+</span><span class="kw">fn </span>function_as_var(scope: <span class="kw-2">&amp;</span>Scope, source_type: SourceType) -&gt; bool {
     scope.flags.intersects(ScopeFlags::Function)
-        || (is_script &amp;&amp; scope.flags.intersects(ScopeFlags::Top))
+        || (source_type.is_script() &amp;&amp; scope.flags.intersects(ScopeFlags::Top))
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Binder <span class="kw">for </span>Function&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -291,35 +278,22 @@
             <span class="kw">if </span>!scope.strict_mode &amp;&amp; <span class="macro">matches!</span>(builder.parent_kind(), AstKind::IfStatement(<span class="kw">_</span>)) {
                 <span class="comment">// Do not declare in if single statements,
                 // if (false) function f() {} else function g() { }
-            </span>} <span class="kw">else if </span><span class="macro">matches!</span>(<span class="self">self</span>.r#type, FunctionType::FunctionDeclaration) {
-                <span class="comment">// the visitor is already inside the function scope,
+            </span>} <span class="kw">else if </span><span class="self">self</span>.r#type == FunctionType::FunctionDeclaration {
+                <span class="comment">// The visitor is already inside the function scope,
                 // retrieve the parent scope for the function id to bind to.
                 </span><span class="kw">let </span>parent_scope_id =
                     builder.scope.scopes[<span class="kw-2">*</span>current_scope_id].parent().unwrap().into();
                 <span class="kw">let </span>parent_scope: <span class="kw-2">&amp;</span>Scope = <span class="kw-2">&amp;</span>builder.scope.scopes[parent_scope_id];
 
                 <span class="kw">let </span>(includes, excludes) =
-                    <span class="kw">if </span>parent_scope.strict_mode || <span class="self">self</span>.r#async || <span class="self">self</span>.generator {
-                        <span class="kw">if </span>function_as_var(parent_scope, builder.source_type.is_script()) {
-                            (
-                                SymbolFlags::FunctionScopedVariable | SymbolFlags::Function,
-                                SymbolFlags::FunctionScopedVariableExcludes,
-                            )
-                        } <span class="kw">else </span>{
-                            (
-                                SymbolFlags::BlockScopedVariable | SymbolFlags::Function,
-                                SymbolFlags::BlockScopedVariableExcludes,
-                            )
-                        }
-                    } <span class="kw">else if </span>function_as_var(parent_scope, builder.source_type.is_script()) {
-                        (
-                            SymbolFlags::Function,
-                            SymbolFlags::FunctionScopedVariableExcludes - SymbolFlags::Function,
-                        )
+                    <span class="kw">if </span>(parent_scope.strict_mode || <span class="self">self</span>.r#async || <span class="self">self</span>.generator)
+                        &amp;&amp; !function_as_var(parent_scope, builder.source_type)
+                    {
+                        (SymbolFlags::BlockScopedVariable, SymbolFlags::BlockScopedVariableExcludes)
                     } <span class="kw">else </span>{
                         (
-                            SymbolFlags::Function,
-                            SymbolFlags::BlockScopedVariableExcludes - SymbolFlags::Function,
+                            SymbolFlags::FunctionScopedVariable,
+                            SymbolFlags::FunctionScopedVariableExcludes,
                         )
                     };
 

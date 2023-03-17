@@ -1249,8 +1249,8 @@
 
     <span class="comment">// It is a Syntax Error if the ExportedNames of ModuleItemList contains any duplicate entries.
     </span><span class="kw">for </span>name_span <span class="kw">in </span><span class="kw-2">&amp;</span>module_record.exported_bindings_duplicated {
-        <span class="kw">let </span>old_span = module_record.exported_bindings.get(name_span.name()).unwrap();
-        ctx.diagnostic(DuplicateExport(name_span.name().clone(), name_span.span(), <span class="kw-2">*</span>old_span));
+        <span class="kw">let </span>old_span = module_record.exported_bindings[name_span.name()];
+        ctx.diagnostic(DuplicateExport(name_span.name().clone(), name_span.span(), old_span));
     }
 
     <span class="kw">for </span>span <span class="kw">in </span><span class="kw-2">&amp;</span>module_record.export_default_duplicated {

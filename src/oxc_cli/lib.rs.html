@@ -322,7 +322,7 @@
 
         <span class="kw">let </span>program = allocator.alloc(ret.program);
         <span class="kw">let </span>trivias = Rc::new(ret.trivias);
-        <span class="kw">let </span>semantic_ret = SemanticBuilder::new(source_type).build(program, trivias);
+        <span class="kw">let </span>semantic_ret = SemanticBuilder::new(source_type).build(program, <span class="kw-2">&amp;</span>trivias);
 
         <span class="kw">if </span>!semantic_ret.errors.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">Self</span>::wrap_diagnostics(path, <span class="kw-2">&amp;</span>source_text, semantic_ret.errors));
@@ -353,7 +353,7 @@
         <span class="kw">let </span>source = Arc::new(NamedSource::new(path.to_string_lossy(), source_text.to_owned()));
         <span class="kw">let </span>diagnostics = diagnostics
             .into_iter()
-            .map(|diagnostic| diagnostic.with_source_code(source.clone()))
+            .map(|diagnostic| diagnostic.with_source_code(Arc::clone(<span class="kw-2">&amp;</span>source)))
             .collect();
         (path.to_path_buf(), diagnostics)
     }

@@ -97,7 +97,7 @@
         <span class="kw">let </span>program = <span class="self">self</span>.allocator.alloc(ret.program);
 
         <span class="kw">let </span>diagnostics = Diagnostics::default();
-        <span class="kw">let </span>semantic_ret = SemanticBuilder::new(source_type).build(program, Rc::new(ret.trivias));
+        <span class="kw">let </span>semantic_ret = SemanticBuilder::new(source_type).build(program, <span class="kw-2">&amp;</span>Rc::new(ret.trivias));
         <span class="kw">let </span><span class="kw-2">mut </span>diagnostics = diagnostics.into_inner();
 
         <span class="kw">let </span>source = Arc::new(NamedSource::new(path, source_text.to_string()));
@@ -107,7 +107,7 @@
                 .with_fix(<span class="bool-val">false</span>)
                 .run(<span class="kw-2">&amp;</span>Rc::new(semantic_ret.semantic), source_text)
                 .into_iter()
-                .map(|m| m.error.with_source_code(source.clone()))
+                .map(|m| m.error.with_source_code(Arc::clone(<span class="kw-2">&amp;</span>source)))
                 .chain(ret.errors)
                 .chain(semantic_ret.errors),
         );

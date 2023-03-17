@@ -75,7 +75,7 @@
 
     <span class="kw">fn </span>is_wanted_entry(dir_entry: <span class="kw-2">&amp;</span>DirEntry) -&gt; bool {
         <span class="kw">let </span><span class="prelude-val">Some</span>(file_type) = dir_entry.file_type() <span class="kw">else </span>{ <span class="kw">return </span><span class="bool-val">false </span>};
-        <span class="kw">if </span>!file_type.is_file() {
+        <span class="kw">if </span>file_type.is_dir() {
             <span class="kw">return </span><span class="bool-val">false</span>;
         }
         <span class="kw">let </span><span class="prelude-val">Some</span>(file_name) = dir_entry.path().file_name() <span class="kw">else </span>{ <span class="kw">return </span><span class="bool-val">false </span>};

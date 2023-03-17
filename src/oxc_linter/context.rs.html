@@ -152,8 +152,8 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; LintContext&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub fn </span>new(source_text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, semantic: Rc&lt;Semantic&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, fix: bool) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ source_text, semantic, diagnostics: RefCell::new(<span class="macro">vec!</span>[]), fix }
+    <span class="kw">pub fn </span>new(source_text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, semantic: <span class="kw-2">&amp;</span>Rc&lt;Semantic&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, fix: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ source_text, semantic: Rc::clone(semantic), diagnostics: RefCell::new(<span class="macro">vec!</span>[]), fix }
     }
 
     <span class="attr">#[must_use]

@@ -259,6 +259,10 @@
 <a href="#259" id="259">259</a>
 <a href="#260" id="260">260</a>
 <a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Semantic Builder
 //! This builds:
 //!   * The untyped and flattened ast nodes into an indextree
@@ -295,7 +299,7 @@
     module_record_builder: ModuleRecordBuilder,
 }
 
-<span class="kw">pub struct </span>ScopeBuilderReturn&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">pub struct </span>SemanticBuilderReturn&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub </span>semantic: Semantic&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="kw">pub </span>errors: Vec&lt;Error&gt;,
 }
@@ -325,7 +329,11 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>build(<span class="kw-2">mut </span><span class="self">self</span>, program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program&lt;<span class="lifetime">&#39;a</span>&gt;, trivias: Rc&lt;Trivias&gt;) -&gt; ScopeBuilderReturn {
+    </span><span class="kw">pub fn </span>build(
+        <span class="kw-2">mut </span><span class="self">self</span>,
+        program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program&lt;<span class="lifetime">&#39;a</span>&gt;,
+        trivias: <span class="kw-2">&amp;</span>Rc&lt;Trivias&gt;,
+    ) -&gt; SemanticBuilderReturn&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="comment">// First AST pass
         </span><span class="self">self</span>.visit_program(program);
 
@@ -336,10 +344,10 @@
             source_type: <span class="self">self</span>.source_type,
             nodes: <span class="self">self</span>.nodes,
             scopes: <span class="self">self</span>.scope.scopes,
-            trivias,
+            trivias: Rc::clone(trivias),
             module_record,
         };
-        ScopeBuilderReturn { semantic, errors: <span class="self">self</span>.errors }
+        SemanticBuilderReturn { semantic, errors: <span class="self">self</span>.errors }
     }
 
     <span class="doccomment">/// Push a Syntax Error

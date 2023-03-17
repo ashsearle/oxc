@@ -331,7 +331,7 @@
         <span class="self">self</span>.result = result;
     }
 
-    <span class="kw">fn </span>should_fail(meta: <span class="kw-2">&amp;</span>MetaData) -&gt; bool {
+    <span class="kw">fn </span>compute_should_fail(meta: <span class="kw-2">&amp;</span>MetaData) -&gt; bool {
         meta.negative.as_ref().filter(|n| n.phase == Phase::Parse).is_some()
     }
 }
@@ -339,7 +339,7 @@
 <span class="kw">impl </span>Case <span class="kw">for </span>Test262Case {
     <span class="kw">fn </span>new(path: PathBuf, code: String) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>meta = <span class="self">Self</span>::read_metadata(<span class="kw-2">&amp;</span>code).expect(<span class="string">&quot;read test262 yaml meta&quot;</span>);
-        <span class="kw">let </span>should_fail = <span class="self">Self</span>::should_fail(<span class="kw-2">&amp;</span>meta);
+        <span class="kw">let </span>should_fail = <span class="self">Self</span>::compute_should_fail(<span class="kw-2">&amp;</span>meta);
         <span class="self">Self </span>{ path, code, meta, should_fail, result: TestResult::ToBeRun }
     }
 

@@ -418,7 +418,7 @@
         </span><span class="kw">let </span>paths = WalkDir::new(test_root)
             .into_iter()
             .filter_map(Result::ok)
-            .filter(|e| e.file_type().is_file())
+            .filter(|e| !e.file_type().is_dir())
             .map(|e| e.path().to_owned())
             .filter(|path| !<span class="self">self</span>.skip_test_path(path))
             .filter(|path| filter.map_or(<span class="bool-val">true</span>, |query| path.to_string_lossy().contains(query)))
@@ -617,7 +617,7 @@
         <span class="kw">let </span>parser_ret = Parser::new(<span class="kw-2">&amp;</span>allocator, source_text, source_type).parse();
         <span class="kw">let </span>program = allocator.alloc(parser_ret.program);
         <span class="kw">let </span>trivias = Rc::new(parser_ret.trivias);
-        <span class="kw">let </span>semantic_ret = SemanticBuilder::new(source_type).build(program, trivias);
+        <span class="kw">let </span>semantic_ret = SemanticBuilder::new(source_type).build(program, <span class="kw-2">&amp;</span>trivias);
         <span class="kw">let </span>result =
             Linter::new().run_early_error(<span class="kw-2">&amp;</span>Rc::new(semantic_ret.semantic), source_text, <span class="bool-val">false</span>);
         <span class="kw">let </span>errors = result

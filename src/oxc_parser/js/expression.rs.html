@@ -1040,6 +1040,10 @@
 <a href="#1040" id="1040">1040</a>
 <a href="#1041" id="1041">1041</a>
 <a href="#1042" id="1042">1042</a>
+<a href="#1043" id="1043">1043</a>
+<a href="#1044" id="1044">1044</a>
+<a href="#1045" id="1045">1045</a>
+<a href="#1046" id="1046">1046</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Atom, Span};
 <span class="kw">use </span>oxc_diagnostics::Result;
@@ -1188,6 +1192,10 @@
     ///     `CoverParenthesizedExpressionAndArrowParameterList`[?Yield, ?Await]
     </span><span class="kw">fn </span>parse_primary_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span>span = <span class="self">self</span>.start_span();
+
+        <span class="kw">if </span><span class="self">self</span>.at(Kind::At) {
+            <span class="self">self</span>.eat_decorators()<span class="question-mark">?</span>;
+        }
 
         <span class="comment">// AsyncFunctionExpression
         // AsyncGeneratorExpression

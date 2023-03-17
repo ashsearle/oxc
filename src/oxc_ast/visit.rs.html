@@ -1605,6 +1605,9 @@
 <a href="#1605" id="1605">1605</a>
 <a href="#1606" id="1606">1606</a>
 <a href="#1607" id="1607">1607</a>
+<a href="#1608" id="1608">1608</a>
+<a href="#1609" id="1609">1609</a>
+<a href="#1610" id="1610">1610</a>
 </pre><pre class="rust"><code><span class="doccomment">//! AST Visitor Pattern.
 //! See:
 //! * [visitor pattern](https://rust-unofficial.github.io/patterns/patterns/behavioural/visitor.html)
@@ -1963,11 +1966,14 @@
     }
 
     <span class="kw">fn </span>visit_class(<span class="kw-2">&amp;mut </span><span class="self">self</span>, class: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Class&lt;<span class="lifetime">&#39;a</span>&gt;) {
-        <span class="kw">let </span>kind = AstKind::Class(class);
-        <span class="self">self</span>.enter_node(kind);
-        <span class="kw">for </span>decorator <span class="kw">in </span><span class="kw-2">&amp;</span>class.decorators {
+        <span class="comment">// Class level decorators are transpiled as functions outside of the class taking the class
+        // itself as argument. They should be visited before class is entered. E.g., they inherit
+        // strict mode from the enclosing scope rather than from class.
+        </span><span class="kw">for </span>decorator <span class="kw">in </span><span class="kw-2">&amp;</span>class.decorators {
             <span class="self">self</span>.visit_decorator(decorator);
         }
+        <span class="kw">let </span>kind = AstKind::Class(class);
+        <span class="self">self</span>.enter_node(kind);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = <span class="kw-2">&amp;</span>class.id {
             <span class="self">self</span>.visit_binding_identifier(id);
         }

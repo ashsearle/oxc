@@ -61,6 +61,7 @@
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{rc::Rc, sync::Arc};
 
 <span class="kw">use </span>miette::NamedSource;
@@ -103,7 +104,8 @@
 
         diagnostics.extend(
             Linter::from_json_str(eslintrc)
-                .run(<span class="kw-2">&amp;</span>Rc::new(semantic_ret.semantic), source_text, <span class="bool-val">false</span>)
+                .with_fix(<span class="bool-val">false</span>)
+                .run(<span class="kw-2">&amp;</span>Rc::new(semantic_ret.semantic), source_text)
                 .into_iter()
                 .map(|m| m.error.with_source_code(source.clone()))
                 .chain(ret.errors)

@@ -389,6 +389,7 @@
 <a href="#389" id="389">389</a>
 <a href="#390" id="390">390</a>
 <a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
 
 <span class="kw">use </span>oxc_ast::Span;
@@ -410,7 +411,8 @@
     }
 }
 
-<span class="kw">pub struct </span>FixResult&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="attr">#[derive(Debug)]
+</span><span class="kw">pub struct </span>FixResult&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub </span>fixed: bool,
     <span class="kw">pub </span>fixed_code: Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;,
     <span class="kw">pub </span>messages: Vec&lt;Message&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,

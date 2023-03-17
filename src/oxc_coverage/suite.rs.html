@@ -375,9 +375,9 @@
     ToBeRun,
     Passed,
     IncorrectlyPassed,
-    ParseError(String),
     Mismatch(String, String),
-    CorrectError(String),
+    ParseError(String, <span class="comment">/* panicked */ </span>bool),
+    CorrectError(String, <span class="comment">/* panicked */ </span>bool),
 }
 
 <span class="attr">#[allow(unused)]
@@ -555,17 +555,17 @@
         <span class="kw">let </span><span class="kw-2">mut </span>tests = <span class="self">self
             </span>.get_test_cases()
             .iter()
-            .filter(|case| <span class="macro">matches!</span>(case.test_result(), TestResult::CorrectError(<span class="kw">_</span>)))
+            .filter(|case| <span class="macro">matches!</span>(case.test_result(), TestResult::CorrectError(<span class="kw">_</span>, <span class="kw">_</span>)))
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-        tests.sort_by_key(|case| case.path().to_string_lossy().to_string());
+        tests.sort_by_key(|case| case.path().to_string_lossy());
 
         <span class="kw">let </span>args = AppArgs { detail: <span class="bool-val">true</span>, ..AppArgs::default() };
         <span class="self">self</span>.print_coverage(name, <span class="kw-2">&amp;</span>args, report, <span class="kw-2">&amp;mut </span>file)<span class="question-mark">?</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>out = String::new();
         <span class="kw">for </span>case <span class="kw">in </span><span class="kw-2">&amp;</span>tests {
-            <span class="kw">if let </span>TestResult::CorrectError(error) = <span class="kw-2">&amp;</span>case.test_result() {
+            <span class="kw">if let </span>TestResult::CorrectError(error, <span class="kw">_</span>) = <span class="kw-2">&amp;</span>case.test_result() {
                 out.push_str(error);
             }
         }
@@ -595,16 +595,18 @@
     <span class="kw">fn </span>test_passed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">let </span>result = <span class="self">self</span>.test_result();
         <span class="macro">assert!</span>(!<span class="macro">matches!</span>(result, TestResult::ToBeRun), <span class="string">&quot;test should be run&quot;</span>);
-        <span class="macro">matches!</span>(result, TestResult::Passed | TestResult::CorrectError(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(result, TestResult::Passed | TestResult::CorrectError(<span class="kw">_</span>, <span class="kw">_</span>))
     }
 
     <span class="kw">fn </span>test_parsed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">let </span>result = <span class="self">self</span>.test_result();
         <span class="macro">assert!</span>(!<span class="macro">matches!</span>(result, TestResult::ToBeRun), <span class="string">&quot;test should be run&quot;</span>);
-        <span class="macro">matches!</span>(
-            result,
-            TestResult::Passed | TestResult::CorrectError(<span class="kw">_</span>) | TestResult::IncorrectlyPassed
-        )
+        <span class="kw">match </span>result {
+            TestResult::ParseError(<span class="kw">_</span>, panicked) | TestResult::CorrectError(<span class="kw">_</span>, panicked) =&gt; {
+                !panicked
+            }
+            <span class="kw">_ </span>=&gt; <span class="bool-val">true</span>,
+        }
     }
 
     <span class="doccomment">/// Run a single test case, this is responsible for saving the test result
@@ -626,6 +628,7 @@
             .chain(parser_ret.errors.into_iter())
             .chain(semantic_ret.errors.into_iter())
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+
         <span class="kw">let </span>result = <span class="kw">if </span>errors.is_empty() {
             <span class="prelude-val">Ok</span>(String::new())
         } <span class="kw">else </span>{
@@ -640,14 +643,11 @@
             }
             <span class="prelude-val">Err</span>(output)
         };
-        <span class="self">self</span>.parser_return_to_test_result(result)
-    }
 
-    <span class="kw">fn </span>parser_return_to_test_result(<span class="kw-2">&amp;</span><span class="self">self</span>, result: <span class="prelude-ty">Result</span>&lt;String, String&gt;) -&gt; TestResult {
         <span class="kw">let </span>should_fail = <span class="self">self</span>.should_fail();
         <span class="kw">match </span>result {
-            <span class="prelude-val">Err</span>(err) <span class="kw">if </span>should_fail =&gt; TestResult::CorrectError(err),
-            <span class="prelude-val">Err</span>(err) <span class="kw">if </span>!should_fail =&gt; TestResult::ParseError(err),
+            <span class="prelude-val">Err</span>(err) <span class="kw">if </span>should_fail =&gt; TestResult::CorrectError(err, parser_ret.panicked),
+            <span class="prelude-val">Err</span>(err) <span class="kw">if </span>!should_fail =&gt; TestResult::ParseError(err, parser_ret.panicked),
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="kw">if </span>should_fail =&gt; TestResult::IncorrectlyPassed,
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="kw">if </span>!should_fail =&gt; TestResult::Passed,
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -656,7 +656,7 @@
 
     <span class="kw">fn </span>print&lt;W: Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, args: <span class="kw-2">&amp;</span>AppArgs, writer: <span class="kw-2">&amp;mut </span>W) -&gt; std::io::Result&lt;()&gt; {
         <span class="kw">match </span><span class="self">self</span>.test_result() {
-            TestResult::ParseError(error) =&gt; {
+            TestResult::ParseError(error, <span class="kw">_</span>) =&gt; {
                 writer.write_all(<span class="macro">format!</span>(<span class="string">&quot;Expect to Parse: {:?}\n&quot;</span>, <span class="self">self</span>.path()).as_bytes())<span class="question-mark">?</span>;
                 writer.write_all(error.as_bytes())<span class="question-mark">?</span>;
             }

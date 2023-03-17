@@ -512,39 +512,39 @@
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;End&quot;</span>)]
-    </span><span class="kw">struct </span>InsertAtEnd();
+    </span><span class="kw">struct </span>InsertAtEnd;
     <span class="kw">const </span>INSERT_AT_END: Fix =
         Fix { span: Span { start: <span class="number">19</span>, end: <span class="number">19 </span>}, content: Cow::Borrowed(<span class="string">&quot;// end&quot;</span>) };
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;Start&quot;</span>)]
-    </span><span class="kw">struct </span>InsertAtStart();
+    </span><span class="kw">struct </span>InsertAtStart;
     <span class="kw">const </span>INSERT_AT_START: Fix =
         Fix { span: Span { start: <span class="number">0</span>, end: <span class="number">0 </span>}, content: Cow::Borrowed(<span class="string">&quot;// start&quot;</span>) };
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;Multiply&quot;</span>)]
-    </span><span class="kw">struct </span>InsertAtMiddle();
+    </span><span class="kw">struct </span>InsertAtMiddle;
     <span class="kw">const </span>INSERT_AT_MIDDLE: Fix =
         Fix { span: Span { start: <span class="number">13</span>, end: <span class="number">13 </span>}, content: Cow::Borrowed(<span class="string">&quot;5 *&quot;</span>) };
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;foo&quot;</span>)]
-    </span><span class="kw">struct </span>ReplaceId();
+    </span><span class="kw">struct </span>ReplaceId;
     <span class="kw">const </span>REPLACE_ID: Fix = Fix { span: Span { start: <span class="number">4</span>, end: <span class="number">10 </span>}, content: Cow::Borrowed(<span class="string">&quot;foo&quot;</span>) };
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;let&quot;</span>)]
-    </span><span class="kw">struct </span>ReplaceVar();
+    </span><span class="kw">struct </span>ReplaceVar;
     <span class="kw">const </span>REPLACE_VAR: Fix = Fix { span: Span { start: <span class="number">0</span>, end: <span class="number">3 </span>}, content: Cow::Borrowed(<span class="string">&quot;let&quot;</span>) };
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;5&quot;</span>)]
-    </span><span class="kw">struct </span>ReplaceNum();
+    </span><span class="kw">struct </span>ReplaceNum;
     <span class="kw">const </span>REPLACE_NUM: Fix = Fix { span: Span { start: <span class="number">13</span>, end: <span class="number">14 </span>}, content: Cow::Borrowed(<span class="string">&quot;5&quot;</span>) };
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;removestart&quot;</span>)]
-    </span><span class="kw">struct </span>RemoveStart();
+    </span><span class="kw">struct </span>RemoveStart;
     <span class="kw">const </span>REMOVE_START: Fix = Fix::delete(Span { start: <span class="number">0</span>, end: <span class="number">4 </span>});
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
@@ -554,12 +554,12 @@
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;removeend&quot;</span>)]
-    </span><span class="kw">struct </span>RemoveEnd();
+    </span><span class="kw">struct </span>RemoveEnd;
     <span class="kw">const </span>REMOVE_END: Fix = Fix::delete(Span { start: <span class="number">14</span>, end: <span class="number">18 </span>});
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;reversed range&quot;</span>)]
-    </span><span class="kw">struct </span>ReverseRange();
+    </span><span class="kw">struct </span>ReverseRange;
     <span class="kw">const </span>REVERSE_RANGE: Fix = Fix { span: Span { start: <span class="number">3</span>, end: <span class="number">0 </span>}, content: Cow::Borrowed(<span class="string">&quot; &quot;</span>) };
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
@@ -584,21 +584,21 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>insert_at_the_end() {
-        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(InsertAtEnd(), <span class="prelude-val">Some</span>(INSERT_AT_END))]);
+        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(InsertAtEnd, <span class="prelude-val">Some</span>(INSERT_AT_END))]);
         <span class="macro">assert_eq!</span>(result.fixed_code, TEST_CODE.to_string() + INSERT_AT_END.content.as_ref());
         <span class="macro">assert_eq!</span>(result.messages.len(), <span class="number">0</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>insert_at_the_start() {
-        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(InsertAtStart(), <span class="prelude-val">Some</span>(INSERT_AT_START))]);
+        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(InsertAtStart, <span class="prelude-val">Some</span>(INSERT_AT_START))]);
         <span class="macro">assert_eq!</span>(result.fixed_code, INSERT_AT_START.content.to_string() + TEST_CODE);
         <span class="macro">assert_eq!</span>(result.messages.len(), <span class="number">0</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>insert_at_the_middle() {
-        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(InsertAtMiddle(), <span class="prelude-val">Some</span>(INSERT_AT_MIDDLE))]);
+        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(InsertAtMiddle, <span class="prelude-val">Some</span>(INSERT_AT_MIDDLE))]);
         <span class="macro">assert_eq!</span>(
             result.fixed_code,
             TEST_CODE.replace(<span class="string">&quot;6 *&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, INSERT_AT_MIDDLE.content, <span class="string">&quot;6 *&quot;</span>))
@@ -609,9 +609,9 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>insert_at_the_start_middle_end() {
         <span class="kw">let </span>messages = <span class="macro">vec!</span>[
-            create_message(InsertAtMiddle(), <span class="prelude-val">Some</span>(INSERT_AT_MIDDLE)),
-            create_message(InsertAtStart(), <span class="prelude-val">Some</span>(INSERT_AT_START)),
-            create_message(InsertAtEnd(), <span class="prelude-val">Some</span>(INSERT_AT_END)),
+            create_message(InsertAtMiddle, <span class="prelude-val">Some</span>(INSERT_AT_MIDDLE)),
+            create_message(InsertAtStart, <span class="prelude-val">Some</span>(INSERT_AT_START)),
+            create_message(InsertAtEnd, <span class="prelude-val">Some</span>(INSERT_AT_END)),
         ];
         <span class="kw">let </span>result = get_fix_result(messages);
         <span class="macro">assert_eq!</span>(
@@ -628,13 +628,13 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>ignore_reverse_range() {
-        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(ReverseRange(), <span class="prelude-val">Some</span>(REVERSE_RANGE))]);
+        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(ReverseRange, <span class="prelude-val">Some</span>(REVERSE_RANGE))]);
         <span class="macro">assert_eq!</span>(result.fixed_code, TEST_CODE);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>replace_at_the_start() {
-        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(ReplaceVar(), <span class="prelude-val">Some</span>(REPLACE_VAR))]);
+        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(ReplaceVar, <span class="prelude-val">Some</span>(REPLACE_VAR))]);
         <span class="macro">assert_eq!</span>(result.fixed_code, TEST_CODE.replace(<span class="string">&quot;var&quot;</span>, <span class="string">&quot;let&quot;</span>));
         <span class="macro">assert_eq!</span>(result.messages.len(), <span class="number">0</span>);
         <span class="macro">assert!</span>(result.fixed);
@@ -642,7 +642,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>replace_at_the_middle() {
-        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(ReplaceId(), <span class="prelude-val">Some</span>(REPLACE_ID))]);
+        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(ReplaceId, <span class="prelude-val">Some</span>(REPLACE_ID))]);
         <span class="macro">assert_eq!</span>(result.fixed_code, TEST_CODE.replace(<span class="string">&quot;answer&quot;</span>, <span class="string">&quot;foo&quot;</span>));
         <span class="macro">assert_eq!</span>(result.messages.len(), <span class="number">0</span>);
         <span class="macro">assert!</span>(result.fixed);
@@ -650,7 +650,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>replace_at_the_end() {
-        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(ReplaceNum(), <span class="prelude-val">Some</span>(REPLACE_NUM))]);
+        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(ReplaceNum, <span class="prelude-val">Some</span>(REPLACE_NUM))]);
         <span class="macro">assert_eq!</span>(result.fixed_code, TEST_CODE.replace(<span class="string">&#39;6&#39;</span>, <span class="string">&quot;5&quot;</span>));
         <span class="macro">assert_eq!</span>(result.messages.len(), <span class="number">0</span>);
         <span class="macro">assert!</span>(result.fixed);
@@ -659,9 +659,9 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>replace_at_the_start_middle_end() {
         <span class="kw">let </span>messages = <span class="macro">vec!</span>[
-            create_message(ReplaceId(), <span class="prelude-val">Some</span>(REPLACE_ID)),
-            create_message(ReplaceVar(), <span class="prelude-val">Some</span>(REPLACE_VAR)),
-            create_message(ReplaceNum(), <span class="prelude-val">Some</span>(REPLACE_NUM)),
+            create_message(ReplaceId, <span class="prelude-val">Some</span>(REPLACE_ID)),
+            create_message(ReplaceVar, <span class="prelude-val">Some</span>(REPLACE_VAR)),
+            create_message(ReplaceNum, <span class="prelude-val">Some</span>(REPLACE_NUM)),
         ];
         <span class="kw">let </span>result = get_fix_result(messages);
         <span class="macro">assert_eq!</span>(result.fixed_code, <span class="string">&quot;let foo = 5 * 7;&quot;</span>);
@@ -671,7 +671,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>remove_at_the_start() {
-        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(RemoveStart(), <span class="prelude-val">Some</span>(REMOVE_START))]);
+        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(RemoveStart, <span class="prelude-val">Some</span>(REMOVE_START))]);
         <span class="macro">assert_eq!</span>(result.fixed_code, TEST_CODE.replace(<span class="string">&quot;var &quot;</span>, <span class="string">&quot;&quot;</span>));
         <span class="macro">assert_eq!</span>(result.messages.len(), <span class="number">0</span>);
         <span class="macro">assert!</span>(result.fixed);
@@ -690,7 +690,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>remove_at_the_end() {
-        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(RemoveEnd(), <span class="prelude-val">Some</span>(REMOVE_END))]);
+        <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[create_message(RemoveEnd, <span class="prelude-val">Some</span>(REMOVE_END))]);
         <span class="macro">assert_eq!</span>(result.fixed_code, TEST_CODE.replace(<span class="string">&quot; * 7&quot;</span>, <span class="string">&quot;&quot;</span>));
         <span class="macro">assert_eq!</span>(result.messages.len(), <span class="number">0</span>);
         <span class="macro">assert!</span>(result.fixed);
@@ -699,9 +699,9 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>replace_at_start_remove_at_middle_insert_at_end() {
         <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[
-            create_message(InsertAtEnd(), <span class="prelude-val">Some</span>(INSERT_AT_END)),
-            create_message(RemoveEnd(), <span class="prelude-val">Some</span>(REMOVE_END)),
-            create_message(ReplaceVar(), <span class="prelude-val">Some</span>(REPLACE_VAR)),
+            create_message(InsertAtEnd, <span class="prelude-val">Some</span>(INSERT_AT_END)),
+            create_message(RemoveEnd, <span class="prelude-val">Some</span>(REMOVE_END)),
+            create_message(ReplaceVar, <span class="prelude-val">Some</span>(REPLACE_VAR)),
         ]);
         <span class="macro">assert_eq!</span>(result.fixed_code, <span class="string">&quot;let answer = 6;// end&quot;</span>);
         <span class="macro">assert_eq!</span>(result.messages.len(), <span class="number">0</span>);
@@ -712,7 +712,7 @@
     </span><span class="kw">fn </span>apply_one_fix_when_spans_overlap() {
         <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[
             create_message(RemoveMiddle(Span::default()), <span class="prelude-val">Some</span>(REMOVE_MIDDLE)),
-            create_message(ReplaceId(), <span class="prelude-val">Some</span>(REPLACE_ID)),
+            create_message(ReplaceId, <span class="prelude-val">Some</span>(REPLACE_ID)),
         ]);
         <span class="macro">assert_eq!</span>(result.fixed_code, TEST_CODE.replace(<span class="string">&quot;answer&quot;</span>, <span class="string">&quot;foo&quot;</span>));
         <span class="macro">assert_eq!</span>(result.messages.len(), <span class="number">1</span>);
@@ -723,8 +723,8 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>apply_one_fix_when_the_start_the_same_as_the_previous_end() {
         <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[
-            create_message(RemoveStart(), <span class="prelude-val">Some</span>(REMOVE_START)),
-            create_message(ReplaceId(), <span class="prelude-val">Some</span>(REPLACE_ID)),
+            create_message(RemoveStart, <span class="prelude-val">Some</span>(REMOVE_START)),
+            create_message(ReplaceId, <span class="prelude-val">Some</span>(REPLACE_ID)),
         ]);
         <span class="macro">assert_eq!</span>(result.fixed_code, TEST_CODE.replace(<span class="string">&quot;var &quot;</span>, <span class="string">&quot;&quot;</span>));
         <span class="macro">assert_eq!</span>(result.messages.len(), <span class="number">1</span>);
@@ -736,7 +736,7 @@
     </span><span class="kw">fn </span>apply_one_fix_when_range_overlap_and_one_message_has_no_fix() {
         <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[
             create_message(RemoveMiddle(Span::default()), <span class="prelude-val">Some</span>(REMOVE_MIDDLE)),
-            create_message(ReplaceId(), <span class="prelude-val">Some</span>(REPLACE_ID)),
+            create_message(ReplaceId, <span class="prelude-val">Some</span>(REPLACE_ID)),
             create_message(NoFix(Span::default()), <span class="prelude-val">None</span>),
         ]);
         <span class="macro">assert_eq!</span>(result.fixed_code, TEST_CODE.replace(<span class="string">&quot;answer&quot;</span>, <span class="string">&quot;foo&quot;</span>));
@@ -750,10 +750,10 @@
     </span><span class="kw">fn </span>apply_same_fix_when_span_overlap_regardless_of_order() {
         <span class="kw">let </span>result1 = get_fix_result(<span class="macro">vec!</span>[
             create_message(RemoveMiddle(Span::default()), <span class="prelude-val">Some</span>(REMOVE_MIDDLE)),
-            create_message(ReplaceId(), <span class="prelude-val">Some</span>(REPLACE_ID)),
+            create_message(ReplaceId, <span class="prelude-val">Some</span>(REPLACE_ID)),
         ]);
         <span class="kw">let </span>result2 = get_fix_result(<span class="macro">vec!</span>[
-            create_message(ReplaceId(), <span class="prelude-val">Some</span>(REPLACE_ID)),
+            create_message(ReplaceId, <span class="prelude-val">Some</span>(REPLACE_ID)),
             create_message(RemoveMiddle(Span::default()), <span class="prelude-val">Some</span>(REMOVE_MIDDLE)),
         ]);
         <span class="macro">assert_eq!</span>(result1.fixed_code, result2.fixed_code);
@@ -771,7 +771,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>sort_no_fix_messages_correctly() {
         <span class="kw">let </span>result = get_fix_result(<span class="macro">vec!</span>[
-            create_message(ReplaceId(), <span class="prelude-val">Some</span>(REPLACE_ID)),
+            create_message(ReplaceId, <span class="prelude-val">Some</span>(REPLACE_ID)),
             Message::new(NoFix2(Span { start: <span class="number">1</span>, end: <span class="number">7 </span>}).into(), <span class="prelude-val">None</span>),
             Message::new(NoFix1(Span { start: <span class="number">1</span>, end: <span class="number">3 </span>}).into(), <span class="prelude-val">None</span>),
         ]);

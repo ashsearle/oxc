@@ -345,7 +345,6 @@
 <a href="#345" id="345">345</a>
 <a href="#346" id="346">346</a>
 <a href="#347" id="347">347</a>
-<a href="#348" id="348">348</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     fs::{<span class="self">self</span>, File},
     io::{stdout, Read, Write},
@@ -380,8 +379,7 @@
     CorrectError(String, <span class="comment">/* panicked */ </span>bool),
 }
 
-<span class="attr">#[allow(unused)]
-</span><span class="kw">pub struct </span>CoverageReport&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="kw">pub struct </span>CoverageReport&lt;<span class="lifetime">&#39;a</span>, T&gt; {
     failed_positives: Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt;,
     failed_negatives: Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt;,
     parsed_positives: usize,

@@ -1994,7 +1994,7 @@
             <span class="kw">return </span>Kind::Eof;
         }
 
-        <span class="self">self</span>.trivia_builder.add_single_line_comment(<span class="self">self</span>.current.token.start, <span class="self">self</span>.offset());
+        <span class="self">self</span>.trivia_builder.add_multi_line_comment(<span class="self">self</span>.current.token.start, <span class="self">self</span>.offset());
         Kind::MultiLineComment
     }
 

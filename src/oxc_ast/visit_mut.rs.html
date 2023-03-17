@@ -1262,7 +1262,6 @@
 <a href="#1262" id="1262">1262</a>
 <a href="#1263" id="1263">1263</a>
 <a href="#1264" id="1264">1264</a>
-<a href="#1265" id="1265">1265</a>
 </pre><pre class="rust"><code><span class="doccomment">//! AST `VisitMut` Pattern.
 //! See:
 //! * [syn](https://docs.rs/syn/latest/syn/visit_mut/index.html)
@@ -2457,8 +2456,7 @@
         }
     }
 
-    <span class="attr">#[allow(clippy::single_match)]
-    </span><span class="kw">fn </span>visit_ts_signature(<span class="kw-2">&amp;mut </span><span class="self">self</span>, signature: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>TSSignature&lt;<span class="lifetime">&#39;a</span>&gt;) {
+    <span class="kw">fn </span>visit_ts_signature(<span class="kw-2">&amp;mut </span><span class="self">self</span>, signature: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>TSSignature&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">match </span>signature {
             TSSignature::TSPropertySignature(sig) =&gt; <span class="self">self</span>.visit_ts_property_signature(sig),
             TSSignature::TSCallSignatureDeclaration(sig) =&gt; {

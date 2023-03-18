@@ -2,7 +2,7 @@ var sourcesIndex = JSON.parse('{\
 "oxc_allocator":["",[],["arena.rs","lib.rs"]],\
 "oxc_ast":["",[["ast",[],["js.rs","jsdoc.rs","jsx.rs","literal.rs","mod.rs","operator.rs","ts.rs"]]],["ast_builder.rs","ast_kind.rs","context.rs","lib.rs","module_record.rs","serialize.rs","source_type.rs","span.rs","syntax_directed_operations.rs","trivia.rs","visit.rs","visit_mut.rs"]],\
 "oxc_benchmark":["",[],["lib.rs"]],\
-"oxc_cli":["",[],["command.rs","lib.rs","options.rs","result.rs","walk.rs"]],\
+"oxc_cli":["",[["lint",[],["command.rs","mod.rs","runner.rs"]]],["lib.rs","result.rs","walk.rs"]],\
 "oxc_coverage":["",[],["babel.rs","lib.rs","printer.rs","suite.rs","test262.rs","typescript.rs"]],\
 "oxc_diagnostics":["",[],["lib.rs"]],\
 "oxc_linter":["",[["rules",[["deepscan",[],["uninvoked_array_callback.rs"]],["early_error",[],["javascript.rs"]]],["constructor_super.rs","eq_eq_eq.rs","for_direction.rs","no_array_constructor.rs","no_async_promise_executor.rs","no_caller.rs","no_compare_neg_zero.rs","no_constant_binary_expression.rs","no_debugger.rs","no_dupe_keys.rs","no_duplicate_case.rs","no_empty.rs","no_empty_pattern.rs","no_mixed_operators.rs","no_self_compare.rs","no_unsafe_negation.rs","use_isnan.rs"]]],["ast_util.rs","context.rs","fixer.rs","globals.rs","lib.rs","rule.rs","rules.rs"]],\

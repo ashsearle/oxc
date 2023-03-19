@@ -1044,6 +1044,65 @@
 <a href="#1044" id="1044">1044</a>
 <a href="#1045" id="1045">1045</a>
 <a href="#1046" id="1046">1046</a>
+<a href="#1047" id="1047">1047</a>
+<a href="#1048" id="1048">1048</a>
+<a href="#1049" id="1049">1049</a>
+<a href="#1050" id="1050">1050</a>
+<a href="#1051" id="1051">1051</a>
+<a href="#1052" id="1052">1052</a>
+<a href="#1053" id="1053">1053</a>
+<a href="#1054" id="1054">1054</a>
+<a href="#1055" id="1055">1055</a>
+<a href="#1056" id="1056">1056</a>
+<a href="#1057" id="1057">1057</a>
+<a href="#1058" id="1058">1058</a>
+<a href="#1059" id="1059">1059</a>
+<a href="#1060" id="1060">1060</a>
+<a href="#1061" id="1061">1061</a>
+<a href="#1062" id="1062">1062</a>
+<a href="#1063" id="1063">1063</a>
+<a href="#1064" id="1064">1064</a>
+<a href="#1065" id="1065">1065</a>
+<a href="#1066" id="1066">1066</a>
+<a href="#1067" id="1067">1067</a>
+<a href="#1068" id="1068">1068</a>
+<a href="#1069" id="1069">1069</a>
+<a href="#1070" id="1070">1070</a>
+<a href="#1071" id="1071">1071</a>
+<a href="#1072" id="1072">1072</a>
+<a href="#1073" id="1073">1073</a>
+<a href="#1074" id="1074">1074</a>
+<a href="#1075" id="1075">1075</a>
+<a href="#1076" id="1076">1076</a>
+<a href="#1077" id="1077">1077</a>
+<a href="#1078" id="1078">1078</a>
+<a href="#1079" id="1079">1079</a>
+<a href="#1080" id="1080">1080</a>
+<a href="#1081" id="1081">1081</a>
+<a href="#1082" id="1082">1082</a>
+<a href="#1083" id="1083">1083</a>
+<a href="#1084" id="1084">1084</a>
+<a href="#1085" id="1085">1085</a>
+<a href="#1086" id="1086">1086</a>
+<a href="#1087" id="1087">1087</a>
+<a href="#1088" id="1088">1088</a>
+<a href="#1089" id="1089">1089</a>
+<a href="#1090" id="1090">1090</a>
+<a href="#1091" id="1091">1091</a>
+<a href="#1092" id="1092">1092</a>
+<a href="#1093" id="1093">1093</a>
+<a href="#1094" id="1094">1094</a>
+<a href="#1095" id="1095">1095</a>
+<a href="#1096" id="1096">1096</a>
+<a href="#1097" id="1097">1097</a>
+<a href="#1098" id="1098">1098</a>
+<a href="#1099" id="1099">1099</a>
+<a href="#1100" id="1100">1100</a>
+<a href="#1101" id="1101">1101</a>
+<a href="#1102" id="1102">1102</a>
+<a href="#1103" id="1103">1103</a>
+<a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, Atom, Span};
 <span class="kw">use </span>oxc_diagnostics::Result;
@@ -1074,22 +1133,12 @@
     </span><span class="kw">pub fn </span>parse_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span>span = <span class="self">self</span>.start_span();
 
-        <span class="comment">// clear the decorator context when parsing Expression, as it should be unambiguous when parsing a decorator
-        </span><span class="kw">let </span>save_decorator_context = <span class="self">self</span>.ctx.has_decorator();
-        <span class="kw">if </span>save_decorator_context {
-            <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_decorator(<span class="bool-val">false</span>);
-        }
-
         <span class="kw">let </span>lhs = <span class="self">self</span>.parse_assignment_expression_base()<span class="question-mark">?</span>;
         <span class="kw">if </span>!<span class="self">self</span>.at(Kind::Comma) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(lhs);
         }
 
         <span class="kw">let </span>expr = <span class="self">self</span>.parse_sequence_expression(span, lhs)<span class="question-mark">?</span>;
-
-        <span class="kw">if </span>save_decorator_context {
-            <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_decorator(<span class="bool-val">true</span>);
-        }
 
         <span class="prelude-val">Ok</span>(expr)
     }
@@ -1531,6 +1580,20 @@
             .and_then(|lhs| <span class="self">self</span>.parse_member_expression_rhs(span, lhs, in_optional_chain))
     }
 
+    <span class="doccomment">/// `DecoratorMemberExpression`[Yield, Await]:
+    ///   [ `IdentifierReference`[?Yield, ?Await] ]
+    ///   [ `DecoratorMemberExpression`[?Yield, ?Await] . `IdentifierName` ]
+    ///   [ `DecoratorMemberExpression`[?Yield, ?Await] . `PrivateIdentifier` ]
+    </span><span class="kw">fn </span>parse_decorator_member_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="kw">let </span>lhs_span = <span class="self">self</span>.start_span();
+        <span class="kw">let </span>lhs = <span class="self">self</span>.parse_identifier_reference()<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>lhs = <span class="self">self</span>.ast.identifier_expression(lhs);
+        <span class="kw">while </span><span class="self">self</span>.at(Kind::Dot) {
+            lhs = <span class="self">self</span>.parse_static_member_expression(lhs_span, lhs, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
+        }
+        <span class="prelude-val">Ok</span>(lhs)
+    }
+
     <span class="doccomment">/// Section 13.3 Super Call
     </span><span class="kw">fn </span>parse_super(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Expression&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="kw">let </span>span = <span class="self">self</span>.start_span();
@@ -1560,11 +1623,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>lhs = lhs;
         <span class="kw">while </span>!<span class="self">self</span>.at(Kind::Eof) {
             lhs = <span class="kw">match </span><span class="self">self</span>.cur_kind() {
-                <span class="comment">// Decorator context does not parse computed member expressions, e.g.
-                // `class C { @dec() [&quot;method&quot;]() {} }`
-                </span>Kind::LBrack <span class="kw">if </span>!<span class="self">self</span>.ctx.has_decorator() =&gt; {
-                    <span class="self">self</span>.parse_computed_member_expression(lhs_span, lhs, <span class="bool-val">false</span>)<span class="question-mark">?
-                </span>}
+                Kind::LBrack =&gt; <span class="self">self</span>.parse_computed_member_expression(lhs_span, lhs, <span class="bool-val">false</span>)<span class="question-mark">?</span>,
                 Kind::Dot =&gt; <span class="self">self</span>.parse_static_member_expression(lhs_span, lhs, <span class="bool-val">false</span>)<span class="question-mark">?</span>,
                 Kind::QuestionDot =&gt; {
                     <span class="kw-2">*</span>in_optional_chain = <span class="bool-val">true</span>;
@@ -1751,6 +1810,49 @@
         }
 
         <span class="prelude-val">Ok</span>(lhs)
+    }
+
+    <span class="doccomment">/// `DecoratorCallExpression`[Yield, Await] :
+    ///   `DecoratorMemberExpression`[?Yield, ?Await] `Arguments`[?Yield, ?Await]
+    /// This is different from `CallExpression` in that it only has one level. `@a()()` is not valid Decorator.
+    </span><span class="kw">fn </span>parse_decorator_call_expression(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        lhs_span: Span,
+        lhs: Expression&lt;<span class="lifetime">&#39;a</span>&gt;, <span class="comment">/* `DecoratorMemberExpression` */
+    </span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>type_arguments = <span class="prelude-val">None</span>;
+        <span class="kw">if </span><span class="macro">matches!</span>(<span class="self">self</span>.cur_kind(), Kind::LAngle | Kind::ShiftLeft) &amp;&amp; <span class="self">self</span>.ts_enabled() {
+            <span class="kw">let </span>result = <span class="self">self</span>.try_parse(|p| {
+                <span class="kw">let </span>arguments = p.parse_ts_type_arguments()<span class="question-mark">?</span>;
+                <span class="kw">if </span>p.at(Kind::RAngle) {
+                    <span class="comment">// a&lt;b&gt;&gt;c is not (a&lt;b&gt;)&gt;c, but a&lt;(b&gt;&gt;c)
+                    </span><span class="kw">return </span>p.unexpected();
+                }
+
+                <span class="comment">// a&lt;b&gt;c is (a&lt;b)&gt;c
+                </span><span class="kw">if </span>!p.at(Kind::LParen)
+                    &amp;&amp; !p.at(Kind::NoSubstitutionTemplate)
+                    &amp;&amp; !p.at(Kind::TemplateHead)
+                    &amp;&amp; p.cur_kind().is_at_expression()
+                    &amp;&amp; !p.cur_token().is_on_new_line
+                {
+                    <span class="kw">return </span>p.unexpected();
+                }
+
+                type_arguments = arguments;
+
+                <span class="prelude-val">Ok</span>(())
+            });
+            <span class="kw">if </span>result.is_err() {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(lhs);
+            }
+        }
+
+        <span class="kw">if </span><span class="self">self</span>.at(Kind::LParen) {
+            <span class="self">self</span>.parse_call_arguments(lhs_span, lhs, <span class="bool-val">false</span>, type_arguments.take())
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(lhs)
+        }
     }
 
     <span class="kw">fn </span>parse_call_arguments(
@@ -2056,6 +2158,22 @@
         <span class="kw">let </span>argument = <span class="self">self</span>.parse_unary_expression_base(lhs_span)<span class="question-mark">?</span>;
         <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_await(has_await);
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.await_expression(<span class="self">self</span>.end_span(span), argument))
+    }
+
+    <span class="doccomment">/// `Decorator`[Yield, Await]:
+    ///   [ `DecoratorMemberExpression`[?Yield, ?Await] ]
+    ///   [ ( `Expression`[+In, ?Yield, ?Await] ) ]
+    ///   [ `DecoratorCallExpression` ]
+    </span><span class="kw">pub fn </span>parse_decorator(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
+        <span class="self">self</span>.bump_any(); <span class="comment">// bump @
+        </span><span class="kw">let </span>expr = <span class="kw">if </span><span class="self">self</span>.cur_kind() == Kind::LParen {
+            <span class="self">self</span>.parse_paren_expression()<span class="question-mark">?
+        </span>} <span class="kw">else </span>{
+            <span class="kw">let </span>lhs = <span class="self">self</span>.parse_decorator_member_expression()<span class="question-mark">?</span>;
+            <span class="self">self</span>.parse_decorator_call_expression(span, lhs)<span class="question-mark">?
+        </span>};
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.decorator(<span class="self">self</span>.end_span(span), expr))
     }
 
     <span class="kw">fn </span>is_await_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {

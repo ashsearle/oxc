@@ -510,22 +510,6 @@
 <a href="#510" id="510">510</a>
 <a href="#511" id="511">511</a>
 <a href="#512" id="512">512</a>
-<a href="#513" id="513">513</a>
-<a href="#514" id="514">514</a>
-<a href="#515" id="515">515</a>
-<a href="#516" id="516">516</a>
-<a href="#517" id="517">517</a>
-<a href="#518" id="518">518</a>
-<a href="#519" id="519">519</a>
-<a href="#520" id="520">520</a>
-<a href="#521" id="521">521</a>
-<a href="#522" id="522">522</a>
-<a href="#523" id="523">523</a>
-<a href="#524" id="524">524</a>
-<a href="#525" id="525">525</a>
-<a href="#526" id="526">526</a>
-<a href="#527" id="527">527</a>
-<a href="#528" id="528">528</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
 <span class="kw">use </span>oxc_ast::{
     ast::<span class="kw-2">*</span>,
@@ -586,20 +570,9 @@
         <span class="kw">let </span>span = <span class="self">self</span>.start_span();
         <span class="self">self</span>.expect(Kind::LCurly)<span class="question-mark">?</span>;
 
-        <span class="comment">// We may be in a [Decorator] context when parsing a function expression or
-        // arrow function. The body of the function is not in [Decorator] context.
-        </span><span class="kw">let </span>save_decorator_context = <span class="self">self</span>.ctx.has_decorator();
-        <span class="kw">if </span>save_decorator_context {
-            <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_decorator(<span class="bool-val">false</span>);
-        }
-
         <span class="kw">let </span>(directives, statements) = <span class="self">self</span>.with_context(Context::Return, |p| {
             p.parse_directives_and_statements(<span class="comment">/* is_top_level */ </span><span class="bool-val">false</span>)
         })<span class="question-mark">?</span>;
-
-        <span class="kw">if </span>save_decorator_context {
-            <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_decorator(<span class="bool-val">true</span>);
-        }
 
         <span class="self">self</span>.expect(Kind::RCurly)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.function_body(<span class="self">self</span>.end_span(span), directives, statements))
@@ -735,15 +708,10 @@
         <span class="kw">let </span>func_kind = FunctionKind::Expression;
         <span class="self">self</span>.expect(Kind::Function)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>save_decorator_context = <span class="self">self</span>.ctx.has_decorator();
-        <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_decorator(<span class="bool-val">false</span>);
-
         <span class="kw">let </span>generator = <span class="self">self</span>.eat(Kind::Star);
         <span class="kw">let </span>id = <span class="self">self</span>.parse_function_id(func_kind, r#async, generator);
         <span class="kw">let </span>function =
             <span class="self">self</span>.parse_function(span, id, r#async, generator, func_kind, Modifiers::empty())<span class="question-mark">?</span>;
-
-        <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_decorator(save_decorator_context);
 
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.function_expression(function))
     }

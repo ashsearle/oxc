@@ -592,28 +592,8 @@
 <a href="#592" id="592">592</a>
 <a href="#593" id="593">593</a>
 <a href="#594" id="594">594</a>
-<a href="#595" id="595">595</a>
-<a href="#596" id="596">596</a>
-<a href="#597" id="597">597</a>
-<a href="#598" id="598">598</a>
-<a href="#599" id="599">599</a>
-<a href="#600" id="600">600</a>
-<a href="#601" id="601">601</a>
-<a href="#602" id="602">602</a>
-<a href="#603" id="603">603</a>
-<a href="#604" id="604">604</a>
-<a href="#605" id="605">605</a>
-<a href="#606" id="606">606</a>
-<a href="#607" id="607">607</a>
-<a href="#608" id="608">608</a>
-<a href="#609" id="609">609</a>
-<a href="#610" id="610">610</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
-<span class="kw">use </span>oxc_ast::{
-    ast::<span class="kw-2">*</span>,
-    context::{Context, StatementContext},
-    Span,
-};
+<span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::StatementContext, Span};
 <span class="kw">use </span>oxc_diagnostics::Result;
 
 <span class="kw">use super</span>::{
@@ -1093,26 +1073,14 @@
             <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
 
-        <span class="kw">let </span>in_decorator = <span class="self">self</span>.ctx.has_decorator();
-        <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_decorator(<span class="bool-val">true</span>);
-
         <span class="kw">let </span><span class="kw-2">mut </span>decorators = <span class="self">self</span>.ast.new_vec();
         <span class="kw">while </span><span class="self">self</span>.at(Kind::At) {
             <span class="kw">let </span>decorator = <span class="self">self</span>.parse_decorator()<span class="question-mark">?</span>;
             decorators.push(decorator);
         }
 
-        <span class="self">self</span>.ctx = <span class="self">self</span>.ctx.and_decorator(in_decorator);
-
         <span class="self">self</span>.state.decorators = decorators;
         <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="kw">fn </span>parse_decorator(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Decorator&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>span = <span class="self">self</span>.start_span();
-        <span class="self">self</span>.bump_any(); <span class="comment">// bump @
-        </span><span class="kw">let </span>expr = <span class="self">self</span>.with_context(Context::Decorator, <span class="self">Self</span>::parse_lhs_expression)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.ast.decorator(<span class="self">self</span>.end_span(span), expr))
     }
 
     <span class="kw">pub fn </span>eat_modifiers_before_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; (ModifierFlags, Modifiers&lt;<span class="lifetime">&#39;a</span>&gt;) {

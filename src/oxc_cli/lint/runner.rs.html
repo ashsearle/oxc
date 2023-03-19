@@ -174,12 +174,19 @@
 <a href="#174" id="174">174</a>
 <a href="#175" id="175">175</a>
 <a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     fs,
     io::{BufWriter, Write},
     path::{Path, PathBuf},
     rc::Rc,
-    sync::{mpsc, Arc},
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        mpsc, Arc,
+    },
 };
 
 <span class="kw">use </span>miette::NamedSource;
@@ -210,18 +217,15 @@
     </span><span class="kw">pub fn </span>run(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CliRunResult {
         <span class="kw">let </span>now = std::time::Instant::now();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>number_of_files = <span class="number">0</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>number_of_warnings = <span class="number">0</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>number_of_diagnostics = <span class="number">0</span>;
-
+        <span class="kw">let </span>number_of_files = Arc::new(AtomicUsize::new(<span class="number">0</span>));
         <span class="kw">let </span>(tx_error, rx_error) = mpsc::channel::&lt;(PathBuf, Vec&lt;Error&gt;)&gt;();
 
-        <span class="self">self</span>.process_paths(<span class="kw-2">&amp;mut </span>number_of_files, tx_error);
-        <span class="self">self</span>.process_diagnostics(<span class="kw-2">&amp;mut </span>number_of_warnings, <span class="kw-2">&amp;mut </span>number_of_diagnostics, <span class="kw-2">&amp;</span>rx_error);
+        <span class="self">self</span>.process_paths(<span class="kw-2">&amp;</span>number_of_files, tx_error);
+        <span class="kw">let </span>(number_of_warnings, number_of_diagnostics) = <span class="self">self</span>.process_diagnostics(<span class="kw-2">&amp;</span>rx_error);
 
         CliRunResult::LintResult {
             duration: now.elapsed(),
-            number_of_files,
+            number_of_files: number_of_files.load(Ordering::Relaxed),
             number_of_diagnostics,
             number_of_warnings,
             max_warnings_exceeded: <span class="self">self
@@ -233,46 +237,49 @@
 
     <span class="kw">fn </span>process_paths(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        number_of_files: <span class="kw-2">&amp;mut </span>usize,
+        number_of_files: <span class="kw-2">&amp;</span>Arc&lt;AtomicUsize&gt;,
         tx_error: mpsc::Sender&lt;(PathBuf, Vec&lt;Error&gt;)&gt;,
     ) {
         <span class="kw">let </span>(tx_path, rx_path) = mpsc::channel::&lt;Box&lt;Path&gt;&gt;();
-        <span class="kw">let </span>options = <span class="kw-2">&amp;</span><span class="self">self</span>.options;
-        <span class="kw">let </span>fix = options.fix;
-        rayon::join(
-            <span class="kw">move </span>|| {
-                Walk::new(options).iter().for_each(|path| {
-                    <span class="kw-2">*</span>number_of_files += <span class="number">1</span>;
-                    tx_path.send(path).unwrap();
+
+        <span class="kw">let </span>walk = Walk::new(<span class="kw-2">&amp;</span><span class="self">self</span>.options);
+        <span class="kw">let </span>number_of_files = Arc::clone(number_of_files);
+        rayon::spawn(<span class="kw">move </span>|| {
+            <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
+            walk.iter().for_each(|path| {
+                count += <span class="number">1</span>;
+                tx_path.send(path).unwrap();
+            });
+            number_of_files.store(count, Ordering::Relaxed);
+        });
+
+        <span class="kw">let </span>fix = <span class="self">self</span>.options.fix;
+        rayon::spawn(<span class="kw">move </span>|| {
+            <span class="kw">while let </span><span class="prelude-val">Ok</span>(path) = rx_path.recv() {
+                <span class="kw">let </span>tx_error = tx_error.clone();
+                rayon::spawn(<span class="kw">move </span>|| {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(diagnostics) = <span class="self">Self</span>::lint_path(<span class="kw-2">&amp;</span>path, fix) {
+                        tx_error.send(diagnostics).unwrap();
+                    }
+                    drop(tx_error);
                 });
-            },
-            <span class="kw">move </span>|| {
-                <span class="kw">while let </span><span class="prelude-val">Ok</span>(path) = rx_path.recv() {
-                    <span class="kw">let </span>tx_error = tx_error.clone();
-                    rayon::spawn(<span class="kw">move </span>|| {
-                        <span class="kw">if let </span><span class="prelude-val">Some</span>(diagnostics) = <span class="self">Self</span>::lint_path(<span class="kw-2">&amp;</span>path, fix) {
-                            tx_error.send(diagnostics).unwrap();
-                        }
-                        drop(tx_error);
-                    });
-                }
-            },
-        );
+            }
+        });
     }
 
     <span class="kw">fn </span>process_diagnostics(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        number_of_warnings: <span class="kw-2">&amp;mut </span>usize,
-        number_of_diagnostics: <span class="kw-2">&amp;mut </span>usize,
         rx_error: <span class="kw-2">&amp;</span>mpsc::Receiver&lt;(PathBuf, Vec&lt;Error&gt;)&gt;,
-    ) {
+    ) -&gt; (usize, usize) {
+        <span class="kw">let </span><span class="kw-2">mut </span>number_of_warnings = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>number_of_diagnostics = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>buf_writer = BufWriter::new(std::io::stdout());
 
         <span class="kw">while let </span><span class="prelude-val">Ok</span>((path, diagnostics)) = rx_error.recv() {
-            <span class="kw-2">*</span>number_of_diagnostics += diagnostics.len();
+            number_of_diagnostics += diagnostics.len();
             <span class="kw">for </span>diagnostic <span class="kw">in </span>diagnostics {
                 <span class="kw">if </span>diagnostic.severity() == <span class="prelude-val">Some</span>(Severity::Warning) {
-                    <span class="kw-2">*</span>number_of_warnings += <span class="number">1</span>;
+                    number_of_warnings += <span class="number">1</span>;
                     <span class="comment">// The --quiet flag follows ESLint&#39;s --quiet behavior as documented here: https://eslint.org/docs/latest/use/command-line-interface#--quiet
                     // Note that it does not disable ALL diagnostics, only Warning diagnostics
                     </span><span class="kw">if </span><span class="self">self</span>.options.quiet {
@@ -280,7 +287,7 @@
                     }
 
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(max_warnings) = <span class="self">self</span>.options.max_warnings {
-                        <span class="kw">if </span><span class="kw-2">*</span>number_of_warnings &gt; max_warnings {
+                        <span class="kw">if </span>number_of_warnings &gt; max_warnings {
                             <span class="kw">continue</span>;
                         }
                     }
@@ -298,6 +305,7 @@
         }
 
         buf_writer.flush().unwrap();
+        (number_of_warnings, number_of_diagnostics)
     }
 
     <span class="kw">fn </span>lint_path(path: <span class="kw-2">&amp;</span>Path, fix: bool) -&gt; <span class="prelude-ty">Option</span>&lt;(PathBuf, Vec&lt;Error&gt;)&gt; {

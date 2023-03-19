@@ -299,6 +299,13 @@
 <a href="#299" id="299">299</a>
 <a href="#300" id="300">300</a>
 <a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_ast::{Atom, Span};
 <span class="kw">use </span>oxc_diagnostics::{
     miette::{<span class="self">self</span>, Diagnostic},
@@ -600,5 +607,12 @@
 #[error(<span class="string">&quot;TS18007: JSX expressions may not use the comma operator.&quot;</span>)]
 #[diagnostic(help(<span class="string">&quot;Did you mean to write an array?&quot;</span>))]
 </span><span class="kw">pub struct </span>JSXExpressionsMayNotUseTheCommaOperator(<span class="attr">#[label] </span><span class="kw">pub </span>Span);
+
+<span class="attr">#[derive(Debug, Error, Diagnostic)]
+#[error(<span class="string">&quot;Leading decorators must be attached to a class declaration&quot;</span>)]
+#[diagnostic()]
+</span><span class="kw">pub struct </span>BadLeadingDecorator(
+    <span class="attr">#[label(<span class="string">&quot;Leading decorators must be attached to a class declaration&quot;</span>)] </span><span class="kw">pub </span>Span,
+);
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oxc_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0-nightly (900c35403 2023-03-08)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

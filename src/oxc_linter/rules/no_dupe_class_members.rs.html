@@ -213,6 +213,9 @@
 <a href="#213" id="213">213</a>
 <a href="#214" id="214">214</a>
 <a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::hash::BuildHasherDefault;
 
 <span class="kw">use </span>oxc_ast::{
@@ -273,13 +276,9 @@
         <span class="kw">let </span>num_element = class.body.body.len();
         <span class="kw">let </span><span class="kw-2">mut </span>property_table = PropertyTable::with_capacity(num_element);
         <span class="kw">for </span>element <span class="kw">in </span><span class="kw-2">&amp;</span>class.body.body {
-            <span class="kw">if </span>ctx.source_type().is_typescript() {
+            <span class="kw">if </span>ctx.source_type().is_typescript() &amp;&amp; element.is_ts_empty_body_function() {
                 <span class="comment">// Skip functions with no function bodies, which are Typescript&#39;s overload signatures
-                </span><span class="kw">if let </span>ClassElement::MethodDefinition(method) = element {
-                    <span class="kw">if </span>method.value.body.is_none() {
-                        <span class="kw">continue</span>;
-                    }
-                }
+                </span><span class="kw">continue</span>;
             }
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(dup_span) = property_table.insert(element) {
@@ -380,6 +379,13 @@
           foo(a: string): string;
           foo(a: number): number;
           foo(a: any): any {}
+        }&quot;</span>,
+            <span class="prelude-val">None</span>,
+        ),
+        (
+            <span class="string">&quot;abstract class X {
+          abstract foo(): number;
+          abstract foo(): string;
         }&quot;</span>,
             <span class="prelude-val">None</span>,
         ),

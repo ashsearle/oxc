@@ -1796,6 +1796,19 @@
 <a href="#1796" id="1796">1796</a>
 <a href="#1797" id="1797">1797</a>
 <a href="#1798" id="1798">1798</a>
+<a href="#1799" id="1799">1799</a>
+<a href="#1800" id="1800">1800</a>
+<a href="#1801" id="1801">1801</a>
+<a href="#1802" id="1802">1802</a>
+<a href="#1803" id="1803">1803</a>
+<a href="#1804" id="1804">1804</a>
+<a href="#1805" id="1805">1805</a>
+<a href="#1806" id="1806">1806</a>
+<a href="#1807" id="1807">1807</a>
+<a href="#1808" id="1808">1808</a>
+<a href="#1809" id="1809">1809</a>
+<a href="#1810" id="1810">1810</a>
+<a href="#1811" id="1811">1811</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::fmt::Display;
 
 <span class="kw">use </span>num_bigint::BigUint;
@@ -3293,6 +3306,19 @@
             <span class="self">Self</span>::AccessorProperty(def) =&gt; def.key.static_name(),
             <span class="self">Self</span>::TSAbstractMethodDefinition(_def) =&gt; <span class="prelude-val">None</span>,
             <span class="self">Self</span>::TSAbstractPropertyDefinition(_def) =&gt; <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>is_ts_empty_body_function(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::PropertyDefinition(<span class="kw">_</span>)
+            | <span class="self">Self</span>::StaticBlock(<span class="kw">_</span>)
+            | <span class="self">Self</span>::AccessorProperty(<span class="kw">_</span>)
+            | <span class="self">Self</span>::TSAbstractPropertyDefinition(<span class="kw">_</span>)
+            | <span class="self">Self</span>::TSIndexSignature(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
+            <span class="self">Self</span>::MethodDefinition(method) =&gt; method.value.body.is_none(),
+            <span class="self">Self</span>::TSAbstractMethodDefinition(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
         }
     }
 }

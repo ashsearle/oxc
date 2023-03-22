@@ -390,10 +390,21 @@
 <a href="#390" id="390">390</a>
 <a href="#391" id="391">391</a>
 <a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
 
 <span class="kw">use </span>oxc_ast::Span;
-<span class="kw">use </span>oxc_diagnostics::{miette::LabeledSpan, Error};
+<span class="kw">use </span>oxc_diagnostics::Error;
 
 <span class="attr">#[derive(Debug, Default)]
 </span><span class="kw">pub struct </span>Fix&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -421,14 +432,34 @@
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Message&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub </span>error: Error,
+    start: u32,
+    end: u32,
     fix: <span class="prelude-ty">Option</span>&lt;Fix&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     fixed: bool,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Message&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="attr">#[must_use]
+    <span class="attr">#[allow(clippy::cast_possible_truncation)] </span><span class="comment">// for `as u32`
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>new(error: Error, fix: <span class="prelude-ty">Option</span>&lt;Fix&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ error, fix, fixed: <span class="bool-val">false </span>}
+        <span class="kw">let </span>labels = error.labels().map_or(<span class="macro">vec!</span>[], Iterator::collect);
+        <span class="kw">let </span>start =
+            labels.iter().min_by_key(|span| span.offset()).map_or(<span class="number">0</span>, |span| span.offset() <span class="kw">as </span>u32);
+        <span class="kw">let </span>end = labels
+            .iter()
+            .max_by_key(|span| span.offset() + span.len())
+            .map_or(<span class="number">0</span>, |span| (span.offset() + span.len()) <span class="kw">as </span>u32);
+        <span class="self">Self </span>{ error, start, end, fix, fixed: <span class="bool-val">false </span>}
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>start(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.start
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>end(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.end
     }
 }
 
@@ -484,16 +515,7 @@
         output.push_str(<span class="kw-2">&amp;</span>source_text[offset..]);
 
         <span class="kw">let </span><span class="kw-2">mut </span>messages = <span class="self">self</span>.messages.into_iter().filter(|m| !m.fixed).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-        messages.sort_by_cached_key(|m| {
-            <span class="kw">let </span>span = m
-                .error
-                .labels()
-                .expect(<span class="string">&quot;should specify a span for a rule&quot;</span>)
-                .min_by_key(LabeledSpan::offset)
-                .expect(<span class="string">&quot;should contain at least one span&quot;</span>);
-            (span.offset(), span.len())
-        });
-
+        messages.sort_by_key(|m| (m.start, m.end));
         <span class="kw">return </span>FixResult { fixed, fixed_code: Cow::Owned(output), messages };
     }
 }

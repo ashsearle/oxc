@@ -127,6 +127,30 @@
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, rc::Rc};
 
 <span class="kw">use </span>indextree::{Ancestors, NodeId};
@@ -136,6 +160,7 @@
 <span class="kw">use </span>oxc_semantic::{AstNodes, Scope, ScopeTree, Semantic, SemanticNode};
 
 <span class="kw">use crate</span>::{
+    disable_directives::{DisableDirectives, DisableDirectivesBuilder},
     fixer::{Fix, Message},
     AstNode,
 };
@@ -147,13 +172,26 @@
 
     diagnostics: RefCell&lt;Vec&lt;Message&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
 
+    disable_directives: DisableDirectives&lt;<span class="lifetime">&#39;a</span>&gt;,
+
     <span class="doccomment">/// Whether or not to apply code fixes during linting.
     </span>fix: bool,
+
+    current_rule_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; LintContext&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub fn </span>new(source_text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, semantic: <span class="kw-2">&amp;</span>Rc&lt;Semantic&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, fix: bool) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ source_text, semantic: Rc::clone(semantic), diagnostics: RefCell::new(<span class="macro">vec!</span>[]), fix }
+        <span class="kw">let </span>disable_directives =
+            DisableDirectivesBuilder::new(source_text, semantic.trivias()).build();
+        <span class="self">Self </span>{
+            source_text,
+            semantic: Rc::clone(semantic),
+            diagnostics: RefCell::new(<span class="macro">vec!</span>[]),
+            disable_directives,
+            fix,
+            current_rule_name: <span class="string">&quot;&quot;</span>,
+        }
     }
 
     <span class="attr">#[must_use]
@@ -171,14 +209,24 @@
         <span class="self">self</span>.semantic().source_type()
     }
 
+    <span class="kw">pub fn </span>with_rule_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) {
+        <span class="self">self</span>.current_rule_name = name;
+    }
+
     <span class="comment">/* Diagnostics */
 
     </span><span class="kw">pub fn </span>into_message(<span class="self">self</span>) -&gt; Vec&lt;Message&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.diagnostics.into_inner()
     }
 
+    <span class="kw">fn </span>add_diagnostic(<span class="kw-2">&amp;</span><span class="self">self</span>, message: Message&lt;<span class="lifetime">&#39;a</span>&gt;) {
+        <span class="kw">if </span>!<span class="self">self</span>.disable_directives.contains(<span class="self">self</span>.current_rule_name, message.start()) {
+            <span class="self">self</span>.diagnostics.borrow_mut().push(message);
+        }
+    }
+
     <span class="kw">pub fn </span>diagnostic&lt;T: Into&lt;Error&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, diagnostic: T) {
-        <span class="self">self</span>.diagnostics.borrow_mut().push(Message::new(diagnostic.into(), <span class="prelude-val">None</span>));
+        <span class="self">self</span>.add_diagnostic(Message::new(diagnostic.into(), <span class="prelude-val">None</span>));
     }
 
     <span class="kw">pub fn </span>diagnostic_with_fix&lt;T, F&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, diagnostic: T, fix: F)
@@ -187,7 +235,7 @@
         F: FnOnce() -&gt; Fix&lt;<span class="lifetime">&#39;a</span>&gt;,
     {
         <span class="kw">if </span><span class="self">self</span>.fix {
-            <span class="self">self</span>.diagnostics.borrow_mut().push(Message::new(diagnostic.into(), <span class="prelude-val">Some</span>(fix())));
+            <span class="self">self</span>.add_diagnostic(Message::new(diagnostic.into(), <span class="prelude-val">Some</span>(fix())));
         } <span class="kw">else </span>{
             <span class="self">self</span>.diagnostic(diagnostic);
         }

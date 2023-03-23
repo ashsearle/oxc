@@ -82,10 +82,43 @@
 <a href="#82" id="82">82</a>
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_ast::{AstKind, Atom, SourceType};
+<span class="kw">use </span>rustc_hash::FxHashMap;
 
 <span class="kw">use super</span>::{Scope, ScopeFlags, ScopeId, ScopeTree};
-<span class="kw">use </span><span class="kw">crate</span>::symbol::Reference;
+<span class="kw">use crate</span>::{symbol::Reference, SymbolTable};
 
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>ScopeBuilder {
@@ -139,6 +172,37 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(parent_id) = <span class="self">self</span>.scopes[<span class="self">self</span>.current_scope_id.indextree_id()].parent() {
             <span class="self">self</span>.current_scope_id = parent_id.into();
         }
+    }
+
+    <span class="kw">pub fn </span>resolve_reference(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol_table: <span class="kw-2">&amp;mut </span>SymbolTable) {
+        <span class="comment">// At the initial stage, all references are unresolved.
+        </span><span class="kw">let </span>all_references = {
+            <span class="kw">let </span>current_scope = <span class="self">self</span>.current_scope_mut();
+            std::mem::take(<span class="kw-2">&amp;mut </span>current_scope.unresolved_references)
+        };
+        <span class="kw">let </span><span class="kw-2">mut </span>unresolved_references = FxHashMap::default();
+
+        <span class="lifetime">&#39;outer</span>: <span class="kw">for </span>(variable, reference) <span class="kw">in </span>all_references {
+            <span class="comment">// The reference resolves to the first matching symbol in the scope chain
+            </span><span class="kw">let </span>scope_chain = <span class="self">self</span>.scopes.ancestors(<span class="self">self</span>.current_scope_id);
+            <span class="kw">for </span>scope <span class="kw">in </span>scope_chain {
+                <span class="kw">let </span>scope = <span class="kw-2">&amp;</span><span class="self">self</span>.scopes[scope];
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(symbol_id) = scope.get().get_variable_symbol_id(<span class="kw-2">&amp;</span>variable) {
+                    <span class="comment">// We have resolved this reference.
+                    </span><span class="kw">let </span>symbol = <span class="kw-2">&amp;mut </span>symbol_table[symbol_id];
+                    symbol.add_references(<span class="kw-2">&amp;</span>reference);
+                    <span class="kw">for </span>r <span class="kw">in </span>reference {
+                        symbol_table.resolve_reference(r.ast_node_id, r.resolve_to(symbol_id));
+                    }
+                    <span class="kw">continue </span><span class="lifetime">&#39;outer</span>;
+                }
+            }
+
+            unresolved_references.insert(variable, reference);
+        }
+
+        <span class="kw">let </span>current_scope = <span class="self">self</span>.current_scope_mut();
+        current_scope.unresolved_references = unresolved_references;
     }
 
     <span class="kw">pub fn </span>reference_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>Atom, reference: Reference) {

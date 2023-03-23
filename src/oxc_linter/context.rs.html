@@ -151,13 +151,18 @@
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, rc::Rc};
 
 <span class="kw">use </span>indextree::{Ancestors, NodeId};
 <span class="kw">use </span>oxc_ast::{ast::IdentifierReference, AstKind, SourceType};
 <span class="kw">use </span>oxc_diagnostics::Error;
 <span class="kw">use </span>oxc_printer::{Printer, PrinterOptions};
-<span class="kw">use </span>oxc_semantic::{AstNodes, Scope, ScopeTree, Semantic, SemanticNode};
+<span class="kw">use </span>oxc_semantic::{AstNodes, Scope, ScopeTree, Semantic, SemanticNode, SymbolTable};
 
 <span class="kw">use crate</span>::{
     disable_directives::{DisableDirectives, DisableDirectivesBuilder},
@@ -284,6 +289,11 @@
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>scope_ancestors(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>AstNode) -&gt; Ancestors&lt;<span class="lifetime">&#39;_</span>, Scope&gt; {
         <span class="self">self</span>.semantic().scopes().ancestors(node.get().scope_id())
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>symbols(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>SymbolTable {
+        <span class="self">self</span>.semantic().symbols()
     }
 
     <span class="attr">#[must_use]

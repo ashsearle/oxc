@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["AstNodes","Scope","ScopeFlags","ScopeTree","Semantic","SemanticBuilder","SemanticNode"],"type":["AstNode"]};
+window.SIDEBAR_ITEMS = {"struct":["AstNodes","Reference","ResolvedReference","Scope","ScopeFlags","ScopeTree","Semantic","SemanticBuilder","SemanticNode","Symbol","SymbolFlags","SymbolTable"],"type":["AstNode"]};

@@ -28,7 +28,13 @@
 <a href="#28" id="28">28</a>
 <a href="#29" id="29">29</a>
 <a href="#30" id="30">30</a>
+<a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::fmt::Debug;
+
+<span class="kw">use </span>oxc_semantic::Symbol;
 
 <span class="kw">use crate</span>::{context::LintContext, AstNode};
 
@@ -45,7 +51,9 @@
         <span class="self">Self</span>::default()
     }
 
-    <span class="kw">fn </span>run&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;, _ctx: <span class="kw-2">&amp;</span>LintContext&lt;<span class="lifetime">&#39;a</span>&gt;);
+    <span class="kw">fn </span>run_on_symbol(<span class="kw-2">&amp;</span><span class="self">self</span>, _symbol: <span class="kw-2">&amp;</span>Symbol, _ctx: <span class="kw-2">&amp;</span>LintContext&lt;<span class="lifetime">&#39;_</span>&gt;) {}
+
+    <span class="kw">fn </span>run&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, _node: <span class="kw-2">&amp;</span>AstNode&lt;<span class="lifetime">&#39;a</span>&gt;, _ctx: <span class="kw-2">&amp;</span>LintContext&lt;<span class="lifetime">&#39;a</span>&gt;) {}
 }
 
 <span class="kw">pub trait </span>RuleMeta {

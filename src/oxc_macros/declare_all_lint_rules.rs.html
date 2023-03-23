@@ -126,6 +126,13 @@
 <a href="#126" id="126">126</a>
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
 </pre><pre class="rust"><code><span class="kw">use </span>convert_case::{Case, Casing};
 <span class="kw">use </span>proc_macro2::TokenStream;
 <span class="kw">use </span>quote::quote;
@@ -212,6 +219,7 @@
         #(#use_stmts)*
 
         <span class="kw">use crate</span>::{context::LintContext, rule::{Rule, RuleCategory}, rule::RuleMeta, AstNode};
+        <span class="kw">use </span>oxc_semantic::Symbol;
 
         <span class="attr">#[derive(Debug, Clone)]
         #[allow(clippy::enum_variant_names)]
@@ -244,6 +252,12 @@
                 <span class="kw">match </span><span class="self">self </span>{
                     #(<span class="self">Self</span>::#struct_names(rule) =&gt; rule.run(node, ctx)),*
                 }
+            }
+
+            <span class="kw">pub fn </span>run_on_symbol&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, symbol: <span class="kw-2">&amp;</span>Symbol, ctx: <span class="kw-2">&amp;</span>LintContext&lt;<span class="lifetime">&#39;a</span>&gt;) {
+              <span class="kw">match </span><span class="self">self </span>{
+                #(<span class="self">Self</span>::#struct_names(rule) =&gt; rule.run_on_symbol(symbol, ctx)),*
+              }
             }
         }
 

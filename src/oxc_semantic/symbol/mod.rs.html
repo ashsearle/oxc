@@ -81,6 +81,30 @@
 <a href="#81" id="81">81</a>
 <a href="#82" id="82">82</a>
 <a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Symbol and Symbol Table for tracking of semantics of variables
 </span><span class="attr">#![allow(non_upper_case_globals)]
 
@@ -93,9 +117,10 @@
 
 <span class="kw">pub use </span><span class="self">self</span>::{
     id::SymbolId,
-    reference::{Reference, ReferenceFlag},
+    reference::{Reference, ReferenceFlag, ResolvedReference},
     table::SymbolTable,
 };
+<span class="kw">use </span><span class="kw">crate</span>::node::AstNodeId;
 
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Symbol {
@@ -103,13 +128,14 @@
     name: Atom,
     span: Span,
     flags: SymbolFlags,
+    references: Vec&lt;AstNodeId&gt;,
 }
 
 <span class="attr">#[cfg(all(target_arch = <span class="string">&quot;x86_64&quot;</span>, target_pointer_width = <span class="string">&quot;64&quot;</span>))]
 #[test]
 </span><span class="kw">fn </span>symbol_size() {
     <span class="kw">use </span>std::mem::size_of;
-    <span class="macro">assert_eq!</span>(size_of::&lt;Symbol&gt;(), <span class="number">48</span>);
+    <span class="macro">assert_eq!</span>(size_of::&lt;Symbol&gt;(), <span class="number">72</span>);
 }
 
 <span class="macro">bitflags! </span>{
@@ -120,6 +146,8 @@
         </span><span class="kw">const </span>FunctionScopedVariable  = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>;
         <span class="doccomment">/// A block-scoped variable (let or const)
         </span><span class="kw">const </span>BlockScopedVariable     = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>;
+        <span class="doccomment">/// A const variable (const)
+        </span><span class="kw">const </span>ConstVariable           = <span class="number">1 </span>&lt;&lt; <span class="number">2</span>;
         <span class="kw">const </span>Class                   = <span class="number">1 </span>&lt;&lt; <span class="number">5</span>;
         <span class="kw">const </span>CatchVariable           = <span class="number">1 </span>&lt;&lt; <span class="number">6</span>; <span class="comment">// try {} catch(catch_variable) {}
 
@@ -141,7 +169,7 @@
 <span class="kw">impl </span>Symbol {
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>new(id: SymbolId, name: Atom, span: Span, flags: SymbolFlags) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ id, name, span, flags }
+        <span class="self">Self </span>{ id, name, span, flags, references: <span class="macro">vec!</span>[] }
     }
 
     <span class="attr">#[must_use]
@@ -162,6 +190,26 @@
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SymbolFlags {
         <span class="self">self</span>.flags
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>is_const(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.flags.contains(SymbolFlags::ConstVariable)
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>is_let(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.flags.contains(SymbolFlags::BlockScopedVariable)
+            &amp;&amp; !<span class="self">self</span>.flags.contains(SymbolFlags::ConstVariable)
+    }
+
+    <span class="kw">pub fn </span>add_references(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_references: <span class="kw-2">&amp;</span>[Reference]) {
+        <span class="self">self</span>.references.extend(new_references.iter().map(|r| r.ast_node_id));
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>references(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[AstNodeId] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.references
     }
 }
 </code></pre></div>

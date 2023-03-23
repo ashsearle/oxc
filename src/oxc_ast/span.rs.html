@@ -408,7 +408,7 @@
 <span class="kw">impl </span>Span {
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>new(start: u32, end: u32) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>new(start: u32, end: u32) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ start, end }
     }
 

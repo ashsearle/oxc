@@ -398,9 +398,6 @@
 <a href="#398" id="398">398</a>
 <a href="#399" id="399">399</a>
 <a href="#400" id="400">400</a>
-<a href="#401" id="401">401</a>
-<a href="#402" id="402">402</a>
-<a href="#403" id="403">403</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
 
 <span class="kw">use </span>oxc_ast::Span;
@@ -535,54 +532,51 @@
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;End&quot;</span>)]
     </span><span class="kw">struct </span>InsertAtEnd;
-    <span class="kw">const </span>INSERT_AT_END: Fix =
-        Fix { span: Span { start: <span class="number">19</span>, end: <span class="number">19 </span>}, content: Cow::Borrowed(<span class="string">&quot;// end&quot;</span>) };
+    <span class="kw">const </span>INSERT_AT_END: Fix = Fix { span: Span::new(<span class="number">19</span>, <span class="number">19</span>), content: Cow::Borrowed(<span class="string">&quot;// end&quot;</span>) };
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;Start&quot;</span>)]
     </span><span class="kw">struct </span>InsertAtStart;
-    <span class="kw">const </span>INSERT_AT_START: Fix =
-        Fix { span: Span { start: <span class="number">0</span>, end: <span class="number">0 </span>}, content: Cow::Borrowed(<span class="string">&quot;// start&quot;</span>) };
+    <span class="kw">const </span>INSERT_AT_START: Fix = Fix { span: Span::new(<span class="number">0</span>, <span class="number">0</span>), content: Cow::Borrowed(<span class="string">&quot;// start&quot;</span>) };
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;Multiply&quot;</span>)]
     </span><span class="kw">struct </span>InsertAtMiddle;
-    <span class="kw">const </span>INSERT_AT_MIDDLE: Fix =
-        Fix { span: Span { start: <span class="number">13</span>, end: <span class="number">13 </span>}, content: Cow::Borrowed(<span class="string">&quot;5 *&quot;</span>) };
+    <span class="kw">const </span>INSERT_AT_MIDDLE: Fix = Fix { span: Span::new(<span class="number">13</span>, <span class="number">13</span>), content: Cow::Borrowed(<span class="string">&quot;5 *&quot;</span>) };
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;foo&quot;</span>)]
     </span><span class="kw">struct </span>ReplaceId;
-    <span class="kw">const </span>REPLACE_ID: Fix = Fix { span: Span { start: <span class="number">4</span>, end: <span class="number">10 </span>}, content: Cow::Borrowed(<span class="string">&quot;foo&quot;</span>) };
+    <span class="kw">const </span>REPLACE_ID: Fix = Fix { span: Span::new(<span class="number">4</span>, <span class="number">10</span>), content: Cow::Borrowed(<span class="string">&quot;foo&quot;</span>) };
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;let&quot;</span>)]
     </span><span class="kw">struct </span>ReplaceVar;
-    <span class="kw">const </span>REPLACE_VAR: Fix = Fix { span: Span { start: <span class="number">0</span>, end: <span class="number">3 </span>}, content: Cow::Borrowed(<span class="string">&quot;let&quot;</span>) };
+    <span class="kw">const </span>REPLACE_VAR: Fix = Fix { span: Span::new(<span class="number">0</span>, <span class="number">3</span>), content: Cow::Borrowed(<span class="string">&quot;let&quot;</span>) };
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;5&quot;</span>)]
     </span><span class="kw">struct </span>ReplaceNum;
-    <span class="kw">const </span>REPLACE_NUM: Fix = Fix { span: Span { start: <span class="number">13</span>, end: <span class="number">14 </span>}, content: Cow::Borrowed(<span class="string">&quot;5&quot;</span>) };
+    <span class="kw">const </span>REPLACE_NUM: Fix = Fix { span: Span::new(<span class="number">13</span>, <span class="number">14</span>), content: Cow::Borrowed(<span class="string">&quot;5&quot;</span>) };
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;removestart&quot;</span>)]
     </span><span class="kw">struct </span>RemoveStart;
-    <span class="kw">const </span>REMOVE_START: Fix = Fix::delete(Span { start: <span class="number">0</span>, end: <span class="number">4 </span>});
+    <span class="kw">const </span>REMOVE_START: Fix = Fix::delete(Span::new(<span class="number">0</span>, <span class="number">4</span>));
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;removemiddle&quot;</span>)]
     </span><span class="kw">struct </span>RemoveMiddle(<span class="attr">#[label] </span><span class="kw">pub </span>Span);
-    <span class="kw">const </span>REMOVE_MIDDLE: Fix = Fix::delete(Span { start: <span class="number">5</span>, end: <span class="number">10 </span>});
+    <span class="kw">const </span>REMOVE_MIDDLE: Fix = Fix::delete(Span::new(<span class="number">5</span>, <span class="number">10</span>));
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;removeend&quot;</span>)]
     </span><span class="kw">struct </span>RemoveEnd;
-    <span class="kw">const </span>REMOVE_END: Fix = Fix::delete(Span { start: <span class="number">14</span>, end: <span class="number">18 </span>});
+    <span class="kw">const </span>REMOVE_END: Fix = Fix::delete(Span::new(<span class="number">14</span>, <span class="number">18</span>));
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;reversed range&quot;</span>)]
     </span><span class="kw">struct </span>ReverseRange;
-    <span class="kw">const </span>REVERSE_RANGE: Fix = Fix { span: Span { start: <span class="number">3</span>, end: <span class="number">0 </span>}, content: Cow::Borrowed(<span class="string">&quot; &quot;</span>) };
+    <span class="kw">const </span>REVERSE_RANGE: Fix = Fix { span: Span::new(<span class="number">3</span>, <span class="number">0</span>), content: Cow::Borrowed(<span class="string">&quot; &quot;</span>) };
 
     <span class="attr">#[derive(Debug, Error, Diagnostic)]
     #[error(<span class="string">&quot;nofix&quot;</span>)]

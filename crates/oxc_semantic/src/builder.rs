@@ -10,7 +10,7 @@ use oxc_diagnostics::{Error, Redeclaration};
 
 use crate::{
     binder::Binder,
-    jsdoc::JsDoc,
+    jsdoc::JsDocBuilder,
     module_record::ModuleRecordBuilder,
     node::{AstNodeId, AstNodes, NodeFlags, SemanticNode},
     scope::{ScopeBuilder, ScopeId},
@@ -37,6 +37,7 @@ pub struct SemanticBuilder<'a> {
     pub scope: ScopeBuilder,
     pub symbols: SymbolTable,
     module_record_builder: ModuleRecordBuilder,
+    jsdoc: JsDocBuilder<'a>,
 }
 
 pub struct SemanticBuilderReturn<'a> {
@@ -63,6 +64,7 @@ impl<'a> SemanticBuilder<'a> {
             scope,
             symbols: SymbolTable::default(),
             module_record_builder: ModuleRecordBuilder::default(),
+            jsdoc: JsDocBuilder::new(source_text, trivias),
         }
     }
 
@@ -86,7 +88,7 @@ impl<'a> SemanticBuilder<'a> {
             scopes: self.scope.scopes,
             symbols: self.symbols,
             module_record,
-            jsdoc: JsDoc::new(self.source_text),
+            jsdoc: self.jsdoc.build(),
         };
         SemanticBuilderReturn { semantic, errors: self.errors }
     }
@@ -107,10 +109,12 @@ impl<'a> SemanticBuilder<'a> {
     }
 
     fn create_ast_node(&mut self, kind: AstKind<'a>) {
-        let ast_node =
-            SemanticNode::new(kind, self.scope.current_scope_id, self.current_node_flags);
+        let mut flags = self.current_node_flags;
+        if self.jsdoc.retrieved_jsdoc_comment(kind) {
+            flags |= NodeFlags::JsDoc;
+        }
+        let ast_node = SemanticNode::new(kind, self.scope.current_scope_id, flags);
         let node_id = self.current_node_id.append_value(ast_node, &mut self.nodes);
-
         self.current_node_id = node_id.into();
     }
 

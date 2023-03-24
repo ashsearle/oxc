@@ -1,7 +1,5 @@
 use std::{borrow::Cow, str::FromStr};
 
-use oxc_ast::Span;
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum JsDocTagKind {
     Deprecated,
@@ -27,12 +25,13 @@ pub struct JsDocTag<'a> {
 }
 
 impl<'a> JsDocTag<'a> {
+    #[must_use]
     pub fn is_deprecated(&self) -> bool {
         matches!(self.kind, JsDocTagKind::Deprecated)
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct JsDocParser<'a> {
     source_text: &'a str,
     current: usize,
@@ -43,44 +42,8 @@ impl<'a> JsDocParser<'a> {
         Self { source_text, current: 0 }
     }
 
-    // Given the span of a node, find the start of the comment that precedes it.
-    fn get_comment_span(&self, span: Span) -> Option<Span> {
-        let mut in_comment = false;
-        let mut end = span.start as usize;
-        let mut index = span.start as usize;
-
-        while index > 0 {
-            let Some(c) = self.source_text.chars().nth(index) else { return None };
-
-            match c {
-                '*' => {
-                    match (
-                        self.source_text.chars().nth(index - 1),
-                        self.source_text.chars().nth(index - 2),
-                    ) {
-                        (Some('*'), Some('/')) => {
-                            index -= 2;
-                            break;
-                        }
-                        _ => {
-                            index -= 1;
-                        }
-                    }
-                }
-                '/' => {
-                    if !in_comment {
-                        in_comment = true;
-                        end = index;
-                        index -= 1;
-                    }
-                }
-                _ => {
-                    index -= 1;
-                }
-            }
-        }
-
-        Some(Span::new(u32::try_from(index).unwrap(), u32::try_from(end).unwrap()))
+    pub fn parse(mut self) -> Vec<JsDocTag<'a>> {
+        self.parse_comment(self.source_text)
     }
 
     fn take_until(&mut self, s: &'a str, predicate: fn(char) -> bool) -> &'a str {
@@ -101,13 +64,6 @@ impl<'a> JsDocParser<'a> {
             }
             self.current += 1;
         }
-    }
-
-    pub fn parse(&mut self, span: Span) -> Vec<JsDocTag<'a>> {
-        let Some(comment_span) = self.get_comment_span(span) else { return vec![] };
-        self.parse_comment(
-            &self.source_text[comment_span.start as usize..=comment_span.end as usize],
-        )
     }
 
     fn parse_comment(&mut self, comment: &'a str) -> Vec<JsDocTag<'a>> {
@@ -144,41 +100,14 @@ impl<'a> JsDocParser<'a> {
 mod test {
     use std::borrow::Cow;
 
-    use oxc_ast::Span;
-
     use super::JsDocParser;
     use crate::jsdoc::parser::{JsDocTag, JsDocTagKind};
 
     #[test]
-    fn gets_comment_span() {
-        let source = r#"/**
-        * @deprecated
-        */
-        function foo() {}"#;
-
-        let parser = JsDocParser::new(source);
-        let function_span = Span::new(
-            u32::try_from(source.find("function").unwrap()).unwrap(),
-            u32::try_from(source.find('}').unwrap()).unwrap(),
-        );
-
-        let comment_span = Span::new(
-            u32::try_from(source.find("/*").unwrap()).unwrap(),
-            u32::try_from(source.match_indices('/').last().unwrap().0).unwrap(),
-        );
-        assert_eq!(parser.get_comment_span(function_span).unwrap(), comment_span);
-    }
-
-    #[test]
     fn parses_single_line_jsdoc() {
-        let source = r#"/** @deprecated */
-        function foo() {}"#;
+        let source = "/** @deprecated */";
 
-        let mut parser = JsDocParser::new(source);
-        let tags = parser.parse(Span::new(
-            u32::try_from(source.find("function").unwrap()).unwrap(),
-            u32::try_from(source.find('}').unwrap()).unwrap(),
-        ));
+        let tags = JsDocParser::new(source).parse();
         assert_eq!(tags.len(), 1);
         assert_eq!(
             tags,
@@ -190,13 +119,9 @@ mod test {
     fn parses_multi_line_disjoint_jsdoc() {
         let source = r#"/** @deprecated
         */
-        function foo() {}"#;
+        "#;
 
-        let mut parser = JsDocParser::new(source);
-        let tags = parser.parse(Span::new(
-            u32::try_from(source.find("function").unwrap()).unwrap(),
-            u32::try_from(source.find('}').unwrap()).unwrap(),
-        ));
+        let tags = JsDocParser::new(source).parse();
         assert_eq!(tags.len(), 1);
         assert_eq!(
             tags,
@@ -210,14 +135,9 @@ mod test {
         * @param a
         * @deprecated
         */
-       function foo(a) {}"#;
+       "#;
 
-        let start = source.find("function").unwrap();
-        let end = source.find('}').unwrap();
-
-        let mut parser = JsDocParser::new(source);
-        let tags =
-            parser.parse(Span::new(u32::try_from(start).unwrap(), u32::try_from(end).unwrap()));
+        let tags = JsDocParser::new(source).parse();
         assert_eq!(tags.len(), 2);
         assert_eq!(
             tags,
@@ -234,14 +154,9 @@ mod test {
         * @param a
         * @deprecated since version 1.0
         */
-       function foo(a) {}"#;
+       "#;
 
-        let start = source.find("function").unwrap();
-        let end = source.find('}').unwrap();
-
-        let mut parser = JsDocParser::new(source);
-        let tags =
-            parser.parse(Span::new(u32::try_from(start).unwrap(), u32::try_from(end).unwrap()));
+        let tags = JsDocParser::new(source).parse();
         assert_eq!(tags.len(), 2);
         assert_eq!(
             tags,

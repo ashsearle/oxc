@@ -57,17 +57,6 @@ impl Trivias {
         self.comments.range(span.start..span.end).count() > 0
     }
 
-    #[must_use]
-    pub fn get_leading_comment_span(&self, span: Span) -> Option<Span> {
-        let comments = self.comments.range(..span.start);
-        match comments.last() {
-            Some((start, comment)) if comment.end() + 2 == span.start => {
-                Some(Span::new(*start, comment.end()))
-            }
-            _ => None,
-        }
-    }
-
     pub fn add_comment(&mut self, span: Span, kind: CommentKind) {
         let comment = Comment::new(span.end, kind);
         self.comments.insert(span.start, comment);

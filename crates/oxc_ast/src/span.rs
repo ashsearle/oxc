@@ -37,6 +37,11 @@ impl Span {
     pub fn source_text<'a>(&self, source_text: &'a str) -> &'a str {
         &source_text[self.start as usize..self.end as usize]
     }
+
+    #[must_use]
+    pub fn leading_text<'a>(&self, source_text: &'a str) -> &'a str {
+        &source_text[..self.start as usize]
+    }
 }
 
 // #[allow(clippy::derive_hash_xor_eq)]

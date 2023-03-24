@@ -12,7 +12,7 @@ mod symbol;
 use std::rc::Rc;
 
 pub use builder::SemanticBuilder;
-use jsdoc::JsDoc;
+pub use jsdoc::{JsDoc, JsDocTag};
 pub use node::{AstNode, AstNodes, SemanticNode};
 use oxc_ast::{module_record::ModuleRecord, SourceType, Trivias};
 pub use scope::{Scope, ScopeFlags, ScopeTree};

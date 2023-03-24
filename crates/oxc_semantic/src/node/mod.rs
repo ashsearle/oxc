@@ -23,8 +23,6 @@ pub struct SemanticNode<'a> {
     scope_id: ScopeId,
 
     flags: NodeFlags,
-
-    jsdoc: Option<JsDoc<'a>>,
 }
 
 bitflags! {
@@ -36,13 +34,8 @@ bitflags! {
 
 impl<'a> SemanticNode<'a> {
     #[must_use]
-    pub fn new(
-        kind: AstKind<'a>,
-        scope_id: ScopeId,
-        flags: NodeFlags,
-        jsdoc: Option<JsDoc>,
-    ) -> Self {
-        Self { kind, scope_id, flags, jsdoc }
+    pub fn new(kind: AstKind<'a>, scope_id: ScopeId, flags: NodeFlags) -> Self {
+        Self { kind, scope_id, flags }
     }
 
     #[must_use]
@@ -51,8 +44,8 @@ impl<'a> SemanticNode<'a> {
     }
 
     #[must_use]
-    pub fn jsdoc(&self) -> Option<JsDoc> {
-        self.jsdoc
+    pub fn has_jsdoc(&self) -> bool {
+        false
     }
 
     #[must_use]

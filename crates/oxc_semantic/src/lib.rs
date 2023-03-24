@@ -1,6 +1,5 @@
 #![feature(is_some_and)]
 #![feature(let_chains)]
-#![feature(once_cell)]
 
 mod binder;
 mod builder;
@@ -12,6 +11,7 @@ mod symbol;
 use std::rc::Rc;
 
 pub use builder::SemanticBuilder;
+use node::JsDoc;
 pub use node::{AstNode, AstNodes, SemanticNode};
 use oxc_ast::{module_record::ModuleRecord, SourceType, Trivias};
 pub use scope::{Scope, ScopeFlags, ScopeTree};
@@ -29,6 +29,8 @@ pub struct Semantic<'a> {
     trivias: Rc<Trivias>,
 
     module_record: ModuleRecord,
+
+    jsdoc: JsDoc<'a>,
 }
 
 impl<'a> Semantic<'a> {
@@ -50,6 +52,11 @@ impl<'a> Semantic<'a> {
     #[must_use]
     pub fn trivias(&self) -> &Trivias {
         &self.trivias
+    }
+
+    #[must_use]
+    pub fn jsdoc(&self) -> &JsDoc<'a> {
+        &self.jsdoc
     }
 
     #[must_use]

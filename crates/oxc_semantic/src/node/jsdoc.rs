@@ -1,16 +1,19 @@
-use std::cell::OnceCell;
+use std::{borrow::Cow, cell::RefCell};
 
-use oxc_ast::Span;
+use oxc_ast::{GetSpan, Span};
+use rustc_hash::FxHashMap;
+
+use crate::AstNode;
 
 #[derive(Debug, Clone, Copy)]
 pub enum JsDocTagKind {
     Deprecated,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct JsDocTag<'a> {
     pub kind: JsDocTagKind,
-    pub value: &'a str,
+    pub value: Cow<'a, str>,
 }
 
 impl<'a> JsDocTag<'a> {
@@ -19,37 +22,60 @@ impl<'a> JsDocTag<'a> {
     }
 }
 
-pub type JsDocParser<'a> = fn(&'a str) -> Vec<JsDocTag<'a>>;
+#[derive(Debug, Clone)]
+pub struct JsDocParser<'a> {
+    source_text: &'a str,
+}
 
-#[derive(Debug, Clone, Copy)]
+impl<'a> JsDocParser<'a> {
+    pub fn new(source_text: &'a str) -> Self {
+        Self { source_text }
+    }
+
+    fn parse(&mut self, span: Span) -> Vec<JsDocTag<'a>> {
+        todo!()
+    }
+}
+
+#[derive(Default, Debug, Clone)]
 pub struct JsDoc<'a> {
-    parser: OnceCell<JsDocParser<'a>>,
+    source_text: &'a str,
+
+    // Cached parsed jsdoc, keyed by span start
+    parsed: RefCell<FxHashMap<u32, Vec<JsDocTag<'a>>>>,
 }
 
 impl<'a> JsDoc<'a> {
-    pub fn new(span: Span) -> Self {
-        let parser: OnceCell<JsDocParser<'a>> = OnceCell::new();
-        parser.set(|source_text| Self::parse_comments(source_text, span));
-
-        Self { parser }
-    }
-
-    fn parse_comments(source_text: &'a str, span: Span) -> Vec<JsDocTag> {
-        let mut tags = Vec::new();
-        let comment = &source_text[span.start as usize..span.end as usize];
-
-        for line in comment.lines() {
-            let line = line.trim().trim_start_matches("* ");
-            if line.starts_with("@deprecated") {
-                let value = line.trim_start_matches("@deprecated").trim();
-                tags.push(JsDocTag { kind: JsDocTagKind::Deprecated, value });
-            }
+    pub fn get(&self, node: &AstNode<'a>) -> Option<Vec<JsDocTag<'a>>> {
+        if !node.get().has_jsdoc() {
+            return None;
         }
 
-        tags
+        let span = node.get().kind().span();
+        if let Some(parsed) = self.parsed.borrow().get(&span.start) {
+            Some(parsed.to_vec())
+        } else {
+            let mut parser = JsDocParser::new(self.source_text);
+            let parsed_jsdoc = parser.parse(span);
+            self.parsed.borrow_mut().insert(span.start, parsed_jsdoc.to_vec());
+            Some(parsed_jsdoc)
+        }
     }
+}
 
-    pub fn tags(self, source_text: &str) -> Vec<JsDocTag> {
-        self.parser.get().map(|get_tags| get_tags(source_text)).unwrap_or_default()
+#[cfg(test)]
+mod test {
+    use oxc_ast::Span;
+
+    use super::JsDocParser;
+
+    #[test]
+    fn parses_single_line_jsdoc() {
+        let source = r#"/** @deprecated */
+        function foo() {}"#;
+
+        let mut parser = JsDocParser::new(source);
+        let tags = parser.parse(Span::new(20, 37));
+        assert_eq!(tags.len(), 1);
     }
 }

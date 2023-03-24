@@ -47,7 +47,7 @@ impl<'a> SemanticBuilder<'a> {
         let scope = ScopeBuilder::new(source_type);
         let mut nodes = AstNodes::default();
         let semantic_node =
-            SemanticNode::new(AstKind::Root, scope.current_scope_id, NodeFlags::empty(), None);
+            SemanticNode::new(AstKind::Root, scope.current_scope_id, NodeFlags::empty());
         let current_node_id = nodes.new_node(semantic_node).into();
         Self {
             source_type,
@@ -87,6 +87,7 @@ impl<'a> SemanticBuilder<'a> {
             symbols: self.symbols,
             trivias: Rc::clone(trivias),
             module_record,
+            jsdoc: JsDoc::default(),
         };
         SemanticBuilderReturn { semantic, errors: self.errors }
     }
@@ -106,9 +107,9 @@ impl<'a> SemanticBuilder<'a> {
         parent_node.kind()
     }
 
-    fn create_ast_node(&mut self, kind: AstKind<'a>, jsdoc: Option<JsDoc>) {
+    fn create_ast_node(&mut self, kind: AstKind<'a>) {
         let ast_node =
-            SemanticNode::new(kind, self.scope.current_scope_id, self.current_node_flags, jsdoc);
+            SemanticNode::new(kind, self.scope.current_scope_id, self.current_node_flags);
         let node_id = self.current_node_id.append_value(ast_node, &mut self.nodes);
 
         self.current_node_id = node_id.into();
@@ -179,8 +180,7 @@ impl<'a> Visit<'a> for SemanticBuilder<'a> {
         self.try_enter_scope(kind);
 
         // create new self.current_node_id
-        let jsdoc = self.trivias.get_leading_comment_span(kind.span()).map(JsDoc::new);
-        self.create_ast_node(kind, jsdoc);
+        self.create_ast_node(kind);
 
         self.enter_kind(kind);
     }

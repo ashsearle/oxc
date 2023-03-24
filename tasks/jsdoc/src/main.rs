@@ -18,16 +18,12 @@ fn main() {
     let program = allocator.alloc(ret.program);
     let trivias = Rc::new(ret.trivias);
 
-    let semantic = SemanticBuilder::new(source_type).build(program, &trivias).semantic;
+    let ctx = SemanticBuilder::new(source_type).build(program, &trivias);
 
-    for node in semantic.nodes().iter() {
-        let node = node.get();
-        if let Some(jsdoc) = node.jsdoc() {
-            for tag in jsdoc.tags(&file) {
-                if tag.is_deprecated() {
-                    println!("{}", tag.value);
-                }
-            }
+    for node in ctx.semantic.nodes().iter() {
+        let parsed_jsdoc = ctx.semantic.jsdoc().get(node);
+        if let Some(parsed_jsdoc) = parsed_jsdoc {
+            println!("{parsed_jsdoc:?}");
         }
     }
 }

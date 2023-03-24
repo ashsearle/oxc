@@ -10,6 +10,7 @@ use oxc_diagnostics::{Error, Redeclaration};
 
 use crate::{
     binder::Binder,
+    jsdoc::JsDocBuilder,
     module_record::ModuleRecordBuilder,
     node::{AstNodeId, AstNodes, JsDoc, NodeFlags, SemanticNode},
     scope::{ScopeBuilder, ScopeId},
@@ -34,6 +35,7 @@ pub struct SemanticBuilder<'a> {
     pub scope: ScopeBuilder,
     pub symbols: SymbolTable,
     module_record_builder: ModuleRecordBuilder,
+    jsdoc: JsDocBuilder,
 }
 
 pub struct SemanticBuilderReturn<'a> {
@@ -43,7 +45,7 @@ pub struct SemanticBuilderReturn<'a> {
 
 impl<'a> SemanticBuilder<'a> {
     #[must_use]
-    pub fn new(source_type: SourceType) -> Self {
+    pub fn new(source_type: SourceType, trivias: &Rc<Trivias>) -> Self {
         let scope = ScopeBuilder::new(source_type);
         let mut nodes = AstNodes::default();
         let semantic_node =
@@ -52,13 +54,14 @@ impl<'a> SemanticBuilder<'a> {
         Self {
             source_type,
             errors: vec![],
-            trivias: Rc::new(Trivias::default()),
+            trivias: Rc::clone(trivias),
             current_node_id,
             current_node_flags: NodeFlags::empty(),
             nodes,
             scope,
             symbols: SymbolTable::default(),
             module_record_builder: ModuleRecordBuilder::default(),
+            jsdoc: JsDocBuilder::new(trivias),
         }
     }
 
@@ -67,13 +70,7 @@ impl<'a> SemanticBuilder<'a> {
     }
 
     #[must_use]
-    pub fn build(
-        mut self,
-        program: &'a Program<'a>,
-        trivias: &Rc<Trivias>,
-    ) -> SemanticBuilderReturn<'a> {
-        self.trivias = Rc::clone(trivias);
-
+    pub fn build(mut self, program: &'a Program<'a>) -> SemanticBuilderReturn<'a> {
         // First AST pass
         self.visit_program(program);
 
@@ -85,7 +82,7 @@ impl<'a> SemanticBuilder<'a> {
             nodes: self.nodes,
             scopes: self.scope.scopes,
             symbols: self.symbols,
-            trivias: Rc::clone(trivias),
+            trivias: self.trivias,
             module_record,
             jsdoc: JsDoc::default(),
         };
@@ -194,6 +191,7 @@ impl<'a> Visit<'a> for SemanticBuilder<'a> {
 
 impl<'a> SemanticBuilder<'a> {
     fn enter_kind(&mut self, kind: AstKind<'a>) {
+        self.jsdoc.enter_kind(kind);
         match kind {
             AstKind::ModuleDeclaration(decl) => {
                 decl.bind(self);

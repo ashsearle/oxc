@@ -59,7 +59,7 @@ impl Trivias {
 
     #[must_use]
     pub fn get_leading_comment_span(&self, span: Span) -> Option<Span> {
-        let comments = self.comments.range(..span.start);
+        let comments = dbg!(self.comments.range(..span.start));
         match comments.last() {
             Some((start, comment)) if comment.end() + 2 == span.start => {
                 Some(Span::new(*start, comment.end()))

@@ -24,7 +24,7 @@ pub struct SemanticNode<'a> {
 
     flags: NodeFlags,
 
-    jsdoc: Option<JsDoc>,
+    jsdoc: Option<JsDoc<'a>>,
 }
 
 bitflags! {

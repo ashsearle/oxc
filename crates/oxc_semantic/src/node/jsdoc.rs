@@ -1,3 +1,5 @@
+use std::cell::OnceCell;
+
 use oxc_ast::Span;
 
 #[derive(Debug, Clone, Copy)]
@@ -17,19 +19,24 @@ impl<'a> JsDocTag<'a> {
     }
 }
 
+pub type JsDocParser<'a> = fn(&'a str) -> Vec<JsDocTag<'a>>;
+
 #[derive(Debug, Clone, Copy)]
-pub struct JsDoc {
-    pub span: Span,
+pub struct JsDoc<'a> {
+    parser: OnceCell<JsDocParser<'a>>,
 }
 
-impl JsDoc {
+impl<'a> JsDoc<'a> {
     pub fn new(span: Span) -> Self {
-        Self { span }
+        let parser: OnceCell<JsDocParser<'a>> = OnceCell::new();
+        parser.set(|source_text| Self::parse_comments(source_text, span));
+
+        Self { parser }
     }
 
-    pub fn tags(self, source_text: &str) -> Vec<JsDocTag> {
+    fn parse_comments(source_text: &'a str, span: Span) -> Vec<JsDocTag> {
         let mut tags = Vec::new();
-        let comment = &source_text[self.span.start as usize..self.span.end as usize];
+        let comment = &source_text[span.start as usize..span.end as usize];
 
         for line in comment.lines() {
             let line = line.trim().trim_start_matches("* ");
@@ -40,5 +47,9 @@ impl JsDoc {
         }
 
         tags
+    }
+
+    pub fn tags(self, source_text: &str) -> Vec<JsDocTag> {
+        self.parser.get().map(|get_tags| get_tags(source_text)).unwrap_or_default()
     }
 }

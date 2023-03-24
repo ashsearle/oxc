@@ -1,12 +1,13 @@
 #![allow(non_upper_case_globals)] // for bitflags
 
 mod id;
+mod jsdoc;
 mod tree;
 
 use bitflags::bitflags;
 use oxc_ast::AstKind;
 
-pub use self::{id::AstNodeId, tree::AstNodes};
+pub use self::{id::AstNodeId, jsdoc::JsDoc, tree::AstNodes};
 use crate::scope::{Scope, ScopeId};
 
 /// Indextree node containing a semantic node
@@ -22,6 +23,8 @@ pub struct SemanticNode<'a> {
     scope_id: ScopeId,
 
     flags: NodeFlags,
+
+    jsdoc: Option<JsDoc>,
 }
 
 bitflags! {
@@ -33,13 +36,23 @@ bitflags! {
 
 impl<'a> SemanticNode<'a> {
     #[must_use]
-    pub fn new(kind: AstKind<'a>, scope_id: ScopeId, flags: NodeFlags) -> Self {
-        Self { kind, scope_id, flags }
+    pub fn new(
+        kind: AstKind<'a>,
+        scope_id: ScopeId,
+        flags: NodeFlags,
+        jsdoc: Option<JsDoc>,
+    ) -> Self {
+        Self { kind, scope_id, flags, jsdoc }
     }
 
     #[must_use]
     pub fn kind(&self) -> AstKind<'a> {
         self.kind
+    }
+
+    #[must_use]
+    pub fn jsdoc(&self) -> Option<JsDoc> {
+        self.jsdoc
     }
 
     #[must_use]

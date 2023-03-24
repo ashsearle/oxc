@@ -11,7 +11,7 @@ use oxc_diagnostics::{Error, Redeclaration};
 use crate::{
     binder::Binder,
     module_record::ModuleRecordBuilder,
-    node::{AstNodeId, AstNodes, NodeFlags, SemanticNode},
+    node::{AstNodeId, AstNodes, JsDoc, NodeFlags, SemanticNode},
     scope::{ScopeBuilder, ScopeId},
     symbol::{Reference, ReferenceFlag, SymbolFlags, SymbolId, SymbolTable},
     Semantic,
@@ -22,6 +22,8 @@ pub struct SemanticBuilder<'a> {
 
     /// Semantic early errors such as redeclaration errors.
     errors: Vec<Error>,
+
+    trivias: Rc<Trivias>,
 
     // states
     pub current_node_id: AstNodeId,
@@ -45,11 +47,12 @@ impl<'a> SemanticBuilder<'a> {
         let scope = ScopeBuilder::new(source_type);
         let mut nodes = AstNodes::default();
         let semantic_node =
-            SemanticNode::new(AstKind::Root, scope.current_scope_id, NodeFlags::empty());
+            SemanticNode::new(AstKind::Root, scope.current_scope_id, NodeFlags::empty(), None);
         let current_node_id = nodes.new_node(semantic_node).into();
         Self {
             source_type,
             errors: vec![],
+            trivias: Rc::new(Trivias::default()),
             current_node_id,
             current_node_flags: NodeFlags::empty(),
             nodes,
@@ -69,6 +72,8 @@ impl<'a> SemanticBuilder<'a> {
         program: &'a Program<'a>,
         trivias: &Rc<Trivias>,
     ) -> SemanticBuilderReturn<'a> {
+        self.trivias = Rc::clone(trivias);
+
         // First AST pass
         self.visit_program(program);
 
@@ -101,9 +106,9 @@ impl<'a> SemanticBuilder<'a> {
         parent_node.kind()
     }
 
-    fn create_ast_node(&mut self, kind: AstKind<'a>) {
+    fn create_ast_node(&mut self, kind: AstKind<'a>, jsdoc: Option<JsDoc>) {
         let ast_node =
-            SemanticNode::new(kind, self.scope.current_scope_id, self.current_node_flags);
+            SemanticNode::new(kind, self.scope.current_scope_id, self.current_node_flags, jsdoc);
         let node_id = self.current_node_id.append_value(ast_node, &mut self.nodes);
 
         self.current_node_id = node_id.into();
@@ -174,7 +179,8 @@ impl<'a> Visit<'a> for SemanticBuilder<'a> {
         self.try_enter_scope(kind);
 
         // create new self.current_node_id
-        self.create_ast_node(kind);
+        let jsdoc = self.trivias.get_leading_comment_span(kind.span()).map(JsDoc::new);
+        self.create_ast_node(kind, jsdoc);
 
         self.enter_kind(kind);
     }

@@ -1,5 +1,6 @@
 #![feature(is_some_and)]
 #![feature(let_chains)]
+#![feature(once_cell)]
 
 mod binder;
 mod builder;

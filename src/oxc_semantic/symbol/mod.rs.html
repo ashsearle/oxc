@@ -105,6 +105,11 @@
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Symbol and Symbol Table for tracking of semantics of variables
 </span><span class="attr">#![allow(non_upper_case_globals)]
 
@@ -201,6 +206,11 @@
     </span><span class="kw">pub fn </span>is_let(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.flags.contains(SymbolFlags::BlockScopedVariable)
             &amp;&amp; !<span class="self">self</span>.flags.contains(SymbolFlags::ConstVariable)
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>is_class(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.flags.contains(SymbolFlags::Class)
     }
 
     <span class="kw">pub fn </span>add_references(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_references: <span class="kw-2">&amp;</span>[Reference]) {

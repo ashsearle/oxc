@@ -186,7 +186,6 @@
 <a href="#186" id="186">186</a>
 <a href="#187" id="187">187</a>
 <a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Declare symbol for `BindingIdentifier`s
 
 </span><span class="attr">#[allow(clippy::wildcard_imports)]
@@ -255,8 +254,7 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Binder <span class="kw">for </span>Class&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>bind(<span class="kw-2">&amp;</span><span class="self">self</span>, builder: <span class="kw-2">&amp;mut </span>SemanticBuilder) {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(ident) = <span class="kw-2">&amp;</span><span class="self">self</span>.id
-            &amp;&amp; <span class="self">self</span>.r#type == ClassType::ClassDeclaration &amp;&amp; !<span class="self">self</span>.modifiers.contains(ModifierKind::Declare) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(ident) = <span class="kw-2">&amp;</span><span class="self">self</span>.id &amp;&amp; !<span class="self">self</span>.modifiers.contains(ModifierKind::Declare) {
             builder.declare_symbol(
                 <span class="kw-2">&amp;</span>ident.name,
                 ident.span,

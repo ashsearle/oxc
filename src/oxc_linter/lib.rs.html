@@ -123,11 +123,6 @@
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
 <a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
 </pre><pre class="rust"><code><span class="attr">#![allow(clippy::self_named_module_files)] </span><span class="comment">// for rules.rs
 </span><span class="attr">#![feature(let_chains, is_some_and, const_trait_impl, const_slice_index)]
 
@@ -215,8 +210,8 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>run&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, semantic: <span class="kw-2">&amp;</span>Rc&lt;Semantic&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, source_text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; Vec&lt;Message&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>ctx = LintContext::new(source_text, semantic, <span class="self">self</span>.fix);
+    </span><span class="kw">pub fn </span>run&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, semantic: <span class="kw-2">&amp;</span>Rc&lt;Semantic&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; Vec&lt;Message&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>ctx = LintContext::new(semantic, <span class="self">self</span>.fix);
 
         <span class="kw">for </span>node <span class="kw">in </span>semantic.nodes().iter() {
             <span class="self">self</span>.early_error_javascript.run(node, <span class="kw-2">&amp;</span>ctx);
@@ -236,13 +231,8 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>run_early_error&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        semantic: <span class="kw-2">&amp;</span>Rc&lt;Semantic&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-        source_text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-        fix: bool,
-    ) -&gt; Vec&lt;Message&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-        <span class="kw">let </span>ctx = LintContext::new(source_text, semantic, fix);
+    </span><span class="kw">pub fn </span>run_early_error&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, semantic: <span class="kw-2">&amp;</span>Rc&lt;Semantic&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, fix: bool) -&gt; Vec&lt;Message&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="kw">let </span>ctx = LintContext::new(semantic, fix);
         <span class="kw">for </span>node <span class="kw">in </span>semantic.nodes().iter() {
             <span class="self">self</span>.early_error_javascript.run(node, <span class="kw-2">&amp;</span>ctx);
         }

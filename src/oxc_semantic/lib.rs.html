@@ -61,6 +61,13 @@
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
 </pre><pre class="rust"><code><span class="attr">#![feature(is_some_and)]
 #![feature(let_chains)]
 
@@ -80,6 +87,8 @@
 <span class="kw">pub use </span>symbol::{Reference, ResolvedReference, Symbol, SymbolFlags, SymbolTable};
 
 <span class="kw">pub struct </span>Semantic&lt;<span class="lifetime">&#39;a</span>&gt; {
+    source_text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+
     source_type: SourceType,
 
     nodes: AstNodes&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -94,6 +103,11 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Semantic&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>source_text(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+        <span class="self">self</span>.source_text
+    }
+
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>source_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>SourceType {
         <span class="kw-2">&amp;</span><span class="self">self</span>.source_type

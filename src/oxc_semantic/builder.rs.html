@@ -265,6 +265,9 @@
 <a href="#265" id="265">265</a>
 <a href="#266" id="266">266</a>
 <a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Semantic Builder
 //! This builds:
 //!   * The untyped and flattened ast nodes into an indextree
@@ -285,7 +288,11 @@
 };
 
 <span class="kw">pub struct </span>SemanticBuilder&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub </span>source_text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+
     <span class="kw">pub </span>source_type: SourceType,
+
+    trivias: Rc&lt;Trivias&gt;,
 
     <span class="doccomment">/// Semantic early errors such as redeclaration errors.
     </span>errors: Vec&lt;Error&gt;,
@@ -308,14 +315,16 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; SemanticBuilder&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>new(source_type: SourceType) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(source_text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, source_type: SourceType, trivias: <span class="kw-2">&amp;</span>Rc&lt;Trivias&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>scope = ScopeBuilder::new(source_type);
         <span class="kw">let </span><span class="kw-2">mut </span>nodes = AstNodes::default();
         <span class="kw">let </span>semantic_node =
             SemanticNode::new(AstKind::Root, scope.current_scope_id, NodeFlags::empty());
         <span class="kw">let </span>current_node_id = nodes.new_node(semantic_node).into();
         <span class="self">Self </span>{
+            source_text,
             source_type,
+            trivias: Rc::clone(trivias),
             errors: <span class="macro">vec!</span>[],
             current_node_id,
             current_node_flags: NodeFlags::empty(),
@@ -331,11 +340,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>build(
-        <span class="kw-2">mut </span><span class="self">self</span>,
-        program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program&lt;<span class="lifetime">&#39;a</span>&gt;,
-        trivias: <span class="kw-2">&amp;</span>Rc&lt;Trivias&gt;,
-    ) -&gt; SemanticBuilderReturn&lt;<span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub fn </span>build(<span class="kw-2">mut </span><span class="self">self</span>, program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; SemanticBuilderReturn&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="comment">// First AST pass
         </span><span class="self">self</span>.visit_program(program);
 
@@ -343,11 +348,12 @@
         </span><span class="kw">let </span>module_record = <span class="self">self</span>.module_record_builder.build(program);
 
         <span class="kw">let </span>semantic = Semantic {
+            source_text: <span class="self">self</span>.source_text,
             source_type: <span class="self">self</span>.source_type,
+            trivias: <span class="self">self</span>.trivias,
             nodes: <span class="self">self</span>.nodes,
             scopes: <span class="self">self</span>.scope.scopes,
             symbols: <span class="self">self</span>.symbols,
-            trivias: Rc::clone(trivias),
             module_record,
         };
         SemanticBuilderReturn { semantic, errors: <span class="self">self</span>.errors }

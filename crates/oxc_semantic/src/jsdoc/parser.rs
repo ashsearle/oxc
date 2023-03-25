@@ -1,4 +1,4 @@
-use std::{borrow::Cow, str::FromStr};
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ParamTypeKind {
@@ -62,7 +62,7 @@ impl<'a> FromStr for JsDocTagKind<'a> {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct JsDocTag<'a> {
     pub kind: JsDocTagKind<'a>,
-    pub description: Cow<'a, str>,
+    pub description: &'a str,
 }
 
 impl<'a> JsDocTag<'a> {
@@ -154,10 +154,7 @@ impl<'a> JsDocParser<'a> {
     fn parse_deprecated_tag(&mut self, comment: &'a str) -> JsDocTag<'a> {
         self.skip_whitespace(comment);
         let description = self.take_until(comment, |c| c == '\n' || c == '*');
-        return JsDocTag {
-            kind: JsDocTagKind::Deprecated,
-            description: Cow::Borrowed(description),
-        };
+        JsDocTag { kind: JsDocTagKind::Deprecated, description }
     }
 
     fn parse_param_tag(&mut self, comment: &'a str) -> JsDocTag<'a> {
@@ -184,17 +181,12 @@ impl<'a> JsDocParser<'a> {
 
         let description = self.take_until(comment, |c| c == '\n' || c == '*');
 
-        return JsDocTag {
-            kind: JsDocTagKind::Param(Param { name, r#type }),
-            description: Cow::Borrowed(description),
-        };
+        JsDocTag { kind: JsDocTagKind::Param(Param { name, r#type }), description }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::borrow::Cow;
-
     use super::JsDocParser;
     use crate::jsdoc::parser::{JsDocTag, JsDocTagKind, Param, ParamType, ParamTypeKind};
 
@@ -216,10 +208,7 @@ mod test {
 
         let tags = JsDocParser::new(source).parse();
         assert_eq!(tags.len(), 1);
-        assert_eq!(
-            tags,
-            vec![JsDocTag { kind: JsDocTagKind::Deprecated, description: Cow::Borrowed("") }]
-        );
+        assert_eq!(tags, vec![JsDocTag { kind: JsDocTagKind::Deprecated, description: "" }]);
     }
 
     #[test]
@@ -230,10 +219,7 @@ mod test {
 
         let tags = JsDocParser::new(source).parse();
         assert_eq!(tags.len(), 1);
-        assert_eq!(
-            tags,
-            vec![JsDocTag { kind: JsDocTagKind::Deprecated, description: Cow::Borrowed("") }]
-        );
+        assert_eq!(tags, vec![JsDocTag { kind: JsDocTagKind::Deprecated, description: "" }]);
     }
 
     #[test]
@@ -251,9 +237,9 @@ mod test {
             vec![
                 JsDocTag {
                     kind: JsDocTagKind::Param(Param { name: "a", r#type: None }),
-                    description: Cow::Borrowed("")
+                    description: ""
                 },
-                JsDocTag { kind: JsDocTagKind::Deprecated, description: Cow::Borrowed("") },
+                JsDocTag { kind: JsDocTagKind::Deprecated, description: "" },
             ]
         );
     }
@@ -273,12 +259,9 @@ mod test {
             vec![
                 JsDocTag {
                     kind: JsDocTagKind::Param(Param { name: "a", r#type: None }),
-                    description: Cow::Borrowed("")
+                    description: ""
                 },
-                JsDocTag {
-                    kind: JsDocTagKind::Deprecated,
-                    description: Cow::Borrowed("since version 1.0")
-                },
+                JsDocTag { kind: JsDocTagKind::Deprecated, description: "since version 1.0" },
             ]
         );
     }
@@ -302,21 +285,21 @@ mod test {
                         name: "a",
                         r#type: Some(ParamType { value: "string" })
                     }),
-                    description: Cow::Borrowed("")
+                    description: ""
                 },
                 JsDocTag {
                     kind: JsDocTagKind::Param(Param {
                         name: "b",
                         r#type: Some(ParamType { value: "string" })
                     }),
-                    description: Cow::Borrowed("")
+                    description: ""
                 },
                 JsDocTag {
                     kind: JsDocTagKind::Param(Param {
                         name: "c",
                         r#type: Some(ParamType { value: "string" })
                     }),
-                    description: Cow::Borrowed("description")
+                    description: "description"
                 },
             ]
         );

@@ -145,25 +145,22 @@ impl<'a> JsDocParser<'a> {
 
     fn parse_tag(&mut self, comment: &'a str) -> Option<JsDocTag<'a>> {
         let tag = self.take_until(comment, |c| c == ' ' || c == '\n');
-        match JsDocTagKind::from_str(tag) {
-            Ok(kind) => match kind {
-                JsDocTagKind::Deprecated => self.parse_deprecated_tag(comment),
-                JsDocTagKind::Param { .. } => self.parse_param_tag(comment),
-            },
-            Err(_) => None,
-        }
+        JsDocTagKind::from_str(tag).map_or(None, |kind| match kind {
+            JsDocTagKind::Deprecated => Some(self.parse_deprecated_tag(comment)),
+            JsDocTagKind::Param { .. } => Some(self.parse_param_tag(comment)),
+        })
     }
 
-    fn parse_deprecated_tag(&mut self, comment: &'a str) -> Option<JsDocTag<'a>> {
+    fn parse_deprecated_tag(&mut self, comment: &'a str) -> JsDocTag<'a> {
         self.skip_whitespace(comment);
         let description = self.take_until(comment, |c| c == '\n' || c == '*');
-        return Some(JsDocTag {
+        return JsDocTag {
             kind: JsDocTagKind::Deprecated,
             description: Cow::Borrowed(description),
-        });
+        };
     }
 
-    fn parse_param_tag(&mut self, comment: &'a str) -> Option<JsDocTag<'a>> {
+    fn parse_param_tag(&mut self, comment: &'a str) -> JsDocTag<'a> {
         self.skip_whitespace(comment);
 
         let mut r#type = None;
@@ -187,10 +184,10 @@ impl<'a> JsDocParser<'a> {
 
         let description = self.take_until(comment, |c| c == '\n' || c == '*');
 
-        return Some(JsDocTag {
+        return JsDocTag {
             kind: JsDocTagKind::Param(Param { name, r#type }),
             description: Cow::Borrowed(description),
-        });
+        };
     }
 }
 
@@ -204,13 +201,13 @@ mod test {
     #[test]
     fn deduces_correct_param_kind() {
         let param = Param { name: "a", r#type: Some(ParamType { value: "string" }) };
-        assert_eq!(param.r#type.map(|t| t.kind()).flatten(), None);
+        assert_eq!(param.r#type.and_then(|t| t.kind()), None);
 
         let param = Param { name: "a", r#type: Some(ParamType { value: "...string" }) };
-        assert_eq!(param.r#type.map(|t| t.kind()).flatten(), Some(ParamTypeKind::Repeated));
+        assert_eq!(param.r#type.and_then(|t| t.kind()), Some(ParamTypeKind::Repeated));
 
         let param = Param { name: "a", r#type: Some(ParamType { value: "*" }) };
-        assert_eq!(param.r#type.map(|t| t.kind()).flatten(), Some(ParamTypeKind::Any));
+        assert_eq!(param.r#type.and_then(|t| t.kind()), Some(ParamTypeKind::Any));
     }
 
     #[test]

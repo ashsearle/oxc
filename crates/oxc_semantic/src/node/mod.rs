@@ -43,6 +43,11 @@ impl<'a> SemanticNode<'a> {
     }
 
     #[must_use]
+    pub fn has_jsdoc(&self) -> bool {
+        true
+    }
+
+    #[must_use]
     pub fn scope_id(&self) -> ScopeId {
         self.scope_id
     }

@@ -10,6 +10,7 @@ use oxc_diagnostics::{Error, Redeclaration};
 
 use crate::{
     binder::Binder,
+    jsdoc::JsDoc,
     module_record::ModuleRecordBuilder,
     node::{AstNodeId, AstNodes, NodeFlags, SemanticNode},
     scope::{ScopeBuilder, ScopeId},
@@ -85,6 +86,7 @@ impl<'a> SemanticBuilder<'a> {
             scopes: self.scope.scopes,
             symbols: self.symbols,
             module_record,
+            jsdoc: JsDoc::new(self.source_text),
         };
         SemanticBuilderReturn { semantic, errors: self.errors }
     }

@@ -37,7 +37,8 @@ impl<'a> JsDocBuilder<'a> {
     #[allow(clippy::cast_possible_truncation)]
     fn find(&self, span: Span) -> Option<&'a str> {
         // Find the line offset above the current span
-        let mut prev_lines = span.leading_text(self.source_text).lines().rev();
+        // Using `lines()` will not work because it consumes final line ending
+        let mut prev_lines = span.leading_text(self.source_text).rsplit('\n');
         let prev_line = prev_lines.next()?;
         let prev_line_end = span.start - prev_line.len() as u32;
 

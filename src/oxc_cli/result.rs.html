@@ -53,6 +53,10 @@
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     path::PathBuf,
     process::{ExitCode, Termination},
@@ -65,11 +69,12 @@
         paths: Vec&lt;PathBuf&gt;,
     },
     LintResult {
+        duration: std::time::Duration,
+        number_of_rules: usize,
         number_of_files: usize,
         number_of_warnings: usize,
         number_of_diagnostics: usize,
         max_warnings_exceeded: bool,
-        duration: std::time::Duration,
     },
 }
 
@@ -82,15 +87,18 @@
                 ExitCode::from(<span class="number">1</span>)
             }
             <span class="self">Self</span>::LintResult {
+                duration,
+                number_of_rules,
                 number_of_files,
                 number_of_warnings,
                 number_of_diagnostics,
                 max_warnings_exceeded,
-                duration,
             } =&gt; {
                 <span class="kw">let </span>ms = duration.as_millis();
                 <span class="kw">let </span>cpus = num_cpus::get();
-                <span class="macro">println!</span>(<span class="string">&quot;Checked {number_of_files} files in {ms}ms using {cpus} cores.&quot;</span>);
+                <span class="macro">println!</span>(
+                    <span class="string">&quot;Finished in {ms}ms on {number_of_files} files with {number_of_rules} rules using {cpus} cores.&quot;
+                </span>);
 
                 <span class="kw">if </span>max_warnings_exceeded {
                     <span class="macro">println!</span>(<span class="string">&quot;Exceeded maximum number of warnings. Found {number_of_warnings}.&quot;</span>);

@@ -268,6 +268,35 @@
 <a href="#268" id="268">268</a>
 <a href="#269" id="269">269</a>
 <a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Semantic Builder
 //! This builds:
 //!   * The untyped and flattened ast nodes into an indextree
@@ -300,6 +329,7 @@
     <span class="comment">// states
     </span><span class="kw">pub </span>current_node_id: AstNodeId,
     <span class="kw">pub </span>current_node_flags: NodeFlags,
+    <span class="kw">pub </span>current_symbol_flags: SymbolFlags,
 
     <span class="comment">// builders
     </span><span class="kw">pub </span>nodes: AstNodes&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -328,6 +358,7 @@
             errors: <span class="macro">vec!</span>[],
             current_node_id,
             current_node_flags: NodeFlags::empty(),
+            current_symbol_flags: SymbolFlags::empty(),
             nodes,
             scope,
             symbols: SymbolTable::default(),
@@ -417,7 +448,22 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(symbol_id) = <span class="self">self</span>.check_redeclaration(scope_id, name, span, excludes) {
             <span class="kw">return </span>symbol_id;
         }
-        <span class="kw">let </span>symbol_id = <span class="self">self</span>.symbols.create(name.clone(), span, includes);
+        <span class="kw">let </span>includes = includes | <span class="self">self</span>.current_symbol_flags;
+        <span class="kw">let </span>symbol_id = <span class="self">self</span>.symbols.create(<span class="self">self</span>.current_node_id, name.clone(), span, includes);
+        <span class="self">self</span>.scope.scopes[scope_id].variables.insert(name.clone(), symbol_id);
+        symbol_id
+    }
+
+    <span class="doccomment">/// Declares a `Symbol` for the node, shadowing previous declarations in the same scope.
+    </span><span class="kw">pub fn </span>declare_shadow_symbol(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        name: <span class="kw-2">&amp;</span>Atom,
+        span: Span,
+        scope_id: ScopeId,
+        includes: SymbolFlags,
+    ) -&gt; SymbolId {
+        <span class="kw">let </span>includes = includes | <span class="self">self</span>.current_symbol_flags;
+        <span class="kw">let </span>symbol_id = <span class="self">self</span>.symbols.create(<span class="self">self</span>.current_node_id, name.clone(), span, includes);
         <span class="self">self</span>.scope.scopes[scope_id].variables.insert(name.clone(), symbol_id);
         symbol_id
     }
@@ -463,6 +509,7 @@
     <span class="kw">fn </span>enter_kind(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: AstKind&lt;<span class="lifetime">&#39;a</span>&gt;) {
         <span class="kw">match </span>kind {
             AstKind::ModuleDeclaration(decl) =&gt; {
+                <span class="self">self</span>.current_symbol_flags |= <span class="self">Self</span>::symbol_flag_from_module_declaration(decl);
                 decl.bind(<span class="self">self</span>);
             }
             AstKind::VariableDeclarator(decl) =&gt; {
@@ -503,6 +550,9 @@
             AstKind::Class(<span class="kw">_</span>) =&gt; {
                 <span class="self">self</span>.current_node_flags -= NodeFlags::Class;
             }
+            AstKind::ModuleDeclaration(decl) =&gt; {
+                <span class="self">self</span>.current_symbol_flags -= <span class="self">Self</span>::symbol_flag_from_module_declaration(decl);
+            }
             <span class="kw">_ </span>=&gt; {}
         }
     }
@@ -535,6 +585,14 @@
                     Reference::new(<span class="self">self</span>.current_node_id, elem.span(), ReferenceFlag::Read);
                 <span class="self">self</span>.scope.reference_identifier(<span class="kw-2">&amp;</span>ident.name, reference);
             }
+        }
+    }
+
+    <span class="kw">fn </span>symbol_flag_from_module_declaration(module: <span class="kw-2">&amp;</span>ModuleDeclaration) -&gt; SymbolFlags {
+        <span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>module.kind, ModuleDeclarationKind::ImportDeclaration(<span class="kw">_</span>)) {
+            SymbolFlags::Import
+        } <span class="kw">else </span>{
+            SymbolFlags::Export
         }
     }
 }

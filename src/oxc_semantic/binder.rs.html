@@ -184,8 +184,6 @@
 <a href="#184" id="184">184</a>
 <a href="#185" id="185">185</a>
 <a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Declare symbol for `BindingIdentifier`s
 
 </span><span class="attr">#[allow(clippy::wildcard_imports)]
@@ -343,9 +341,7 @@
             // unless CatchParameter is CatchParameter : BindingIdentifier
             </span><span class="kw">if let </span>BindingPatternKind::BindingIdentifier(ident) = <span class="kw-2">&amp;</span>param.kind {
                 <span class="kw">let </span>includes = SymbolFlags::FunctionScopedVariable | SymbolFlags::CatchVariable;
-                <span class="comment">// Overshadows declarations so redeclarator error is not reported here
-                </span><span class="kw">let </span>symbol_id = builder.symbols.create(ident.name.clone(), ident.span, includes);
-                builder.scope.current_scope_mut().variables.insert(ident.name.clone(), symbol_id);
+                builder.declare_shadow_symbol(<span class="kw-2">&amp;</span>ident.name, ident.span, current_scope_id, includes);
             } <span class="kw">else </span>{
                 <span class="kw">for </span>ident <span class="kw">in </span>param.bound_names() {
                     builder.declare_symbol(

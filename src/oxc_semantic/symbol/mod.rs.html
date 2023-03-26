@@ -110,6 +110,29 @@
 <a href="#110" id="110">110</a>
 <a href="#111" id="111">111</a>
 <a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Symbol and Symbol Table for tracking of semantics of variables
 </span><span class="attr">#![allow(non_upper_case_globals)]
 
@@ -130,17 +153,20 @@
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Symbol {
     id: SymbolId,
+    <span class="doccomment">/// Pointer to the AST Node where this symbol is declared
+    </span>declaration: AstNodeId,
     name: Atom,
     span: Span,
     flags: SymbolFlags,
-    references: Vec&lt;AstNodeId&gt;,
+    <span class="doccomment">/// Pointers to the AST Nodes that reference this symbol
+    </span>references: Vec&lt;AstNodeId&gt;,
 }
 
 <span class="attr">#[cfg(all(target_arch = <span class="string">&quot;x86_64&quot;</span>, target_pointer_width = <span class="string">&quot;64&quot;</span>))]
 #[test]
 </span><span class="kw">fn </span>symbol_size() {
     <span class="kw">use </span>std::mem::size_of;
-    <span class="macro">assert_eq!</span>(size_of::&lt;Symbol&gt;(), <span class="number">72</span>);
+    <span class="macro">assert_eq!</span>(size_of::&lt;Symbol&gt;(), <span class="number">88</span>);
 }
 
 <span class="macro">bitflags! </span>{
@@ -153,6 +179,10 @@
         </span><span class="kw">const </span>BlockScopedVariable     = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>;
         <span class="doccomment">/// A const variable (const)
         </span><span class="kw">const </span>ConstVariable           = <span class="number">1 </span>&lt;&lt; <span class="number">2</span>;
+        <span class="doccomment">/// Is this symbol inside an import declaration
+        </span><span class="kw">const </span>Import                  = <span class="number">1 </span>&lt;&lt; <span class="number">3</span>;
+        <span class="doccomment">/// Is this symbol inside an export declaration
+        </span><span class="kw">const </span>Export                  = <span class="number">1 </span>&lt;&lt; <span class="number">4</span>;
         <span class="kw">const </span>Class                   = <span class="number">1 </span>&lt;&lt; <span class="number">5</span>;
         <span class="kw">const </span>CatchVariable           = <span class="number">1 </span>&lt;&lt; <span class="number">6</span>; <span class="comment">// try {} catch(catch_variable) {}
 
@@ -173,8 +203,14 @@
 
 <span class="kw">impl </span>Symbol {
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>new(id: SymbolId, name: Atom, span: Span, flags: SymbolFlags) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ id, name, span, flags, references: <span class="macro">vec!</span>[] }
+    </span><span class="kw">pub fn </span>new(
+        id: SymbolId,
+        declaration: AstNodeId,
+        name: Atom,
+        span: Span,
+        flags: SymbolFlags,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ id, declaration, name, span, flags, references: <span class="macro">vec!</span>[] }
     }
 
     <span class="attr">#[must_use]
@@ -213,6 +249,11 @@
         <span class="self">self</span>.flags.contains(SymbolFlags::Class)
     }
 
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>is_export(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.flags.contains(SymbolFlags::Export)
+    }
+
     <span class="kw">pub fn </span>add_references(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_references: <span class="kw-2">&amp;</span>[Reference]) {
         <span class="self">self</span>.references.extend(new_references.iter().map(|r| r.ast_node_id));
     }
@@ -220,6 +261,11 @@
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>references(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[AstNodeId] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.references
+    }
+
+    <span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>declaration(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AstNodeId {
+        <span class="self">self</span>.declaration
     }
 }
 </code></pre></div>

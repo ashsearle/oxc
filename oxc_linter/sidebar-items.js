@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["rule"],"struct":["Fixer","Linter","Message"]};
+window.SIDEBAR_ITEMS = {"enum":["RuleEnum"],"mod":["rule"],"struct":["Fixer","Linter","Message","RULES"]};

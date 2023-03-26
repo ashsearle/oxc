@@ -63,6 +63,12 @@
 <a href="#63" id="63">63</a>
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::ops::{Deref, Index, IndexMut};
 
 <span class="kw">use </span>oxc_ast::{Atom, Span};
@@ -112,9 +118,15 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>create(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: Atom, span: Span, flags: SymbolFlags) -&gt; SymbolId {
+    </span><span class="kw">pub fn </span>create(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        declaration: AstNodeId,
+        name: Atom,
+        span: Span,
+        flags: SymbolFlags,
+    ) -&gt; SymbolId {
         <span class="kw">let </span>symbol_id = SymbolId::new(<span class="self">self</span>.symbols.len() + <span class="number">1</span>);
-        <span class="kw">let </span>symbol = Symbol::new(symbol_id, name, span, flags);
+        <span class="kw">let </span>symbol = Symbol::new(symbol_id, declaration, name, span, flags);
         <span class="self">self</span>.symbols.push(symbol);
         symbol_id
     }

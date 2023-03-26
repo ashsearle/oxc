@@ -592,6 +592,10 @@
 <a href="#592" id="592">592</a>
 <a href="#593" id="593">593</a>
 <a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
 </pre><pre class="rust"><code><span class="kw">use </span>oxc_allocator::Box;
 <span class="kw">use </span>oxc_ast::{ast::<span class="kw-2">*</span>, context::StatementContext, Span};
 <span class="kw">use </span>oxc_diagnostics::Result;
@@ -989,8 +993,12 @@
                     <span class="self">self</span>.parse_ts_declare_function(start_span, modifiers)
                         .map(Declaration::FunctionDeclaration)
                 } <span class="kw">else if </span><span class="self">self</span>.ts_enabled() {
-                    <span class="self">self</span>.parse_ts_function_impl(start_span, FunctionKind::TSDeclaration, modifiers)
-                        .map(Declaration::FunctionDeclaration)
+                    <span class="self">self</span>.parse_ts_function_impl(
+                        start_span,
+                        FunctionKind::Declaration { single_statement: <span class="bool-val">true </span>},
+                        modifiers,
+                    )
+                    .map(Declaration::FunctionDeclaration)
                 } <span class="kw">else </span>{
                     <span class="self">self</span>.parse_function_impl(FunctionKind::Declaration { single_statement: <span class="bool-val">true </span>})
                         .map(Declaration::FunctionDeclaration)

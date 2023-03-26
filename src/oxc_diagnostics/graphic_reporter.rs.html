@@ -930,12 +930,12 @@ printer.
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             links: LinkStyle::Link,
-            termwidth: <span class="number">600</span>, <span class="comment">// Changed: origin: 200
+            termwidth: <span class="number">400</span>, <span class="comment">// Changed: origin: 200
             </span>theme: GraphicalTheme::default(),
             footer: <span class="prelude-val">None</span>,
             context_lines: <span class="number">1</span>,
             tab_width: <span class="number">4</span>,
-            with_cause_chain: <span class="bool-val">true</span>,
+            with_cause_chain: <span class="bool-val">false</span>,
         }
     }
 
@@ -968,7 +968,7 @@ printer.
     <span class="doccomment">/// Whether to include [`Diagnostic::url()`] in the output.
     ///
     /// Disabling this is not recommended, but can be useful for more easily
-    /// reproducable tests, as `url(docsrs)` links are version-dependent.
+    /// reproducible tests, as `url(docsrs)` links are version-dependent.
     </span><span class="kw">pub fn </span>with_urls(<span class="kw-2">mut </span><span class="self">self</span>, urls: bool) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.links = <span class="kw">match </span>(<span class="self">self</span>.links, urls) {
             (<span class="kw">_</span>, <span class="bool-val">false</span>) =&gt; LinkStyle::None,

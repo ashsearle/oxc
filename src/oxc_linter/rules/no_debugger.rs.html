@@ -62,7 +62,7 @@
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
 #[error(<span class="string">&quot;eslint(no-debugger): `debugger` statement is not allowed&quot;</span>)]
-#[diagnostic()]
+#[diagnostic(severity(warning))]
 </span><span class="kw">struct </span>NoDebuggerDiagnostic(<span class="attr">#[label] </span><span class="kw">pub </span>Span);
 
 <span class="attr">#[derive(Debug, Default, Clone)]

@@ -125,7 +125,7 @@
 
 <span class="attr">#[derive(Debug, Error, Diagnostic)]
 #[error(<span class="string">&quot;eslint(no-empty-pattern): Disallow empty destructuring patterns&quot;</span>)]
-#[diagnostic()]
+#[diagnostic(severity(warning))]
 </span><span class="kw">struct </span>NoEmptyPatternDiagnostic(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="attr">#[label(<span class="string">&quot;Empty {0} binding pattern&quot;</span>)] </span><span class="kw">pub </span>Span);
 
 <span class="attr">#[derive(Debug, Default, Clone)]

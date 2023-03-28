@@ -129,6 +129,9 @@
 <a href="#129" id="129">129</a>
 <a href="#130" id="130">130</a>
 <a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
 </pre><pre class="rust"><code><span class="attr">#![allow(clippy::self_named_module_files)] </span><span class="comment">// for rules.rs
 </span><span class="attr">#![feature(let_chains, is_some_and, const_trait_impl, const_slice_index)]
 
@@ -224,9 +227,12 @@
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>run&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, semantic: <span class="kw-2">&amp;</span>Rc&lt;Semantic&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; Vec&lt;Message&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = LintContext::new(semantic, <span class="self">self</span>.fix);
+        <span class="kw">let </span>is_check_early_error = !semantic.source_type().is_typescript_definition();
 
         <span class="kw">for </span>node <span class="kw">in </span>semantic.nodes().iter() {
-            <span class="self">self</span>.early_error_javascript.run(node, <span class="kw-2">&amp;</span>ctx);
+            <span class="kw">if </span>is_check_early_error {
+                <span class="self">self</span>.early_error_javascript.run(node, <span class="kw-2">&amp;</span>ctx);
+            }
             <span class="kw">for </span>rule <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.rules {
                 ctx.with_rule_name(rule.name());
                 rule.run(node, <span class="kw-2">&amp;</span>ctx);

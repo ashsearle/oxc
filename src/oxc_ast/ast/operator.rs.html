@@ -385,6 +385,14 @@
 <a href="#385" id="385">385</a>
 <a href="#386" id="386">386</a>
 <a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::fmt::{Display, Formatter, <span class="prelude-ty">Result</span>};
 
 <span class="kw">use </span>serde::Serialize;
@@ -485,7 +493,15 @@
 
     <span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>is_bitwise(<span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::BitwiseOR | <span class="self">Self</span>::BitwiseXOR | <span class="self">Self</span>::BitwiseAnd)
+        <span class="macro">matches!</span>(
+            <span class="self">self</span>,
+            <span class="self">Self</span>::BitwiseOR
+                | <span class="self">Self</span>::BitwiseXOR
+                | <span class="self">Self</span>::BitwiseAnd
+                | <span class="self">Self</span>::ShiftLeft
+                | <span class="self">Self</span>::ShiftRight
+                | <span class="self">Self</span>::ShiftRightZeroFill
+        )
     }
 
     <span class="attr">#[must_use]
